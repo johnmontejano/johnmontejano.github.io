@@ -191,6 +191,7 @@
     var eyebrow = document.querySelector("[data-hero-eyebrow]");
     var sub = document.querySelector("[data-hero-sub]");
     var heroCta = document.querySelector(".hero .cta");
+    var chips = document.querySelectorAll("[data-hero-chips] li");
     var lns = heroTitle.querySelectorAll(".ln");
 
     /* mask each line by wrapping it, so the wipe has an edge to hide behind */
@@ -205,6 +206,7 @@
     if (eyebrow) gsap.set(eyebrow, { opacity: 0, y: 12 });
     if (sub) gsap.set(sub, { opacity: 0, y: 14 });
     if (heroCta) gsap.set(heroCta, { opacity: 0, scale: 0.92 });
+    if (chips.length) gsap.set(chips, { y: 14 });
     gsap.set(head, { yPercent: -120 });
 
     var start = function () {
@@ -214,6 +216,7 @@
       tl.to(lns, { yPercent: 0, duration: 1.15, ease: "expo.out", stagger: 0.08 }, 0.18);
       if (sub) tl.to(sub, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" }, 0.62);
       if (heroCta) tl.to(heroCta, { opacity: 1, scale: 1, duration: 0.9, ease: "expo.out" }, 0.66);
+      if (chips.length) tl.to(chips, { y: 0, duration: 0.75, ease: "expo.out", stagger: 0.05 }, 0.74);
       tl.to(head, { yPercent: 0, duration: 0.8, ease: "expo.out" }, 0.70);
     };
     if (document.fonts && document.fonts.ready) {

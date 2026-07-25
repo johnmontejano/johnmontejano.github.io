@@ -416,3 +416,26 @@ html:not(.js) #curtain{display:none}
 
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
   clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+
+/* ---------- credential chips ----------
+   Every short no-logo consultant site in the research carries one of these.
+   Fragments, never sentences: the reader scans instead of reading. */
+.chips{display:flex;flex-wrap:wrap;gap:0;margin-top:var(--s5);border-top:1px solid var(--rule)}
+.chips li{
+  font-family:var(--mono);font-size:var(--fs-label);letter-spacing:.09em;text-transform:uppercase;
+  color:var(--bone-2);padding:var(--s3) var(--s4) var(--s3) 0;
+  display:flex;align-items:center;gap:var(--s4);
+}
+.chips li::after{content:"";width:1px;height:12px;background:var(--rule-hi)}
+.chips li:last-child::after{display:none}
+.chips li:last-child{padding-right:0}
+@media(max-width:640px){
+  .chips li{padding-right:var(--s3);gap:var(--s3);font-size:11px}
+}
+
+/* the objection line under the CTA, and the signature */
+.cta-note{margin-top:var(--s4);color:var(--bone-2);font-size:var(--fs-small);max-width:34ch}
+.sig{display:block;margin-top:var(--s2);font-family:var(--mono);font-size:var(--fs-label);
+  letter-spacing:.11em;text-transform:uppercase;color:var(--bone-3)}
+.close .cta-note,.close .sig{margin-inline:auto;text-align:center}
