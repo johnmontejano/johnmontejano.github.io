@@ -1,0 +1,32 @@
+# Netlify _headers
+# Security headers site-wide. No Cache-Control here on purpose: a Cache-Control
+# on /* would collide with the immutable rules below. Netlify's default for
+# everything not listed here is already "public, max-age=0, must-revalidate",
+# which is what HTML, styles.css and js/main.js need.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN
+
+# Font files. Google-generated, content-addressed filenames; fonts.css beside
+# them is generated and changes only when the font set changes (new filenames).
+/assets/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Pinned vendor libraries (GSAP). Upgraded by replacing the file set, and the
+# script tags are versioned by path, so a long cache is safe.
+/vendor/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Captures, portrait crops and the social card. Re-crops ship under new names.
+/assets/img/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# NOT content-hashed. These must revalidate on every visit so a deploy is live
+# immediately. Do not give these a long max-age.
+/styles.css
+  Cache-Control: public, max-age=0, must-revalidate
+
+/js/*
+  Cache-Control: public, max-age=0, must-revalidate

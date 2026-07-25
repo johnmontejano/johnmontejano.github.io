@@ -1,0 +1,4 @@
+# /services has no page of its own: it is the offer's parent path only.
+/services              /services/workflow-automation/   301
+/services/             /services/workflow-automation/   301
+/services/index.html   /services/workflow-automation/   301

@@ -1,0 +1,984 @@
+/* ============================================================
+   John Montejano — Signal System
+   Light editorial system. Cobalt is the only accent.
+   Foundation per docs/BRAND_SYSTEM.md; scale and choreography
+   upgraded per the 2026-07 UI/UX audit.
+   ============================================================ */
+
+:root{
+  --surface-mineral:#F7F8FA;
+  --surface-paper:#FCFCFD;
+  /* Recessed BAND. Deepened from #EFF1F4 (1.06:1 against the page, invisible)
+     to 1.20:1 so the band reads in peripheral vision and actually separates
+     the homepage sections. Still a light mineral gray, still light-only. */
+  --surface-recessed:#DFE4ED;
+  /* Recessed FIELD: diagram fields, image wells, hover fills, disabled fills.
+     Kept lighter than the band so --line-form edges stay >=3:1 on it. */
+  --surface-field:#ECEFF4;
+  --surface-field-band:#D4DBE6;   /* the same role, when it sits on the band */
+  --ink-graphite:#1B1F24;
+  --ink-steel:#454E59;
+  --ink-caption:#5B6470;
+  --accent-cobalt:#0047AB;
+  --accent-cobalt-hover:#003C91;
+  --accent-cobalt-active:#00327A;
+  --line-hair:#DFE3E9;
+  --line-hair-band:#C9D0DC;   /* same 1.21:1 hairline relationship, on the band */
+  --line-form:#7E8A99;
+  --error:#B42318;
+
+  /* graphite close (footer band) */
+  --close-bg:#1B1F24;
+  --close-ink:#F2F4F7;
+  --close-steel:#9AA4B0;
+  --close-hair:#333A43;
+  /* cobalt is 1.96:1 on the graphite band, so focus there uses a cobalt tint
+     that reads 6.9:1 against --close-bg */
+  --focus-dark:#7EA6FF;
+
+  --sans:"Instrument Sans",-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono","SF Mono",Menlo,Consolas,monospace;
+
+  --dur-1:120ms; --dur-2:200ms; --dur-3:280ms; --dur-4:450ms; --dur-5:700ms;
+  --ease-out:cubic-bezier(.33,1,.68,1);
+  --ease-out-strong:cubic-bezier(.22,1,.36,1);
+  --ease-inout:cubic-bezier(.65,0,.35,1);
+
+  /* Radius ladder, one rule: 2px = drawn schematic parts (diagram nodes),
+     6px = things you operate (buttons, inputs, chips), 10px = raised paper
+     surfaces (plates, cards). Nothing else gets a radius. */
+  --radius-node:2px;
+  --radius-control:6px;
+  --radius-surface:10px;
+
+  /* the one sanctioned elevation, shared by every raised paper surface */
+  --shadow-plate:0 1px 2px rgba(27,31,36,.05),0 2px 8px rgba(27,31,36,.04);
+
+  --container:1280px;
+  --pad-inline:20px;
+}
+
+/* Everything inside a recessed band steps its surface tokens down one level,
+   so borders, wells and hover fills keep the same contrast relationship they
+   have on the page. One declaration; no per-component overrides needed. */
+.band-recessed{
+  --line-hair:var(--line-hair-band);
+  --surface-field:var(--surface-field-band);
+}
+@media(min-width:768px){ :root{ --pad-inline:40px; } }
+@media(min-width:1440px){ :root{ --pad-inline:48px; } }
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+body{
+  margin:0; background:var(--surface-mineral); color:var(--ink-graphite);
+  font-family:var(--sans); font-size:16px; line-height:1.6;
+}
+@media(min-width:768px){ body{ font-size:17px; } }
+img{ max-width:100%; display:block; }
+a{ color:inherit; }
+p{ margin:0; }
+ul,ol{ margin:0; padding:0; }
+figure{ margin:0; }
+::selection{ background:var(--accent-cobalt); color:#fff; }
+
+.container{ max-width:var(--container); margin-inline:auto; padding-inline:var(--pad-inline); }
+
+/* ---------- typography ---------- */
+h1,h2,h3,h4{ margin:0; font-weight:600; color:var(--ink-graphite); }
+.display{
+  font-size:clamp(40px,5.6vw,76px);
+  line-height:1.03;
+  letter-spacing:-.03em;
+  text-wrap:balance;
+}
+h1,.h1{ font-size:clamp(38px,5.4vw,68px); line-height:1.06; letter-spacing:-.025em; max-width:22ch; text-wrap:balance; }
+h2,.h2{ font-size:clamp(29px,3.9vw,46px); line-height:1.12; letter-spacing:-.02em; max-width:26ch; text-wrap:balance; }
+/* h3 min raised 19px -> 21px: at 390px the body is 16px, so 19px was barely a
+   step. lede min raised 17px -> 18px for the same reason. */
+h3,.h3{ font-size:clamp(21px,2vw,23px); line-height:1.32; letter-spacing:-.005em; }
+.lede{ color:var(--ink-steel); font-size:clamp(18px,1.45vw,20px); line-height:1.6; max-width:52ch; }
+.measure{ max-width:640px; }
+.mono-label{
+  font-family:var(--mono); font-weight:500; font-size:12px;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--ink-caption); line-height:1.2;
+}
+.mono-annot{ font-family:var(--mono); font-weight:400; font-size:13px; letter-spacing:.01em; color:var(--ink-caption); line-height:1.5; }
+.eyebrow{ display:block; margin-bottom:18px; }
+.steel{ color:var(--ink-steel); }
+
+/* Section header rule.
+   Was a 64x2 cobalt dash repeated 25 times across the site, which turned the
+   accent into wallpaper. It is now a structural hairline the full width of the
+   column with a short cobalt lead-in: it organises the page, the accent still
+   marks where a section starts, and total cobalt area drops by about two
+   thirds. JS still scales it in from the left. */
+.sec-rule{
+  position:relative; width:100%; height:1px; background:var(--line-hair);
+  margin-bottom:28px; transform-origin:left center;
+}
+.sec-rule::after{
+  content:""; position:absolute; left:0; top:0; width:48px; height:1px;
+  background:var(--accent-cobalt);
+}
+/* the graphite surfaces are now two blocks: section.close.close-cta and
+   footer.close.close-tail. Anything keyed to the dark surface uses .close. */
+.close .sec-rule{ background:var(--close-hair); }
+
+/* masked line reveals (hero + big headings). Visible by default; JS hides then reveals. */
+.mask-line{ display:block; overflow:hidden; }
+.mask-line > span{ display:block; }
+
+/* ---------- focus + skip ---------- */
+:focus-visible{ outline:2px solid var(--accent-cobalt); outline-offset:2px; }
+/* Cobalt is 1.96:1 on the graphite close band, so keyboard focus was invisible
+   down there on every page. The tint is 6.9:1 on --close-bg (needs 3:1). */
+.close :focus-visible{ outline-color:var(--focus-dark); }
+.skip-link{
+  position:absolute; left:20px; top:-64px; z-index:200;
+  background:var(--surface-paper); border:1px solid var(--line-hair);
+  padding:10px 16px; border-radius:var(--radius-control); font-weight:500; text-decoration:none;
+}
+.skip-link:focus{ top:12px; }
+
+/* ---------- header / nav ---------- */
+#site-header{
+  position:sticky; top:0; z-index:100;
+  background:var(--surface-paper);
+  border-bottom:1px solid transparent;
+  transition:border-color 180ms var(--ease-out);
+}
+#site-header.scrolled{ border-bottom-color:var(--line-hair); }
+.nav-row{ display:flex; align-items:center; justify-content:space-between; height:72px; gap:24px; }
+@media(max-width:1023px){ .nav-row{ height:64px; gap:12px; } }
+@media(max-width:767px){ .nav-row{ height:60px; } }
+
+/* The name is the one thing the header must never lose. The nav side is
+   incompressible (nowrap CTA + 44px toggle), so it is pinned at its natural
+   width and the wordmark takes whatever is left, never the other way round. */
+.nav-row > nav{ flex:0 0 auto; }
+.wordmark{ display:flex; align-items:center; gap:12px; text-decoration:none; min-width:0; flex:1 1 auto; }
+.wordmark svg{ display:block; flex:none; }
+.wordmark-text{ display:flex; flex-direction:column; line-height:1.15; min-width:0; }
+.wordmark-name{ font-weight:500; font-size:16px; letter-spacing:-.005em; color:var(--ink-graphite); white-space:nowrap; }
+.wordmark-descriptor{ font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; color:var(--ink-steel); text-transform:uppercase; white-space:nowrap; }
+@media(max-width:379px){ .wordmark-descriptor{ display:none; } }
+@media(max-width:359px){
+  .wordmark{ gap:8px; }
+  .wordmark svg{ width:26px; height:26px; }
+  .wordmark-name{ font-size:15px; }
+}
+
+.nav-links{ list-style:none; display:flex; gap:32px; align-items:center; }
+.nav-links a.navlink{
+  text-decoration:none; font-weight:500; font-size:15px; color:var(--ink-graphite);
+  padding:10px 0; position:relative; transition:color var(--dur-1) linear;
+}
+.nav-links a.navlink::after{
+  content:""; position:absolute; left:0; right:0; bottom:4px; height:2px;
+  background:var(--accent-cobalt); transform:scaleX(0); transform-origin:left center;
+  transition:transform var(--dur-2) var(--ease-out);
+}
+.nav-links a.navlink:hover{ color:var(--accent-cobalt); }
+.nav-links a.navlink:hover::after{ transform:scaleX(1); }
+.nav-links a.navlink[aria-current="page"]{ color:var(--accent-cobalt); }
+.nav-links a.navlink[aria-current="page"]::after{ transform:scaleX(1); }
+@media(max-width:1023px){ .desktop-only{ display:none !important; } .nav-links{ gap:12px; } }
+
+/* Below 640px the full CTA label ("Book a workflow assessment", nowrap) eats
+   ~238px of the ~350px row and squeezes the wordmark to 0px. The header keeps
+   the primary action, shortened to its first word; the accessible name is
+   still the full DOM text, so "Book" is contained in it (WCAG 2.5.3), and the
+   mobile menu still carries the full label. The :not(:has(span)) guard means
+   this rule switches itself off the moment the markup gains a proper
+   responsive label element. */
+@media(max-width:639px){
+  .nav-links .btn-compact:not(:has(span)){ font-size:0; padding-inline:16px; }
+  .nav-links .btn-compact:not(:has(span))::after{
+    content:"Book"; font-size:15px; font-weight:500; letter-spacing:normal;
+  }
+}
+
+.menu-toggle{
+  display:none; background:none; border:1px solid var(--line-hair); border-radius:var(--radius-control);
+  width:44px; height:44px; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-graphite);
+}
+@media(max-width:1023px){ .menu-toggle{ display:inline-flex; } }
+.mobile-menu{ display:none; position:fixed; inset:0; z-index:150; background:var(--surface-paper); overflow:auto; }
+.mobile-menu.open{ display:block; }
+.mobile-menu-inner{ padding:0 var(--pad-inline) 40px; display:flex; flex-direction:column; min-height:100%; }
+.mobile-menu-top{ display:flex; width:100%; align-items:center; justify-content:space-between; height:60px; margin-bottom:16px; max-width:none; }
+.menu-close{
+  background:none; border:1px solid var(--line-hair); border-radius:var(--radius-control);
+  width:44px; height:44px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-graphite);
+}
+.mobile-menu nav ul{ list-style:none; display:flex; flex-direction:column; }
+.mobile-menu nav a{
+  display:block; padding:20px 4px; font-size:clamp(28px,7vw,40px); font-weight:600; letter-spacing:-.02em;
+  text-decoration:none; border-bottom:1px solid var(--line-hair); color:var(--ink-graphite);
+}
+.mobile-menu nav a:hover{ color:var(--accent-cobalt); }
+.mobile-menu .mono-annot{ margin-top:24px; }
+.mobile-menu .btn{ margin-top:24px; width:100%; }
+
+/* ---------- buttons + links ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  font-family:var(--sans); font-weight:500; font-size:16px; text-decoration:none;
+  border-radius:var(--radius-control); padding:12px 24px; min-height:48px; white-space:nowrap; cursor:pointer;
+  border:1px solid transparent;
+  transition:background-color var(--dur-1) linear,border-color var(--dur-1) linear,
+             color var(--dur-1) linear,transform 150ms var(--ease-out);
+}
+.btn-compact{ min-height:40px; padding:8px 18px; font-size:15px; }
+/* 40px is under the 44px touch minimum, so the compact button is only compact
+   where there is a fine pointer */
+@media(hover:none),(max-width:1023px){ .btn-compact{ min-height:44px; } }
+.btn-primary{ background:var(--accent-cobalt); color:#fff; }
+.btn-primary:hover{ background:var(--accent-cobalt-hover); transform:translateY(-1px); }
+.btn-primary:active{ background:var(--accent-cobalt-active); transform:translateY(0) scale(.99); }
+.btn-secondary{ background:transparent; border-color:var(--line-form); color:var(--ink-graphite); }
+.btn-secondary:hover{ border-color:var(--accent-cobalt); color:var(--accent-cobalt); }
+.btn-secondary:active{ background:var(--surface-field); transform:translateY(1px); }
+
+.link-tertiary{
+  color:var(--accent-cobalt); text-decoration:underline; text-decoration-thickness:1px;
+  text-underline-offset:3px; font-weight:500; transition:color var(--dur-1) linear;
+}
+.link-tertiary:hover{ color:var(--accent-cobalt-hover); text-decoration-thickness:2px; }
+.link-arrow{ white-space:nowrap; }
+.link-arrow .arr{ display:inline-block; margin-left:6px; transition:transform var(--dur-2) var(--ease-out); }
+.link-arrow:hover .arr{ transform:translateX(4px); }
+
+/* ---------- sections ----------
+   Rhythm, not a single repeated value. Seven of nine homepage sections used to
+   share the identical 136px block padding, which is what made the descent feel
+   metronomic. Three registers now alternate with the content:
+     tight   48 / 64 / 64      strips that belong to the thing above them
+     default 72 / 100 / 128    ordinary page sections
+     band    88 / 120 / 156    recessed bands, which carry the emphasis
+   and a section that directly follows a band pulls its top padding in, because
+   the band's own bottom padding has already given it air. */
+main{ display:block; }
+section{ padding-block:72px; }
+@media(min-width:768px){ section{ padding-block:100px; } }
+@media(min-width:1440px){ section{ padding-block:128px; } }
+
+section.tight{ padding-block:48px; }
+@media(min-width:768px){ section.tight{ padding-block:64px; } }
+
+.band-recessed{ background:var(--surface-recessed); padding-block:88px; }
+@media(min-width:768px){ .band-recessed{ padding-block:120px; } }
+@media(min-width:1440px){ .band-recessed{ padding-block:156px; } }
+
+.band-recessed + section:not(.band-recessed):not(.tight):not(.close){ padding-top:56px; }
+@media(min-width:768px){ .band-recessed + section:not(.band-recessed):not(.tight):not(.close){ padding-top:84px; } }
+@media(min-width:1440px){ .band-recessed + section:not(.band-recessed):not(.tight):not(.close){ padding-top:104px; } }
+
+/* ---------- evidence plates ---------- */
+.plate{
+  background:var(--surface-paper);
+  border:1px solid var(--line-hair);
+  border-radius:var(--radius-surface);
+  overflow:hidden;
+  box-shadow:var(--shadow-plate);
+  transition:border-color var(--dur-2) var(--ease-out);
+}
+.plate-media{ position:relative; overflow:hidden; background:var(--surface-field); }
+.plate-media img{
+  width:100%; height:100%; object-fit:cover; object-position:top center;
+  transition:transform 300ms var(--ease-out-strong);
+}
+a.plate-link{ display:block; text-decoration:none; color:inherit; border-radius:var(--radius-surface); }
+a.plate-link:hover .plate{ border-color:var(--accent-cobalt); }
+a.plate-link:hover .plate-media img{ transform:scale(1.03); }
+.figcap{ margin-top:12px; }
+.figcap .l1{ display:block; }
+.figcap .l2{ display:block; margin-top:3px; }
+
+/* Linked plates had no rest-state affordance at all: three of the homepage's
+   biggest targets looked exactly like the unlinked ones. The caption's first
+   line now carries a hairline underline at rest (the "this is a link" cue) and
+   a cobalt rule scales in over it on hover and keyboard focus. Transform and
+   colour only, per MOTION_SYSTEM P4. */
+a.plate-link .figcap .l1{ position:relative; display:inline-block; }
+a.plate-link .figcap .l1::after,
+a.plate-link .figcap .l1::before{
+  content:""; position:absolute; left:0; right:0; bottom:-4px; height:1px;
+}
+a.plate-link .figcap .l1::after{ background:var(--line-form); }
+a.plate-link .figcap .l1::before{
+  background:var(--accent-cobalt); z-index:1;
+  transform:scaleX(0); transform-origin:left center;
+  transition:transform var(--dur-3) var(--ease-inout);
+}
+a.plate-link .figcap .l2{ margin-top:8px; }
+a.plate-link:hover .figcap .l1,
+a.plate-link:focus-visible .figcap .l1{ color:var(--accent-cobalt); }
+a.plate-link:hover .figcap .l1::before,
+a.plate-link:focus-visible .figcap .l1::before{ transform:scaleX(1); }
+
+.ar-1610{ aspect-ratio:16/10; }
+.ar-43{ aspect-ratio:4/3; }
+.ar-45{ aspect-ratio:4/5; }
+.ar-11{ aspect-ratio:1/1; }
+.ar-21{ aspect-ratio:2/1; }
+.ar-gtwide{ aspect-ratio:2880/855; }
+.ar-steps{ aspect-ratio:2880/920; }
+.ar-lisahero{ aspect-ratio:2400/650; }
+.ar-collage{ aspect-ratio:2400/1108; }
+
+/* ---------- signal line ---------- */
+.signal-line{ height:2px; background:var(--accent-cobalt); transform-origin:left center; }
+
+/* ============================================================
+   HOMEPAGE
+   ============================================================ */
+
+/* hero
+   The entry screen used to be 100% typography: the hero ended near 701px and
+   the first proof image started at 872px, so nothing visual was above the fold
+   at 1440x800. Tightened with spacing and scale only, no markup change:
+     hero top pad    72 -> 52   (-20)
+     display max     86 -> 76   (3 lines x 1.03 lh, -31)
+     display margin  36 -> 28   (-8)
+     rule-wrap margin 36 -> 28  (-8)
+     hero bottom pad 56 -> 40   (-16)
+     section.tight   80 -> 64   (-16)
+     proof-head margin 44 -> 32 (-12)
+   = 111px removed, first image top ~761px at 1440x800, under the 780px target.
+   At 390x844 the mobile trims below take the same measurement to ~834px, so
+   the first plate crests the fold. */
+.hero{ padding-block:clamp(40px,6.5vh,88px) clamp(32px,5vh,64px); }
+.hero .display{ margin-bottom:28px; max-width:none; }
+.hero-rule-wrap{ position:relative; margin:0 0 28px; }
+.hero-rule{ width:100%; height:2px; }
+.hero-ticks{ list-style:none; display:flex; gap:clamp(24px,6vw,88px); margin-top:14px; flex-wrap:wrap; }
+.hero-ticks a{
+  font-family:var(--mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-caption); text-decoration:none; position:relative; padding-top:2px;
+}
+.hero-ticks a::before{
+  content:""; position:absolute; left:0; top:-16px; width:1px; height:12px; background:var(--accent-cobalt);
+}
+.hero-ticks a:hover{ color:var(--accent-cobalt); }
+@media(max-width:767px){
+  .hero .display{ margin-bottom:24px; }
+  .hero-rule-wrap{ margin-bottom:24px; }
+}
+/* the tick row is 15-18px tall, well under the touch minimum */
+@media(hover:none),(max-width:1023px){
+  .hero-ticks{ margin-top:12px; }
+  .hero-ticks a{
+    display:flex; align-items:flex-end; min-height:44px; padding-top:0; padding-bottom:6px;
+  }
+  .hero-ticks a::before{ top:6px; height:10px; }
+}
+.hero-bottom{ display:grid; gap:32px; }
+@media(min-width:1024px){ .hero-bottom{ grid-template-columns:7fr 5fr; gap:64px; align-items:start; } }
+.hero-ctas{ display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+@media(min-width:1024px){ .hero-ctas{ justify-self:end; align-self:center; } }
+
+/* proof strip */
+.proof-head{ display:flex; align-items:baseline; justify-content:space-between; gap:24px; flex-wrap:wrap; margin-bottom:32px; }
+@media(max-width:767px){ .proof-head{ margin-bottom:24px; } }
+.proof-head p{ color:var(--ink-steel); font-size:clamp(17px,1.5vw,19px); }
+.proof-grid{ display:grid; grid-template-columns:1fr; gap:40px; }
+@media(min-width:768px){
+  .proof-grid{ grid-template-columns:5fr 3.5fr 3.5fr; gap:28px; align-items:start; }
+  .proof-grid > :nth-child(2){ margin-top:40px; }
+  .proof-grid > :nth-child(3){ margin-top:80px; }
+}
+.proof-item .figcap .l1{ font-size:15px; font-weight:600; font-family:var(--sans); letter-spacing:-.005em; text-transform:none; color:var(--ink-graphite); }
+
+/* surface-to-system */
+.sts-head{ max-width:22ch; margin-bottom:20px; }
+.sts-intro{ max-width:640px; color:var(--ink-steel); margin-bottom:56px; }
+.sts-stack{ display:grid; gap:48px; }
+.sts-label{ display:block; margin-bottom:12px; }
+/* the diagram field uses --surface-field, not the deepened band value, so
+   --line-form node edges keep 3.05:1 against it (WCAG 1.4.11) */
+.diagram{ background:var(--surface-field); border-radius:var(--radius-surface); padding:clamp(20px,3vw,32px); position:relative; }
+.band-recessed .diagram{ background:var(--surface-paper); border:1px solid var(--line-hair); }
+.node-list{ list-style:none; display:flex; flex-direction:column; position:relative; }
+.node{
+  background:var(--surface-paper); border:1px solid var(--line-form); border-radius:var(--radius-node);
+  padding:14px 18px; max-width:440px; position:relative;
+}
+.node + .node{ margin-top:36px; }
+.node::before{
+  content:""; position:absolute; left:28px; top:-37px; width:1.5px; height:36px;
+  background:var(--accent-cobalt);
+}
+.node:first-child::before{ display:none; }
+.node strong{ display:block; font-weight:600; font-size:16px; }
+.node .sub{ display:block; margin-top:2px; }
+.node .tag{
+  display:block; margin-top:8px; font-style:normal;
+  font-family:var(--mono); font-size:12px; letter-spacing:.04em; color:var(--accent-cobalt);
+}
+.disclaimer{ margin-top:18px; }
+.sts-link{ margin-top:28px; display:inline-block; }
+.sts-surface-fig{ max-width:640px; }
+.sts-surface-fig .figcap{ margin-top:12px; }
+
+/* pinned mode */
+.sts-pin-wrap{ position:relative; }
+.sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+[data-sts-mode="pinned"]{ padding-block:0; }
+[data-sts-mode="pinned"] .sts-pin-wrap{ min-height:100vh; display:flex; flex-direction:column; justify-content:flex-start; padding-block:92px 28px; }
+[data-sts-mode="pinned"] .sts-intro{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+[data-sts-mode="pinned"] .sec-rule{ margin-bottom:16px; }
+[data-sts-mode="pinned"] .sts-head{ font-size:clamp(24px,2.4vw,34px); line-height:1.15; max-width:36ch; margin-bottom:24px; }
+[data-sts-mode="pinned"] .sts-stack{ grid-template-columns:5.5fr 6.5fr; gap:56px; align-items:start; }
+[data-sts-mode="pinned"] .sts-surface-fig{ max-width:none; }
+[data-sts-mode="pinned"] .node{ max-width:none; padding:10px 14px; }
+[data-sts-mode="pinned"] .node + .node{ margin-top:16px; }
+[data-sts-mode="pinned"] .node::before{ top:-17px; height:16px; }
+[data-sts-mode="pinned"] .node strong{ font-size:15px; }
+[data-sts-mode="pinned"] .node .sub{ font-size:12px; }
+[data-sts-mode="pinned"] .node .tag{ margin-top:5px; font-size:11.5px; }
+[data-sts-mode="pinned"] .node [data-sts-desc]{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+[data-sts-mode="pinned"] .diagram{ padding:16px 20px; }
+[data-sts-mode="pinned"] .disclaimer{ margin-top:12px; }
+[data-sts-mode="pinned"] .sts-link{ margin-top:16px; }
+[data-sts-mode="pinned"] .sts-caption-rail{ display:block; margin-top:20px; min-height:76px; }
+.sts-caption-rail{ display:none; position:relative; min-height:88px; margin-top:28px; }
+.sts-caption-rail p{ position:absolute; inset:0; color:var(--ink-steel); max-width:38ch; opacity:0; }
+.node [data-sts-desc]{ display:block; margin-top:8px; color:var(--ink-steel); font-size:14px; line-height:1.55; }
+
+/* flagship band */
+.flagship-grid{ display:grid; gap:48px; }
+@media(min-width:1024px){ .flagship-grid{ grid-template-columns:7fr 5fr; gap:64px; align-items:center; } }
+.flagship-media{ display:grid; gap:24px; }
+@media(min-width:600px){
+  .flagship-media{ grid-template-columns:1.15fr 1fr; align-items:start; }
+  .flagship-media > :nth-child(2){ margin-top:56px; }
+}
+.meta-row{ margin:18px 0 22px; }
+.flagship-body p.measure{ color:var(--ink-steel); }
+
+/* problems */
+.problems-head{ max-width:20ch; }
+.problems-grid{ display:grid; gap:0; margin-top:56px; }
+@media(min-width:768px){ .problems-grid{ grid-template-columns:1fr 1fr; column-gap:64px; } }
+.problem-group{ border-top:1px solid var(--line-hair); padding:28px 0; }
+.problem-group p{ padding:8px 0; color:var(--ink-graphite); font-size:clamp(18px,1.9vw,23px); font-weight:500; letter-spacing:-.01em; line-height:1.4; }
+/* (.problems-close em removed: the closing line has never contained an em) */
+.problems-close{ margin-top:40px; font-size:clamp(18px,1.9vw,23px); font-weight:500; letter-spacing:-.01em; max-width:44ch; }
+.problems-cta{ margin-top:20px; }
+
+/* split sections */
+.split{ display:grid; gap:44px; }
+@media(min-width:1024px){
+  .split{ grid-template-columns:6fr 5fr; gap:72px; align-items:center; }
+  .split.media-first{ grid-template-columns:5fr 6fr; }
+}
+
+/* lisa */
+.lisa-media{ max-width:1040px; }
+.lisa-text{ margin-top:44px; max-width:640px; }
+.lisa-fine{ margin-top:20px; font-size:14px; color:var(--ink-caption); }
+
+/* method */
+.method-row{ display:grid; gap:0; margin-top:64px; position:relative; }
+@media(min-width:768px){ .method-row{ grid-template-columns:repeat(4,1fr); gap:36px; } }
+.method-spine{ position:absolute; background:var(--ink-graphite); }
+@media(min-width:768px){
+  .method-spine{ left:0; right:0; top:0; height:1px; transform-origin:left center; }
+  .method-step{ padding-top:32px; }
+}
+@media(max-width:767px){
+  .method-row{ padding-left:28px; }
+  .method-spine{ left:0; top:4px; bottom:4px; width:1px; transform-origin:top center; }
+  .method-step{ padding-block:22px; }
+}
+.method-step h3{ margin-bottom:12px; font-size:clamp(22px,2.4vw,28px); }
+.method-step p{ color:var(--ink-steel); font-size:15px; line-height:1.6; }
+
+/* about preview */
+.about-grid{ display:grid; gap:44px; align-items:center; }
+@media(min-width:768px){ .about-grid{ grid-template-columns:300px 1fr; gap:72px; } }
+.founder-plate{
+  aspect-ratio:1/1; display:grid; place-items:center;
+  background:
+    linear-gradient(var(--surface-field) 1px, transparent 1px) 0 0/100% 25%,
+    var(--surface-paper);
+}
+.founder-plate svg{ width:52%; height:auto; }
+
+/* .final-cta / .final-cta-line removed: no page in site/ ever rendered them
+   (the graphite close band does that job). .reassure is kept, it is used on
+   /work/. */
+.reassure{ margin-top:22px; font-size:14px; color:var(--ink-caption); max-width:52ch; }
+
+/* ---------- graphite close (footer) ---------- */
+footer.close{
+  background:var(--close-bg); color:var(--close-ink);
+  padding:clamp(72px,10vh,128px) 0 40px;
+}
+.close-heading{
+  color:var(--close-ink); font-size:clamp(38px,6vw,84px); line-height:1.04;
+  letter-spacing:-.03em; font-weight:600; max-width:14ch; text-wrap:balance; margin-bottom:36px;
+}
+.close-actions{ display:flex; align-items:center; gap:28px; flex-wrap:wrap; margin-bottom:20px; }
+.close-mail{
+  color:var(--close-ink); font-size:clamp(16px,1.6vw,19px); font-weight:500;
+  text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:4px;
+}
+.close-mail:hover{ text-decoration-thickness:2px; }
+.close-reassure{ color:var(--close-steel); font-size:14px; max-width:52ch; }
+.footer-grid{
+  display:grid; gap:32px; margin-top:clamp(56px,8vh,88px);
+  padding-top:32px; border-top:1px solid var(--close-hair);
+}
+@media(min-width:768px){ .footer-grid{ grid-template-columns:2fr 1fr 1fr 1.4fr; } }
+.close .wordmark-name{ color:var(--close-ink); }
+.close .wordmark-descriptor{ color:var(--close-steel); }
+.footer-blurb{ margin-top:10px; color:var(--close-steel); font-size:14px; max-width:26ch; }
+
+.close .footer-grid h3{ font-size:13px; font-weight:600; letter-spacing:.02em; margin-bottom:14px; color:var(--close-ink); }
+.close ul{ list-style:none; display:flex; flex-direction:column; gap:10px; }
+.close ul a{ text-decoration:none; color:var(--close-steel); font-size:15px; }
+.close ul a:hover{ color:var(--close-ink); text-decoration:underline; text-underline-offset:3px; }
+/* footer link rows were ~24px tall; padding takes them to 44px on touch */
+@media(hover:none),(max-width:1023px){
+  .close ul{ gap:0; }
+  .close ul a{ display:inline-block; padding-block:10px; }
+}
+.footer-bottom{
+  display:flex; flex-wrap:wrap; gap:12px 24px; justify-content:space-between;
+  align-items:center;
+  margin-top:48px; padding-top:24px; border-top:1px solid var(--close-hair);
+  color:var(--close-steel); font-size:13px;
+}
+.footer-copy{ color:var(--close-steel); }
+.footer-top{
+  color:var(--close-steel); font-size:13px; text-decoration:none;
+  display:inline-flex; align-items:center; min-height:44px;
+  transition:color var(--dur-1) linear;
+}
+.footer-top:hover{ color:var(--close-ink); text-decoration:underline; text-underline-offset:3px; }
+
+/* The graphite close is two blocks sharing one background: the CTA section and
+   the footer's link tail. If each paid full section padding the seam between
+   them would open into ~250px of empty graphite, so the pair sets its own
+   rhythm. Pages that inline their own close-cta padding still win. */
+section.close-cta{ padding-block:clamp(72px,10vh,128px) clamp(32px,4vh,48px); }
+footer.close-tail{ padding-top:clamp(40px,6vh,64px); }
+
+/* ============================================================
+   INTERIOR PAGES
+   ============================================================ */
+
+.page-hero{ padding-block:clamp(48px,8vh,104px) clamp(40px,6vh,72px); }
+.page-hero .h1{ margin-bottom:24px; }
+.page-hero .meta-row{ margin:0 0 22px; }
+.page-hero .btn{ margin-top:36px; }
+.case-lead-plate{ margin-top:56px; }
+
+/* case meta table */
+.meta-table{
+  display:grid; gap:0; margin-top:48px; border-top:1px solid var(--line-hair); max-width:760px;
+}
+.meta-table > div{
+  display:grid; grid-template-columns:120px 1fr; gap:16px;
+  padding:14px 0; border-bottom:1px solid var(--line-hair); align-items:baseline;
+}
+.meta-table dt{ margin:0; }
+.meta-table dd{ margin:0; font-size:15px; color:var(--ink-graphite); font-weight:500; }
+
+.prose{ max-width:640px; }
+.prose h2{ margin:64px 0 20px; }
+.prose h2:first-child{ margin-top:0; }
+.prose p + p{ margin-top:16px; }
+.prose p{ color:var(--ink-steel); }
+.prose .pull{
+  color:var(--ink-graphite); font-size:clamp(20px,2.2vw,26px); font-weight:500; letter-spacing:-.01em; line-height:1.35;
+  border-left:3px solid var(--accent-cobalt); padding-left:20px; margin-top:28px;
+}
+
+.evidence-stack{ display:grid; gap:64px; }
+.evidence-row{ display:grid; gap:40px; }
+@media(min-width:1024px){
+  .evidence-row{ grid-template-columns:3fr 9fr; gap:40px; }
+  .evidence-note{ position:sticky; top:112px; align-self:start; max-width:26ch; }
+}
+.evidence-note .mono-label{ display:block; margin-bottom:10px; }
+.evidence-note p{ color:var(--ink-steel); font-size:15px; }
+
+.case-next-card{
+  display:grid; gap:0; text-decoration:none; color:inherit;
+  background:var(--surface-paper); border:1px solid var(--line-hair); border-radius:var(--radius-surface); overflow:hidden;
+  box-shadow:var(--shadow-plate);
+  transition:border-color var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out);
+}
+@media(min-width:768px){ .case-next-card{ grid-template-columns:5fr 7fr; align-items:center; } }
+.case-next-card:hover{ border-color:var(--accent-cobalt); transform:translateY(-2px); }
+.case-next-card .plate-media{ align-self:stretch; }
+.case-next-body{ padding:32px; }
+.case-next-body .mono-label{ display:block; margin-bottom:10px; }
+.case-next-body h3{ margin-bottom:8px; }
+.case-next-body p{ color:var(--ink-steel); font-size:15px; }
+.case-next-body .link-tertiary{ display:inline-block; margin-top:16px; }
+
+/* services */
+.offer-meta{ margin-top:20px; }
+.fit-grid{ display:grid; gap:32px; margin-top:48px; }
+@media(min-width:768px){ .fit-grid{ grid-template-columns:1fr 1fr; gap:56px; } }
+.fit-col{ border-top:2px solid var(--ink-graphite); padding-top:20px; }
+.fit-col.fit-not{ border-top-color:var(--line-form); }
+.fit-col h3{ margin-bottom:14px; }
+.fit-col p{ color:var(--ink-steel); font-size:15px; }
+.symptoms{ margin-top:44px; list-style:none; max-width:860px; }
+.symptoms li{
+  padding:16px 0; border-top:1px solid var(--line-hair);
+  font-size:clamp(17px,1.8vw,22px); font-weight:500; letter-spacing:-.008em; color:var(--ink-graphite);
+}
+/* raised paper surfaces all carry the one sanctioned elevation, so a card
+   reads as a card instead of an outlined rectangle */
+.assess-plate{
+  background:var(--surface-paper); border:1px solid var(--line-hair); border-radius:var(--radius-surface);
+  box-shadow:var(--shadow-plate);
+  padding:clamp(24px,4vw,48px); margin-top:48px; max-width:860px;
+}
+.assess-plate .mono-label{ display:block; margin-bottom:16px; }
+.assess-rows{ list-style:none; }
+.assess-rows li{ display:grid; grid-template-columns:1fr; gap:4px; padding:16px 0; border-top:1px solid var(--line-hair); }
+@media(min-width:640px){ .assess-rows li{ grid-template-columns:220px 1fr; gap:24px; } }
+.assess-rows strong{ font-weight:600; }
+.assess-rows span{ color:var(--ink-steel); font-size:15px; }
+.assess-leave{ margin-top:28px; padding-top:24px; border-top:2px solid var(--ink-graphite); }
+.assess-leave p{ color:var(--ink-steel); }
+.paths-grid{ display:grid; gap:24px; margin-top:48px; }
+@media(min-width:768px){ .paths-grid{ grid-template-columns:repeat(3,1fr); } }
+.path-card{
+  background:var(--surface-paper); border:1px solid var(--line-hair); border-radius:var(--radius-surface);
+  box-shadow:var(--shadow-plate); padding:28px;
+}
+.path-card h3{ margin-bottom:10px; }
+.path-card p{ color:var(--ink-steel); font-size:15px; }
+
+/* FAQ */
+.faq{ max-width:760px; margin-top:44px; border-top:1px solid var(--line-hair); }
+.faq-item{ border-bottom:1px solid var(--line-hair); }
+.faq-q{
+  width:100%; display:flex; align-items:center; justify-content:space-between; gap:16px;
+  background:none; border:0; text-align:left; cursor:pointer;
+  font-family:var(--sans); font-size:16px; font-weight:500; color:var(--ink-graphite);
+  padding:18px 4px; min-height:56px;
+}
+.faq-q:hover{ background:var(--surface-field); }
+.faq-icon{ flex:none; width:20px; height:20px; position:relative; transition:transform var(--dur-2) var(--ease-inout); }
+.faq-icon::before,.faq-icon::after{ content:""; position:absolute; background:var(--ink-steel); }
+.faq-icon::before{ left:9px; top:2px; width:2px; height:16px; }
+.faq-icon::after{ left:2px; top:9px; width:16px; height:2px; }
+.faq-item[data-open] .faq-icon{ transform:rotate(45deg); }
+/* grid-template-rows:0fr collapses the box but leaves the answer in the
+   accessibility tree, so screen readers read answers the button reports as
+   collapsed. visibility:hidden removes it for real; it is delayed by the
+   collapse duration on close and applied instantly on open, so the height
+   transition is untouched. */
+.faq-a{ display:grid; grid-template-rows:0fr; transition:grid-template-rows var(--dur-3) var(--ease-inout); }
+.faq-item[data-open] .faq-a{ grid-template-rows:1fr; }
+.faq-a-inner{
+  overflow:hidden; min-height:0;
+  visibility:hidden; transition:visibility 0s linear var(--dur-3);
+}
+.faq-item[data-open] .faq-a-inner{ visibility:visible; transition-delay:0s; }
+.faq-a-inner p{ padding:0 4px 20px; color:var(--ink-steel); font-size:15px; max-width:62ch; }
+
+/* book */
+.book-grid{ display:grid; gap:48px; margin-top:8px; }
+@media(min-width:1024px){ .book-grid{ grid-template-columns:6.5fr 5.5fr; gap:72px; align-items:start; } }
+.book-card{
+  background:var(--surface-paper); border:1px solid var(--line-hair); border-radius:var(--radius-surface);
+  box-shadow:var(--shadow-plate);
+  padding:clamp(24px,3.4vw,40px);
+}
+@media(min-width:1024px){ .book-card{ position:sticky; top:104px; } }
+.book-card h2{ font-size:clamp(22px,2.4vw,28px); margin-bottom:10px; }
+.book-card > p{ color:var(--ink-steel); font-size:15px; }
+.book-card .btn{ margin-top:24px; width:100%; }
+.book-side{ margin-top:14px; font-size:14px; color:var(--ink-caption); }
+.book-presets{ margin-top:24px; padding-top:20px; border-top:1px solid var(--line-hair); }
+.book-presets .mono-label{ display:block; margin-bottom:12px; }
+.book-presets ul{ list-style:none; display:flex; flex-direction:column; gap:8px; }
+.book-presets a{ font-size:15px; }
+.steps-list{ list-style:none; display:grid; gap:0; margin-top:40px; max-width:640px; }
+.steps-list li{ border-top:1px solid var(--line-hair); padding:24px 0; }
+.steps-list li strong{ display:block; font-weight:600; font-size:18px; margin-bottom:6px; }
+.steps-list li p{ color:var(--ink-steel); font-size:15px; }
+.isnt-rows{ list-style:none; margin-top:40px; max-width:640px; }
+.isnt-rows li{ border-top:1px solid var(--line-hair); padding:16px 0; color:var(--ink-steel); font-size:16px; }
+.isnt-rows li strong{ color:var(--ink-graphite); font-weight:600; }
+
+/* about */
+.about-hero-grid{ display:grid; gap:48px; }
+@media(min-width:1024px){ .about-hero-grid{ grid-template-columns:7fr 5fr; gap:80px; align-items:center; } }
+.about-portrait .founder-plate{ max-width:420px; }
+.timeline{ position:relative; margin-top:56px; max-width:760px; }
+.timeline::before{
+  content:""; position:absolute; left:0; top:8px; bottom:8px; width:1.5px; background:var(--line-hair);
+}
+.timeline .tl-spine{
+  position:absolute; left:0; top:8px; bottom:8px; width:1.5px; background:var(--accent-cobalt);
+  transform-origin:top center;
+}
+.tl-block{ position:relative; padding-left:40px; }
+.tl-block + .tl-block{ margin-top:56px; }
+.tl-block::before{
+  content:""; position:absolute; left:-4px; top:6px; width:9px; height:9px; border-radius:0;
+  background:var(--surface-mineral); border:1.5px solid var(--accent-cobalt);
+}
+.tl-block .mono-label{ display:block; margin-bottom:10px; }
+.tl-block h3{ font-size:clamp(22px,2.4vw,28px); margin-bottom:12px; }
+.tl-block p{ color:var(--ink-steel); }
+.beliefs{ margin-top:44px; display:grid; gap:0; max-width:820px; }
+.beliefs p{
+  border-top:1px solid var(--line-hair); padding:24px 0;
+  font-size:clamp(20px,2.4vw,28px); font-weight:500; letter-spacing:-.015em; line-height:1.3;
+}
+.capabilities{ display:grid; gap:32px; margin-top:44px; }
+@media(min-width:768px){ .capabilities{ grid-template-columns:1fr 1fr; gap:56px; } }
+.cap-block{ border-top:2px solid var(--ink-graphite); padding-top:22px; }
+.cap-block.supporting{ border-top-color:var(--line-form); }
+.cap-block .mono-label{ display:block; margin-bottom:8px; }
+.cap-block h3{ margin-bottom:12px; }
+.cap-block p{ color:var(--ink-steel); font-size:15px; }
+
+/* 404 */
+.nf{ min-height:56vh; display:grid; align-content:center; }
+.nf .links{ display:flex; gap:24px; flex-wrap:wrap; margin-top:32px; }
+
+/* ============================================================
+   MOTION HOOKS (JS-gated; static without JS or with reduced motion)
+   ============================================================ */
+/* Rest state. Without html.js-anim (no JS, no GSAP, reduced motion) every
+   revealed element is simply visible, and nothing below can reach it. */
+.rv, .rv-group > *{ opacity:1; transform:none; }
+
+/* --- text blocks: short travel, standard duration --- */
+html.js-anim .rv.rv-init{ opacity:0; transform:translateY(14px); }
+html.js-anim .rv-group.rv-init > *{ opacity:0; transform:translateY(10px); }
+html.js-anim .rv.rv-in, html.js-anim .rv-group.rv-in > *{
+  opacity:1; transform:translateY(0);
+  transition:opacity var(--dur-4) var(--ease-out-strong), transform var(--dur-4) var(--ease-out-strong);
+}
+
+/* --- image plates: further travel, slower settle ---
+   Everything on the site used to enter with the identical 16px / 450ms fade.
+   A plate is a heavier object than a paragraph, so it moves further and takes
+   longer to land. Still inside MOTION_SYSTEM's 32px / 700ms ceilings. */
+html.js-anim .rv.rv-init:is(.plate,.plate-link,figure),
+html.js-anim .rv.rv-init:has(.plate-media){ transform:translateY(26px); }
+html.js-anim .rv.rv-in:is(.plate,.plate-link,figure),
+html.js-anim .rv.rv-in:has(.plate-media){ transition-duration:var(--dur-5); }
+
+/* --- group stagger ---
+   The old rule only defined children 2-4, so from the fifth child on every
+   item fired at delay 0 and the stagger silently died (the 6-item symptoms
+   list on /services was the visible case). MOTION_SYSTEM caps a group reveal
+   at 480ms, so items 1-6 step by 60ms and anything beyond shares the last
+   step rather than stretching the group. */
+html.js-anim .rv-group.rv-in > *:nth-child(2){ transition-delay:60ms; }
+html.js-anim .rv-group.rv-in > *:nth-child(3){ transition-delay:120ms; }
+html.js-anim .rv-group.rv-in > *:nth-child(4){ transition-delay:180ms; }
+html.js-anim .rv-group.rv-in > *:nth-child(5){ transition-delay:240ms; }
+html.js-anim .rv-group.rv-in > *:nth-child(6){ transition-delay:300ms; }
+html.js-anim .rv-group.rv-in > *:nth-child(n+7){ transition-delay:360ms; }
+
+/* --- compositor hints, held only while a reveal is pending or running ---
+   Promotion is requested while the element is still hidden (which is when the
+   browser can act on it) and released the moment the reveal starts, where the
+   running transform/opacity transition keeps the layer on its own. Nothing
+   carries a permanent will-change. */
+html.js-anim .rv.rv-init:not(.rv-in),
+html.js-anim .rv-group.rv-init:not(.rv-in) > *{ will-change:opacity,transform; }
+
+@media(prefers-reduced-motion:reduce){
+  html.js-anim .rv.rv-init, html.js-anim .rv-group.rv-init > *{ opacity:1; transform:none; }
+  html.js-anim .rv.rv-init:is(.plate,.plate-link,figure),
+  html.js-anim .rv.rv-init:has(.plate-media){ transform:none; }
+  html.js-anim .rv.rv-init:not(.rv-in),
+  html.js-anim .rv-group.rv-init:not(.rv-in) > *{ will-change:auto; }
+  html.js-anim .rv-group.rv-in > *{ transition-delay:0s !important; }
+  *,*::before,*::after{ transition-duration:.01ms !important; animation-duration:.01ms !important; }
+  .plate-media img{ transition:none !important; }
+  a.plate-link:hover .plate-media img{ transform:none; }
+  a.plate-link .figcap .l1::before{ transition:none; }
+  .faq-a-inner{ transition:none; }
+}
+
+/* ---------- flagship breaking plate ---------- */
+.flagship-head{ max-width:720px; }
+.breaking{ margin-top:56px; }
+@media(min-width:1440px){ .breaking{ margin-inline:calc(var(--pad-inline) * -1); } }
+
+/* ---------- hero tick previews (desktop, fine pointer) ---------- */
+.hero-ticks li{ position:relative; }
+.tick-preview{ display:none; }
+@media(hover:hover) and (pointer:fine) and (min-width:1024px){
+  .tick-preview{
+    display:block; position:absolute; left:0; bottom:calc(100% + 18px); width:240px;
+    aspect-ratio:16/10; border-radius:var(--radius-surface); overflow:hidden;
+    border:1px solid var(--line-hair);
+    box-shadow:0 8px 28px rgba(27,31,36,.14);
+    opacity:0; transform:translateY(8px); pointer-events:none;
+    transition:opacity 220ms var(--ease-out-strong), transform 220ms var(--ease-out-strong);
+    background:var(--surface-paper); z-index:20;
+  }
+  .tick-preview img{ width:100%; height:100%; object-fit:cover; object-position:top center; }
+  .hero-ticks a:hover .tick-preview, .hero-ticks a:focus-visible .tick-preview{ opacity:1; transform:translateY(0); }
+}
+@media(prefers-reduced-motion:reduce){ .tick-preview{ transition:none; } }
+
+/* ---------- booking calendar ---------- */
+.cal{ margin-top:20px; }
+.cal-days{
+  display:grid; grid-auto-flow:column; grid-auto-columns:minmax(60px,1fr); gap:8px;
+  overflow-x:auto; padding-bottom:6px; scrollbar-width:thin;
+}
+.cal-day{
+  border:1px solid var(--line-form); border-radius:var(--radius-control); background:var(--surface-paper);
+  padding:10px 4px; text-align:center; cursor:pointer; font-family:var(--sans); min-height:64px;
+  /* box-shadow is a paint-heavy property and MOTION_SYSTEM P4 bans animating
+     it; the pressed ring snaps, only the border and fill transition */
+  transition:border-color var(--dur-1) linear, background-color var(--dur-1) linear;
+}
+.cal-day .dow{ display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-caption); }
+.cal-day .dom{ display:block; font-weight:600; font-size:18px; margin-top:4px; color:var(--ink-graphite); }
+.cal-day:hover{ border-color:var(--line-form); }
+.cal-day[aria-pressed="true"]{ border-color:var(--accent-cobalt); box-shadow:inset 0 0 0 1px var(--accent-cobalt); background:var(--surface-paper); }
+.cal-slots{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; }
+.cal-slot{
+  border:1px solid var(--line-form); border-radius:var(--radius-control); background:var(--surface-paper);
+  min-height:44px; font-family:var(--sans); font-size:14px; font-weight:500; color:var(--ink-graphite); cursor:pointer;
+  transition:border-color var(--dur-1) linear, color var(--dur-1) linear, background-color var(--dur-1) linear;
+}
+.cal-slot:hover{ border-color:var(--line-form); }
+.cal-slot[aria-pressed="true"]{ border-color:var(--accent-cobalt); color:var(--accent-cobalt); box-shadow:inset 0 0 0 1px var(--accent-cobalt); background:var(--surface-paper); }
+.cal-tz{ margin-top:10px; }
+.cal-request{ width:100%; margin-top:14px; white-space:normal; text-align:center; }
+.cal-request[aria-disabled="true"]{ background:var(--surface-field); color:var(--ink-caption); pointer-events:none; transform:none; }
+
+/* prevent calendar strip from widening the page on mobile */
+.book-grid > *{ min-width:0; }
+.cal-days{ max-width:100%; }
+
+/* ---------- portrait grade (BRAND_SYSTEM §10) ---------- */
+.portrait-media{ position:relative; }
+.portrait-media img{
+  filter:grayscale(1) brightness(1.02) contrast(1.03);
+  object-position:center top;
+}
+.portrait-media::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:var(--accent-cobalt); mix-blend-mode:color; opacity:.06;
+}
+.about-portrait figure{ max-width:420px; }
+.about-portrait .figcap{ display:flex; justify-content:space-between; gap:16px; }
+
+/* ---------- booking form ---------- */
+.hp-field{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+.book-card-sub{ margin-top:8px; color:var(--ink-steel); font-size:15px; }
+.step-label{
+  display:block; margin:28px 0 12px; padding-bottom:8px;
+  border-bottom:1px solid var(--line-hair); color:var(--ink-caption);
+}
+.cal .step-label:first-child{ margin-top:20px; }
+
+.field{ display:block; margin-top:16px; }
+.field-label{ display:block; font-size:13.5px; font-weight:500; color:var(--ink-steel); margin-bottom:7px; }
+.field-opt{ font-weight:400; color:var(--ink-caption); }
+.field input,.field textarea{
+  width:100%; display:block; font-family:var(--sans); font-size:16px; line-height:1.5;
+  color:var(--ink-graphite); background:var(--surface-mineral);
+  border:1px solid var(--line-hair); border-radius:var(--radius-control); padding:12px 14px; min-height:48px;
+  transition:border-color var(--dur-1) linear, background-color var(--dur-1) linear;
+}
+.field textarea{ min-height:92px; resize:vertical; }
+.field input:hover,.field textarea:hover{ border-color:var(--line-form); }
+.field input:focus,.field textarea:focus{
+  outline:none; background:var(--surface-paper);
+  border-color:var(--accent-cobalt); box-shadow:inset 0 0 0 1px var(--accent-cobalt);
+}
+.field input:focus-visible,.field textarea:focus-visible{ outline:2px solid var(--accent-cobalt); outline-offset:2px; }
+.field-row{ display:grid; gap:16px; }
+@media(min-width:520px){ .field-row{ grid-template-columns:1fr 1fr; } }
+.field-row .field{ margin-top:16px; }
+@media(min-width:520px){ .field-row .field{ margin-top:0; } }
+.field-row{ margin-top:16px; }
+
+.book-form.js-cal .slot-manual{ display:none; }
+.cal-summary{
+  margin-top:16px; padding:12px 14px; border-radius:var(--radius-control);
+  background:var(--surface-paper); border:1px solid var(--accent-cobalt);
+  font-weight:500; font-size:15px; color:var(--ink-graphite);
+}
+.cal-summary .tz{ display:block; margin-top:2px; font-family:var(--mono); font-size:12px; color:var(--ink-caption); font-weight:400; }
+.cal-request[disabled]{ background:var(--surface-field); color:var(--ink-caption); cursor:not-allowed; transform:none; }
+.cal-request[disabled]:hover{ background:var(--surface-field); transform:none; }
+.form-status{ margin-top:12px; font-size:14px; color:var(--ink-caption); min-height:1px; }
+.form-status[data-state="error"]{ color:var(--error); }
+.form-status[data-state="sending"]{ color:var(--ink-steel); }
+
+/* booking success state (swapped in after a successful submit) */
+.book-sent{ text-align:left; }
+.book-sent .sent-mark{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:44px; height:44px; border-radius:50%; border:1.5px solid var(--accent-cobalt); margin-bottom:20px;
+}
+.book-sent h2{ margin-bottom:12px; }
+.book-sent p{ color:var(--ink-steel); font-size:15px; }
+.book-sent p + p{ margin-top:12px; }
+.book-sent .sent-slot{
+  margin-top:18px; padding:12px 14px; border-radius:var(--radius-control);
+  background:var(--surface-mineral); border:1px solid var(--line-hair);
+  font-weight:500; color:var(--ink-graphite); font-size:15px;
+}
+
+/* ---------- request received page ---------- */
+.received-card{ max-width:720px; }
+.received-mark{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:56px; height:56px; border-radius:50%; border:1.5px solid var(--accent-cobalt); margin-bottom:28px;
+}
+.received .links{ display:flex; gap:28px; flex-wrap:wrap; }
+.received-fallback{
+  margin-top:48px; padding-top:24px; border-top:1px solid var(--line-hair);
+  font-size:14px; color:var(--ink-caption); max-width:56ch;
+}
+
+/* ---------- hero founder byline ----------
+   John's face above the fold. The headline still leads with the offer;
+   the byline is the human signature under it. */
+.hero-intro{ display:block; }
+.founder-byline{
+  display:inline-flex; align-items:center; gap:16px;
+  text-decoration:none; color:inherit; margin-bottom:22px;
+}
+.byline-portrait{
+  flex:none; width:76px; height:76px; border-radius:var(--radius-surface); overflow:hidden;
+  background:var(--surface-paper); border:1px solid var(--line-hair);
+  box-shadow:var(--shadow-plate);
+  transition:border-color var(--dur-2) var(--ease-out);
+}
+.byline-portrait img{ width:100%; height:100%; object-fit:cover; object-position:center top; }
+.byline-text{ display:flex; flex-direction:column; line-height:1.25; min-width:0; }
+.byline-name{ font-weight:600; font-size:17px; letter-spacing:-.01em; color:var(--ink-graphite); }
+.byline-role{
+  font-family:var(--mono); font-size:12px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink-caption); margin-top:4px;
+}
+.founder-byline:hover .byline-portrait{ border-color:var(--accent-cobalt); }
+.founder-byline:hover .byline-name{ color:var(--accent-cobalt); }
+@media(min-width:1024px){
+  .byline-portrait{ width:88px; height:88px; }
+}
+@media(max-width:767px){
+  .byline-portrait{ width:64px; height:64px; }
+  .founder-byline{ gap:14px; margin-bottom:18px; }
+}
+
+.about-connect{ margin-top:22px; }
