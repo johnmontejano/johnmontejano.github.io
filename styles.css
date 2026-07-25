@@ -245,6 +245,10 @@ html:not(.js) .junction::before{transform:scaleX(1)}
   .junction::before{transition:transform .9s var(--e-inout)}
 }
 .junction .idx,.junction .name{position:relative;z-index:1;background:var(--void);padding-inline-end:var(--s3)}
+/* the section label is a real h2 so the document outline has no skips;
+   it must not inherit display-face weight from the heading rule */
+h2.name{font-family:var(--mono);font-weight:450;font-variation-settings:normal;
+  font-size:var(--fs-label);line-height:1;letter-spacing:.11em;text-transform:uppercase}
 .junction .idx{color:var(--bone-3);padding-inline-start:0}
 .bleed .junction::before{left:0;right:0}
 
@@ -267,7 +271,16 @@ header.on-paper .brand-name,header.on-paper .nav a{color:var(--paper-ink)}
 .nav a{font-family:var(--mono);font-size:var(--fs-label);letter-spacing:.11em;text-transform:uppercase;color:var(--bone-2);transition:color 200ms var(--e-sig)}
 .nav a:hover,.nav a[aria-current=page]{color:var(--bone)}
 header.on-paper .nav a:hover,header.on-paper .nav a[aria-current=page]{color:var(--paper-ink)}
-@media(max-width:760px){.nav .nav-full{display:none}}
+/* Every nav item stays reachable on a phone. The brand wordmark is what
+   yields, not the navigation: the monogram still carries the identity and
+   still links home. */
+@media(max-width:760px){
+  .brand-name{display:none}
+  .nav{gap:var(--s3)}
+  .nav a{font-size:11px;letter-spacing:.09em}
+}
+.nav-cta{color:var(--bone)}
+.nav-cta::after{content:"";display:block;height:1px;background:var(--ember);margin-top:5px}
 
 /* link underline: origin flip */
 .link{position:relative;display:inline-block;color:var(--fg)}
@@ -357,10 +370,13 @@ header.on-paper .nav a:hover,header.on-paper .nav a[aria-current=page]{color:var
   .ev-stack{grid-column:1/-1}
 }
 .ev{display:block}
+/* A 21:9 letterbox scaled a whole screenshot down to roughly 4px body copy
+   on a phone. Narrow viewports get real height instead. */
 .shot{
   position:relative;overflow:hidden;background:var(--void-2);
-  border:1px solid var(--rule);aspect-ratio:21/9;
+  border:1px solid var(--rule);aspect-ratio:16/10;
 }
+@media(min-width:900px){.shot{aspect-ratio:21/9}}
 .shot img{width:100%;height:100%;object-fit:cover;object-position:center top;
   filter:grayscale(.22) contrast(1.06);transform:scale(1.001)}
 @media(hover:hover) and (prefers-reduced-motion:no-preference){
@@ -401,32 +417,35 @@ header.on-paper .nav a:hover,header.on-paper .nav a[aria-current=page]{color:var
   .op-portrait{grid-column:1/-1;margin-inline-start:0}
   .op-body{grid-column:1/-1;margin-block-start:var(--s6)}
 }
-.refusals{display:grid;gap:var(--s2)}
-.refusals li{font-family:var(--display);font-variation-settings:"wght" 620;
-  font-size:var(--fs-h1);line-height:.92;letter-spacing:-.032em}
-.op-line{margin-top:var(--s6);max-width:30ch;font-size:clamp(1.1rem,1.5vw,1.35rem);line-height:1.4;color:var(--paper-ink)}
+/* The claim leads, in display type. The two supporting facts answer the
+   "one guy who might vanish" objection instead of restating what he is not. */
+.op-claim{font-family:var(--display);font-variation-settings:"wght" 620;
+  font-size:var(--fs-h2);line-height:1.05;letter-spacing:-.022em;max-width:20ch}
+.op-support{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(--paper-rule);
+  color:var(--paper-ink-2);font-size:var(--fs-small);max-width:34ch}
 .op-cap{margin-top:var(--s4)}
 
 /* ---------- 06 method ---------- */
 .method-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);align-items:start}
 @media(max-width:900px){.method-grid{grid-template-columns:repeat(6,1fr)}}
-.steps{grid-column:1/7}
-.maxim{grid-column:8/13;margin-block-start:clamp(80px,9vw,160px)}
-@media(max-width:900px){.steps,.maxim{grid-column:1/-1}.maxim{margin-block-start:var(--s7)}}
+.steps{grid-column:1/8}
+@media(max-width:900px){.steps{grid-column:1/-1}}
 .steps li{border-top:1px solid var(--rule);padding-block:var(--s4);display:grid;
   grid-template-columns:auto 1fr;gap:var(--s4);align-items:baseline}
 .steps li:last-child{border-bottom:1px solid var(--rule)}
-.steps .v{display:block;font-family:var(--display);font-variation-settings:"wght" 620;font-size:var(--fs-h2);
-  letter-spacing:-.022em;line-height:1}
-.steps .d{display:block;color:var(--bone-2);font-size:var(--fs-small);margin-top:10px;max-width:34ch}
+/* The plain sentence is the heading now. The one-word verbs were the least
+   legible type on the page and their subtitles were doing the real work. */
+.steps .v{display:block;font-family:var(--display);font-variation-settings:"wght" 620;
+  font-size:clamp(1.2rem,2.1vw,1.65rem);letter-spacing:-.02em;line-height:1.1}
+.steps .d{display:block;color:var(--bone-2);font-size:var(--fs-small);margin-top:10px;max-width:38ch}
 .steps .sn{font-family:var(--mono);font-size:var(--fs-label);letter-spacing:.11em;color:var(--bone-3)}
 
-/* ---------- 07 not for you ---------- */
-.refuse{text-align:right;margin-left:auto;max-width:var(--measure)}
-.refuse li{font-family:var(--mono);font-size:var(--fs-small);letter-spacing:.02em;
-  color:var(--bone-3);line-height:1.5}
-.refuse li + li{margin-top:2rem}
-.refuse .junction{justify-content:flex-end}
+/* ---------- not for you, now beside the method ---------- */
+.refuse{grid-column:9/13;margin-block-start:clamp(40px,5vw,80px)}
+@media(max-width:900px){.refuse{grid-column:1/-1;margin-block-start:var(--s7)}}
+.refuse-h{margin-bottom:var(--s4);padding-bottom:var(--s3);border-bottom:1px solid var(--rule)}
+.refuse li{font-size:var(--fs-small);color:var(--bone-2);line-height:1.5}
+.refuse li + li{margin-top:var(--s3)}
 
 /* ---------- 08 close ---------- */
 .close{text-align:center;padding-block:clamp(120px,20vh,280px)}
@@ -587,43 +606,6 @@ html:not(.js) #curtain{display:none}
 }
 
 
-/* ---------- THE JOB FLOW ----------
-   Replaces a 29px hairline that was invisible on a phone. Mobile-first:
-   a vertical run of real cards you can actually read at arm's length;
-   desktop lays the same five across. */
-.job{padding-block:clamp(72px,10vh,180px)}
-.flow{display:grid;gap:10px;counter-reset:none}
-.step{
-  position:relative;display:grid;
-  grid-template-columns:auto 1fr auto;align-items:center;gap:var(--s3);
-  border:1px solid var(--rule);background:var(--void-2);
-  padding:var(--s4);min-height:72px;
-}
-.step .s-n{font-family:var(--mono);font-size:var(--fs-label);letter-spacing:.11em;color:var(--bone-3)}
-.step .s-t{
-  font-family:var(--display);font-variation-settings:"wght" 620;
-  font-size:clamp(1.5rem,6vw,2rem);line-height:1;letter-spacing:-.025em;color:var(--bone);
-}
-.step .s-tag{
-  font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--bone-3);white-space:nowrap;
-}
-/* the one thing the page is about: where the job stalls */
-.step.leak{border-color:var(--ember)}
-.step.leak::before{content:"";position:absolute;left:-1px;top:-1px;bottom:-1px;width:3px;background:var(--ember)}
-.step.leak .s-tag{color:var(--ember)}
-.flow-note{margin-top:var(--s5)}
-
-@media(min-width:900px){
-  .flow{grid-template-columns:repeat(5,1fr);gap:12px}
-  .step{
-    grid-template-columns:1fr;align-items:start;align-content:space-between;
-    gap:var(--s5);min-height:210px;padding:var(--s4);
-  }
-  .step .s-t{font-size:clamp(1.5rem,2.2vw,2.1rem)}
-  .step .s-tag{white-space:normal}
-}
-
 /* ---------- header no longer collides with content ----------
    It is fixed with no backdrop, so chips and copy scrolled straight
    through the logo on a phone. */
@@ -643,3 +625,306 @@ header.on-paper{background:var(--paper)}
   .chips{margin-top:var(--s4)}
   .ev-stack{gap:var(--s7)}
 }
+
+
+/* ============================================================
+   THE OPERATIONAL X-RAY  (hero, section 01)
+   One job. Eleven manual steps become four and seven leave.
+   Built floor-first: without JavaScript, or with motion switched
+   off, both states are simply present and labelled. The toggle and
+   the removal are enhancements layered on top of that.
+   ============================================================ */
+
+.hero{min-height:auto;display:block;
+  padding-block:clamp(86px,11vh,150px) clamp(48px,7vh,90px)}
+/* minmax(0,1fr) and min-width:0 are load-bearing: the nowrap display lines
+   set a min-content width, and an auto track sizes to that instead of to the
+   container, which pushed the headline past the gutter on a phone. */
+.hero-grid{display:grid;gap:var(--s5);grid-template-columns:minmax(0,1fr)}
+.hero-grid > *{min-width:0}
+.hero h1{margin-bottom:var(--s3)}
+.hero .sub{max-width:46ch;margin-top:var(--s3);font-size:clamp(1rem,4.1vw,1.4rem)}
+
+/* Below the desktop composition the width axis stops carrying the headline:
+   the lines simply wrap. The justified rectangle is a large-viewport
+   signature, and forcing it on a phone only creates overflow. */
+@media(max-width:999px){
+  .hero .display{font-size:clamp(2.35rem,10.2vw,3.1rem);line-height:.94}
+  .hero .ln{white-space:normal;font-variation-settings:"wght" 640,"wdth" 92}
+}
+
+/* The buyer noun was the smallest text on the page. It is now a line you
+   can read at arm's length, because "is this for me" is the only question
+   the first second can answer. */
+.eyebrow{
+  font-family:var(--mono);font-size:clamp(11px,2.6vw,13px);line-height:1.4;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--bone-2);
+  padding-bottom:var(--s3);margin-bottom:var(--s4);
+  border-bottom:1px solid var(--rule);
+}
+.hero-act{display:flex;align-items:center;gap:var(--s4);flex-wrap:wrap}
+.hero-act .cta-note{margin-top:0;flex:1 1 18ch}
+
+@media(min-width:1000px){
+  .hero{min-height:94svh;display:flex;flex-direction:column;justify-content:center}
+  .hero-grid{
+    grid-template-columns:minmax(0,1.02fr) minmax(0,1fr);
+    grid-template-areas:"copy xray" "act xray";
+    gap:clamp(40px,3.4vw,64px) clamp(48px,5vw,96px);
+    align-items:start;
+  }
+  .hero-copy{grid-area:copy}
+  .xray{grid-area:xray}
+  .hero-act{grid-area:act;align-self:end}
+  .eyebrow{max-width:34ch}
+  /* The display scale is viewport-relative, but in the two-column hero the
+     headline lives in roughly half the page. Size it to its column instead,
+     then let justify() fine-tune the width axis to fill the measure exactly. */
+  .hero .display{font-size:clamp(2.9rem,4.55vw,5.1rem)}
+}
+
+/* ---------- the drawing ---------- */
+.xray{border:1px solid var(--rule);background:var(--void-2);padding:var(--s3)}
+.xray-head{display:flex;align-items:center;justify-content:space-between;
+  gap:var(--s3);flex-wrap:wrap;margin-bottom:var(--s3)}
+.xray-label{color:var(--bone-2)}
+.xray-state{color:var(--bone-3);margin-bottom:var(--s3)}
+.xray-pane + .xray-pane{margin-top:var(--s5);padding-top:var(--s5);border-top:1px solid var(--rule)}
+
+.xray-list{display:grid}
+.xr{
+  position:relative;display:grid;grid-template-columns:auto 1fr auto;
+  align-items:center;gap:var(--s3);
+  padding:8px 0 8px var(--s3);border-bottom:1px solid var(--rule);
+  overflow:hidden;
+}
+.xr:last-child{border-bottom:0}
+.xr-n{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--bone-3)}
+.xr-t{font-size:clamp(13px,3.4vw,15px);line-height:1.25;color:var(--bone);letter-spacing:-.005em}
+.xr-tag{font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--bone-3);white-space:nowrap}
+
+/* where the job stalls: the payload of the whole section */
+.xr.leak::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:2px;background:var(--ember)}
+.xr.leak .xr-tag{color:var(--ember)}
+
+/* the survivors, in the after state */
+.xr.done::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:2px;background:var(--bone-3)}
+.xr.you::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:2px;background:var(--bone)}
+.xr.you .xr-tag{color:var(--bone)}
+.xr.done .xr-t,.xr.you .xr-t{font-size:clamp(14px,3.6vw,16px)}
+
+.xray-count{margin-top:var(--s4);font-size:var(--fs-small);line-height:1.45;
+  color:var(--bone-2);max-width:40ch}
+.xray-foot{margin-bottom:var(--s3);padding-bottom:var(--s3);border-bottom:1px solid var(--rule);
+  font-size:12px;color:var(--bone-3)}
+
+/* ---------- the toggle: the control surface ---------- */
+.xray-toggle{display:flex;border:1px solid var(--rule-hi)}
+.xr-btn{
+  background:transparent;border:0;border-radius:0;cursor:pointer;
+  font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--bone-3);padding:9px 12px;min-height:36px;
+}
+.xr-btn + .xr-btn{border-left:1px solid var(--rule-hi)}
+.xr-btn[aria-pressed=true]{background:var(--bone);color:var(--void)}
+@media(hover:hover){.xr-btn:not([aria-pressed=true]):hover{color:var(--bone)}}
+@media(pointer:coarse){.xr-btn{min-height:44px;padding-inline:14px}}
+
+/* JavaScript with motion available takes over: one pane, one toggle. */
+.xray.xr-live [data-xray-static-after],
+.xray.xr-live [data-xray-static-label]{display:none}
+.xray.xr-live .xray-pane + .xray-pane{margin-top:0;padding-top:0;border-top:0}
+
+@media(min-width:1000px){
+  .xray{padding:var(--s5)}
+  .xr{padding-block:11px}
+}
+
+/* ============================================================
+   03 WHAT HAPPENS  (promoted from /book: these three answers were
+   sitting behind the decision they exist to justify)
+   ============================================================ */
+.engage{display:grid;gap:0;border-top:1px solid var(--rule)}
+.engage li{display:grid;grid-template-columns:auto 1fr;gap:var(--s4);
+  padding-block:var(--s5);border-bottom:1px solid var(--rule)}
+.eg-n{font-family:var(--mono);font-size:var(--fs-label);letter-spacing:.11em;color:var(--bone-3);padding-top:6px}
+.eg-t{font-family:var(--display);font-variation-settings:"wght" 620;
+  font-size:clamp(1.25rem,2.6vw,2rem);line-height:1.05;letter-spacing:-.025em;color:var(--bone)}
+.eg-d{margin-top:var(--s2);color:var(--bone-2);font-size:var(--fs-small);max-width:44ch;line-height:1.5}
+.eg-need{margin-top:var(--s3);font-size:var(--fs-small);color:var(--bone);max-width:44ch}
+.eg-need .mono{display:inline-block;margin-right:10px;color:var(--bone-3)}
+.engage-note{margin-top:var(--s5)}
+@media(min-width:900px){
+  .engage li{grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);align-items:start}
+  .eg-body{display:contents}
+  .eg-t{grid-column:2}
+  .eg-d{grid-column:2;grid-row:2}
+  .eg-need{grid-column:3;grid-row:1/3;margin-top:6px}
+}
+
+/* ============================================================
+   07 BEFORE YOU BOOK  (risk reversal, built only from lines
+   already approved and already true elsewhere on the site)
+   ============================================================ */
+.assure{display:grid;gap:var(--s4);max-width:60ch}
+.assure li{position:relative;padding-left:var(--s5);
+  font-size:clamp(1.05rem,1.8vw,1.35rem);line-height:1.35;letter-spacing:-.015em;
+  font-family:var(--display);font-variation-settings:"wght" 620;color:var(--bone)}
+.assure li::before{content:"";position:absolute;left:0;top:.6em;width:16px;height:1px;background:var(--ember)}
+@media(min-width:900px){.assure{grid-template-columns:1fr 1fr;gap:var(--s5) var(--s7);max-width:none}}
+
+/* ---------- booking: the honest failure path ----------
+   The form is no longer destroyed on submit, so a device with no mail
+   handler keeps everything typed. The composed message is offered as
+   selectable text so it can always be sent by hand. */
+.sent{margin-bottom:var(--s5)}
+.copybox{
+  width:100%;margin-top:var(--s3);background:var(--void);border:1px solid var(--rule-hi);
+  color:var(--bone-2);font-family:var(--mono);font-size:12px;line-height:1.5;
+  padding:14px;border-radius:0;resize:vertical;
+}
+.copybtn{
+  margin-top:var(--s3);background:transparent;border:1px solid var(--rule-hi);color:var(--bone);
+  font-family:var(--mono);font-size:var(--fs-label);letter-spacing:.11em;text-transform:uppercase;
+  padding:14px 18px;cursor:pointer;border-radius:0;min-height:44px;
+}
+@media(hover:hover){.copybtn:hover{border-color:var(--bone-3)}}
+
+/* ---------- the removal, driven by CSS ----------
+   Seven rows leave the drawing. This is a class-switched transition rather
+   than a tween on purpose: the end state is applied by the style system, so
+   it is correct even if the frame loop is throttled or GSAP never loads.
+   The global reduced-motion rule collapses these durations to nothing. */
+.xray.xr-live .xr{
+  max-height:200px;
+  transition:max-height .5s var(--e-inout),opacity .34s var(--e-inout),
+             transform .5s var(--e-inout),padding .5s var(--e-inout),
+             border-bottom-width .3s var(--e-inout);
+}
+.xray.xr-live[data-mode=after] .xr[data-cut]{
+  max-height:0;opacity:0;transform:translateX(-14px);
+  padding-top:0;padding-bottom:0;border-bottom-width:0;
+}
+/* staggered so the steps peel away in order rather than vanishing together */
+.xray.xr-live[data-mode=after] .xr:nth-child(2){transition-delay:.03s}
+.xray.xr-live[data-mode=after] .xr:nth-child(3){transition-delay:.06s}
+.xray.xr-live[data-mode=after] .xr:nth-child(4){transition-delay:.09s}
+.xray.xr-live[data-mode=after] .xr:nth-child(6){transition-delay:.12s}
+.xray.xr-live[data-mode=after] .xr:nth-child(7){transition-delay:.15s}
+.xray.xr-live[data-mode=after] .xr:nth-child(10){transition-delay:.18s}
+.xray.xr-live[data-mode=after] .xr:nth-child(11){transition-delay:.21s}
+/* row 09 is the last survivor, so it must not trail a hairline into space */
+.xray.xr-live[data-mode=after] .xr:nth-child(9){border-bottom-width:0}
+
+/* ---------- review fixes ---------- */
+
+/* BLOCKER: .xray-toggle{display:flex} beat the UA [hidden] rule, so
+   reduced-motion and no-JS visitors got two focusable buttons that did
+   nothing. Author display must lose to the attribute. */
+.xray-toggle[hidden]{display:none}
+
+/* Non-text contrast: --rule-hi on --void-2 is 1.45:1, under the 3:1 that
+   WCAG 1.4.11 wants for the only visible boundary of a control. */
+.xr-btn,.copybtn,.day,.slot{border-color:var(--bone-3)}
+
+/* The eyebrow carries the buyer noun and now the operator credentials, so it
+   is the first thing read. It was the smallest text on the page. */
+.eyebrow{font-size:clamp(12px,3vw,13px)}
+.eyebrow-2{margin-top:6px;color:var(--bone-3);letter-spacing:.08em}
+
+/* The count line moved above the rows, so it needs bottom spacing not top. */
+.xray-count{margin-top:0;margin-bottom:var(--s2)}
+.xray-foot{margin-bottom:var(--s3);padding-bottom:var(--s3);
+  border-bottom:1px solid var(--rule);border-top:0;padding-top:0}
+
+/* ---------- the mobile primary action ----------
+   The circular CTA is the desktop signature, but below the two-column hero it
+   pushed the only button 1.3 viewports down and left viewport one with nothing
+   to tap. On a phone the primary action is a full-width bar under the promise,
+   ahead of the drawing. */
+@media(max-width:999px){
+  .hero-act{display:block;margin-bottom:var(--s2)}
+  .hero-act .cta{
+    inline-size:100%;aspect-ratio:auto;border-radius:0;min-height:56px;
+    background:var(--ember);border-color:var(--ember);color:var(--void);
+  }
+  .hero-act .cta::before{display:none}
+  .hero-act .cta span{padding:0 16px;color:var(--void)}
+  .hero-act .cta-note{margin-top:var(--s3)}
+  /* the drawing follows the button */
+  .hero-grid{display:flex;flex-direction:column}
+  .hero-copy{order:1}
+  .hero-act{order:2}
+  .xray{order:3}
+  .xray{padding:14px}
+  .xr{padding-block:7px}
+}
+
+/* ---------- second review pass ---------- */
+
+/* BLOCKER: the fixed header is opaque and reserves no space, so at 360-393px
+   it covered the one line whose whole job is "is this for me". Header gets
+   tighter on phones and the hero starts below it. */
+@media(max-width:760px){
+  header{padding-block:var(--s3)}
+  .hero{padding-block:clamp(104px,13vh,150px) clamp(40px,6vh,64px)}
+}
+
+/* Desktop fold was ~23% dead black under both columns. Content-sized instead
+   of forced to 94svh, so the next section peeks and invites the scroll. */
+@media(min-width:1000px){
+  .hero{min-height:auto;
+    padding-block:clamp(132px,15vh,180px) clamp(72px,9vh,110px)}
+}
+
+/* The portrait was running past 900px, spending a whole viewport on a face. */
+.op-portrait img{max-height:min(64svh,560px)}
+@media(max-width:900px){.op-portrait img{max-height:min(52svh,420px)}}
+
+/* Four sections were all "numbered vertical list with hairline rules", which
+   cost the X-ray its authority. The engagement block becomes its own family:
+   bordered cards on a row, no shared rules. */
+@media(min-width:900px){
+  .engage{grid-template-columns:repeat(3,1fr);gap:var(--gap);border-top:0}
+  .engage li{display:block;border:1px solid var(--rule);border-bottom:1px solid var(--rule);
+    padding:var(--s5) var(--s4)}
+  .eg-body{display:block}
+  .eg-n{display:block;padding-top:0;margin-bottom:var(--s3)}
+  .eg-t,.eg-d,.eg-need{grid-column:auto;grid-row:auto}
+  .eg-need{margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid var(--rule)}
+  .eg-need .mono{display:block;margin-bottom:6px}
+}
+
+/* ---------- reclaiming the mobile fold for the drawing ----------
+   The brief's first requirement is that viewport one shows a real job moving
+   through a workflow. Every value below was taken from a measured stack, not
+   guessed: header 87, so the hero starts at 96 and each block gives back what
+   it can until the rows clear the fold. */
+@media(max-width:999px){
+  .hero{padding-block:96px clamp(40px,6vh,64px)}
+  .hero-grid{gap:var(--s4)}
+  .eyebrow{padding-bottom:12px;margin-bottom:16px}
+  .hero .sub{margin-top:var(--s3)}
+  .hero-act{margin-bottom:0}
+  .xray{padding:12px}
+  .xray-head{margin-bottom:var(--s2)}
+  .xr{padding-block:6px}
+  .xr-t{font-size:13px}
+  .xray-count{margin-bottom:10px}
+}
+
+/* With the toggle present the visible state label just repeats the pressed
+   button. It stays in the accessibility tree as the list's name. */
+.xray.xr-live .xray-state{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+
+/* The submit stays in the tab order and explains itself, rather than going
+   `disabled` and taking its own instruction out of reach. */
+.book-hint{margin-top:var(--s5);color:var(--bone-2);font-size:var(--fs-small)}
+.book-hint[role=alert]{color:var(--ember)}
+.book-submit[aria-disabled=true]{background:transparent;color:var(--bone-2);
+  border:1px solid var(--bone-3);cursor:default}
+.book-submit{margin-top:var(--s3)}

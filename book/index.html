@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Book the job trace — John Montejano</title>
+<title>Book a call · John Montejano</title>
 <meta name="description" content="Pick a day and a time. One conversation, one job traced end to end.">
 <link rel="canonical" href="https://johnmontejano.github.io/book/">
 <meta name="theme-color" content="#0C0B0A">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="John Montejano">
 <meta property="og:url" content="https://johnmontejano.github.io/book/">
-<meta property="og:title" content="Book the job trace">
+<meta property="og:title" content="Book a call">
 <meta property="og:description" content="Pick a day and a time. One conversation, one job traced end to end.">
 <meta property="og:image" content="https://johnmontejano.github.io/assets/img/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Book the job trace">
+<meta name="twitter:title" content="Book a call">
 <meta name="twitter:description" content="Pick a day and a time. One conversation, one job traced end to end.">
 <meta name="twitter:image" content="https://johnmontejano.github.io/assets/img/og-card.png">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -44,9 +44,9 @@
     <span class="brand-name">John Montejano</span>
   </a>
   <nav class="nav" aria-label="Primary">
-    <a class="nav-full" href="/work/">Work</a>
-    <a class="nav-full" href="/about/">About</a>
-    <a href="/book/">Book the job trace</a>
+    <a href="/work/">Work</a>
+    <a href="/about/">About</a>
+    <a class="nav-cta" href="/book/">Book</a>
   </nav>
 </header>
 
@@ -56,8 +56,8 @@
 
   <section class="page-head wrap">
     <h1 class="display" data-hero-title>
-      <span class="ln" style="--wd:88">Book the</span>
-      <span class="ln" style="--wd:70">job trace.</span>
+      <span class="ln" style="--wd:88">Show me where</span>
+      <span class="ln" style="--wd:70">it leaks.</span>
     </h1>
   </section>
 
@@ -80,6 +80,7 @@
           <p class="mono" style="margin-top:var(--s5)">Step 2 &nbsp;/&nbsp; Pick a time</p>
           <div class="slots" data-slots role="group" aria-label="Pick a time"></div>
           <p class="mono-cap" style="margin-top:var(--s3)">Times shown in Pacific.</p>
+          <label class="field"><span class="field-label">None of these work? Tell me when.</span><input type="text" name="othertime" placeholder="Early mornings, or after six" autocomplete="off"></label>
 
           <input type="hidden" name="requested-slot" data-slot-field>
 
@@ -89,7 +90,8 @@
           <label class="field"><span class="field-label">Business</span><input type="text" name="business" autocomplete="organization"></label>
           <label class="field"><span class="field-label">Where does the time go?</span><textarea name="context" rows="3"></textarea></label>
 
-          <button class="book-submit" type="submit" data-submit disabled>Pick a day and time</button>
+          <p class="book-hint" data-hint>Pick a day and a time above, or tell me when suits you.</p>
+          <button class="book-submit" type="submit" data-submit aria-disabled="true">Send request</button>
         </form>
         <p class="mono-cap" style="margin-top:var(--s4)">Prefer plain email? <a class="link" href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a></p>
       </div>
@@ -101,7 +103,7 @@
       <span class="ln" style="--wd:92">One job.</span>
       <span class="ln" style="--wd:88">Start to paid.</span>
     </h2>
-    <a class="cta" href="/book/" data-magnet><span>Book the job trace</span></a>
+    <a class="cta" href="/book/" data-magnet><span>Show me where it leaks</span></a>
     <p class="cta-note">One conversation. No pitch. If automation isn't your problem, I'll say so.</p>
     <span class="sig">John Montejano</span>
     <div id="terminal" aria-hidden="true"></div>
@@ -113,7 +115,7 @@
   <div class="foot">
     <div class="col">
       <span class="mono">John Montejano</span>
-      <span class="mono-cap">Workflow automation for service businesses.</span>
+      <span class="mono-cap">I get the manual work out of service businesses.</span>
     </div>
     <div class="col">
       <a class="mono" href="/work/fastfix/">FastFix</a>
@@ -135,7 +137,6 @@
 
 <script src="/vendor/gsap.min.js" defer></script>
 <script src="/vendor/ScrollTrigger.min.js" defer></script>
-<script src="/vendor/SplitText.min.js" defer></script>
 <script src="/js/main.js" defer></script>
 </body>
 </html>
