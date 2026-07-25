@@ -217,7 +217,7 @@ header.on-paper .nav a:hover,header.on-paper .nav a[aria-current=page]{color:var
 .trace-stops{display:grid;grid-template-columns:repeat(5,1fr);margin-top:var(--s3);gap:var(--s2)}
 .trace-stops li{font-family:var(--mono);font-size:var(--fs-label);letter-spacing:.09em;text-transform:uppercase;color:var(--bone-3)}
 .trace-stops li.broke{color:var(--ember)}
-.trace-stops li small{display:block;margin-top:6px;font-size:11px;letter-spacing:.06em;color:var(--bone-3);text-transform:none;opacity:.75}
+.trace-stops li small{display:block;margin-top:6px;font-size:11px;letter-spacing:.06em;color:var(--bone-3);text-transform:none}
 @media(max-width:760px){
   .trace-stops{grid-template-columns:1fr;gap:var(--s2)}
   .trace-stops li{display:flex;gap:10px;align-items:baseline}
@@ -405,6 +405,8 @@ html:not(.js) #curtain{display:none}
 @media(prefers-reduced-motion:reduce){
   #curtain{display:none!important}
   html.js .rv{opacity:1}
+  .trace-stops li{color:var(--bone-2)}
+  .trace-stops li.broke{color:var(--ember)}
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
   #rail{transform:scaleY(1)!important}
   #terminal{transform:scaleX(1)!important}

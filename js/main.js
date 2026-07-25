@@ -271,7 +271,7 @@
 
     gsap.set([litA, litB], { strokeDasharray: 1, strokeDashoffset: 1 });
     gsap.set(brks, { opacity: 0.25 });
-    gsap.set(stops, { opacity: 0.35 });
+    gsap.set(stops, { color: "#8A847B" });
 
     ScrollTrigger.create({
       trigger: band,
@@ -293,7 +293,8 @@
         gsap.set(dot, { attr: { cx: x } });
         gsap.set(brks, { opacity: p > 0.58 ? 1 : 0.25 });
         stops.forEach(function (li, i) {
-          gsap.set(li, { opacity: p > (i * 0.19) ? 1 : 0.35 });
+          var lit = p > (i * 0.19);
+          gsap.set(li, { color: lit ? (li.classList.contains("broke") ? "#FF5A1F" : "#F5F1EA") : "#8A847B" });
         });
       }
     });
@@ -305,8 +306,11 @@
      --------------------------------------------------------- */
   gsap.utils.toArray(".index li, .steps li, .refuse li, .ev, .refusals li, .op-line, .index-close, .maxim, .ev-rail")
     .forEach(function (el) {
-      gsap.fromTo(el, { opacity: 0.14, y: 14 }, {
-        opacity: 1, y: 0, duration: 0.9, ease: "expo.out",
+      /* Movement only, never opacity. Secondary text sits near the contrast
+         floor by design, so any fade-in frame would fail AA and would be
+         genuinely hard to read for anyone landing mid-page. */
+      gsap.fromTo(el, { y: 18 }, {
+        y: 0, duration: 0.9, ease: "expo.out",
         scrollTrigger: { trigger: el, start: "top 88%", once: true }
       });
     });
