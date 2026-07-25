@@ -89,33 +89,22 @@
     </ul>
   </section>
 
-  <!-- 02 THE JOB TRACE -->
-  <section class="trace-band bleed" id="trace" aria-labelledby="trace-h">
-    <div class="wrap">
-      <h2 id="trace-h" class="sr-only">One job, traced end to end</h2>
-      <svg class="trace-svg" viewBox="0 0 1440 120" preserveAspectRatio="none" role="img"
-           aria-label="A job path: call, dispatch, on site, invoice, follow-up. The line breaks before the invoice, where the work stalls.">
-        <path class="path" d="M60 60 H1380"/>
-        <path class="lit" d="M60 60 H1002" pathLength="1" data-lit-a/>
-        <path class="lit" d="M1070 60 H1380" pathLength="1" data-lit-b/>
-        <path class="brk" d="M1010 42 V78" data-brk/>
-        <path class="brk" d="M1062 42 V78" data-brk/>
-        <path class="tick" d="M60 48 V72 M390 48 V72 M720 48 V72 M1120 48 V72 M1380 48 V72"/>
-        <circle class="dot" cx="60" cy="60" r="4" data-dot/>
-      </svg>
-      <ul class="trace-stops">
-        <li>Call<small>rings, or doesn't</small></li>
-        <li>Dispatch<small>who, when, where</small></li>
-        <li>On site<small>the work itself</small></li>
-        <li class="broke">Invoice<small>this is where it stalls</small></li>
-        <li>Follow-up<small>runs on memory</small></li>
-      </ul>
-    </div>
+  <!-- 02 THE JOB — the visual that carries the argument -->
+  <section class="job wrap" id="trace" aria-labelledby="job-h">
+    <div class="junction"><span class="mono idx">01</span><span class="mono name" id="job-h">One job</span></div>
+    <ol class="flow" data-flow>
+      <li class="step"><span class="s-n">01</span><span class="s-t">Call</span><span class="s-tag">Manual</span></li>
+      <li class="step"><span class="s-n">02</span><span class="s-t">Dispatch</span><span class="s-tag">Manual</span></li>
+      <li class="step"><span class="s-n">03</span><span class="s-t">On site</span><span class="s-tag">You</span></li>
+      <li class="step leak"><span class="s-n">04</span><span class="s-t">Invoice</span><span class="s-tag">Leaks here</span></li>
+      <li class="step leak"><span class="s-n">05</span><span class="s-t">Follow-up</span><span class="s-tag">Leaks here</span></li>
+    </ol>
+    <p class="flow-note mono-cap">I find the leaks, then wire them shut.</p>
   </section>
 
   <!-- 03 SYMPTOMS -->
   <section class="wrap" aria-labelledby="sym-h">
-    <div class="junction"><span class="mono idx">01</span><span class="mono name" id="sym-h">Symptoms</span></div>
+    <div class="junction"><span class="mono idx">02</span><span class="mono name" id="sym-h">Symptoms</span></div>
     <ul class="index">
       <li><div class="row"><span class="n">001</span><span class="t">Missed calls after five.</span></div></li>
       <li><div class="row"><span class="n">002</span><span class="t">The same job typed into three systems.</span></div></li>
@@ -129,7 +118,7 @@
 
   <!-- 04 EVIDENCE -->
   <section class="evidence wrap" aria-labelledby="ev-h">
-    <div class="junction"><span class="mono idx">02</span><span class="mono name" id="ev-h">Built and run</span></div>
+    <div class="junction"><span class="mono idx">03</span><span class="mono name" id="ev-h">Built and run</span></div>
     <div class="grid">
       <div class="ev-rail">
         <p class="body-lg" style="max-width:22ch">Three businesses. Every role in them was mine.</p>
@@ -170,7 +159,7 @@
   <!-- 05 OPERATOR — the inversion -->
   <section class="paper" id="operator" aria-labelledby="op-h">
     <div class="wrap">
-      <div class="junction"><span class="mono idx">03</span><span class="mono name" id="op-h">Operator</span></div>
+      <div class="junction"><span class="mono idx">04</span><span class="mono name" id="op-h">Operator</span></div>
       <div class="op-grid">
         <figure class="op-portrait">
           <img src="/assets/img/jm-portrait-45.webp" width="585" height="732" alt="Portrait of John Montejano." loading="lazy" decoding="async">
@@ -191,7 +180,7 @@
 
   <!-- 06 METHOD -->
   <section class="wrap" aria-labelledby="me-h">
-    <div class="junction"><span class="mono idx">04</span><span class="mono name" id="me-h">Method</span></div>
+    <div class="junction"><span class="mono idx">05</span><span class="mono name" id="me-h">Method</span></div>
     <div class="method-grid">
       <ul class="steps">
         <li><span class="sn">01</span><span><span class="v">Trace.</span><span class="d">Follow one real job, end to end.</span></span></li>
@@ -208,7 +197,7 @@
   <!-- 07 NOT FOR YOU -->
   <section class="wrap tight" aria-labelledby="nf-h">
     <div class="refuse">
-      <div class="junction"><span class="mono name" id="nf-h">Not for you if</span><span class="mono idx">05</span></div>
+      <div class="junction"><span class="mono name" id="nf-h">Not for you if</span><span class="mono idx">06</span></div>
       <ul>
         <li>You want someone to run your ads.</li>
         <li>You want software sold to you.</li>

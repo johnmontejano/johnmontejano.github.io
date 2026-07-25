@@ -585,3 +585,61 @@ html:not(.js) #curtain{display:none}
 @media(max-width:900px),(pointer:coarse){
   #curtain{display:none!important}
 }
+
+
+/* ---------- THE JOB FLOW ----------
+   Replaces a 29px hairline that was invisible on a phone. Mobile-first:
+   a vertical run of real cards you can actually read at arm's length;
+   desktop lays the same five across. */
+.job{padding-block:clamp(72px,10vh,180px)}
+.flow{display:grid;gap:10px;counter-reset:none}
+.step{
+  position:relative;display:grid;
+  grid-template-columns:auto 1fr auto;align-items:center;gap:var(--s3);
+  border:1px solid var(--rule);background:var(--void-2);
+  padding:var(--s4);min-height:72px;
+}
+.step .s-n{font-family:var(--mono);font-size:var(--fs-label);letter-spacing:.11em;color:var(--bone-3)}
+.step .s-t{
+  font-family:var(--display);font-variation-settings:"wght" 620;
+  font-size:clamp(1.5rem,6vw,2rem);line-height:1;letter-spacing:-.025em;color:var(--bone);
+}
+.step .s-tag{
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--bone-3);white-space:nowrap;
+}
+/* the one thing the page is about: where the job stalls */
+.step.leak{border-color:var(--ember)}
+.step.leak::before{content:"";position:absolute;left:-1px;top:-1px;bottom:-1px;width:3px;background:var(--ember)}
+.step.leak .s-tag{color:var(--ember)}
+.flow-note{margin-top:var(--s5)}
+
+@media(min-width:900px){
+  .flow{grid-template-columns:repeat(5,1fr);gap:12px}
+  .step{
+    grid-template-columns:1fr;align-items:start;align-content:space-between;
+    gap:var(--s5);min-height:210px;padding:var(--s4);
+  }
+  .step .s-t{font-size:clamp(1.5rem,2.2vw,2.1rem)}
+  .step .s-tag{white-space:normal}
+}
+
+/* ---------- header no longer collides with content ----------
+   It is fixed with no backdrop, so chips and copy scrolled straight
+   through the logo on a phone. */
+header{background:var(--void);transition:background-color 320ms var(--e-sig),color 320ms var(--e-sig)}
+header.on-paper{background:var(--paper)}
+
+/* ---------- mobile density ----------
+   Section padding of 15vh plus large gaps left enormous dead space on a
+   phone. Tighter, so the page moves. */
+@media(max-width:760px){
+  section{padding-block:clamp(56px,8vh,88px)}
+  section.tight{padding-block:clamp(44px,6vh,64px)}
+  .hero{padding-block:clamp(104px,14vh,140px) clamp(40px,6vh,64px)}
+  .close{padding-block:clamp(64px,9vh,110px)}
+  .paper{padding-block:clamp(64px,9vh,110px)}
+  .junction{margin-bottom:var(--s5)}
+  .chips{margin-top:var(--s4)}
+  .ev-stack{gap:var(--s7)}
+}

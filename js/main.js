@@ -242,44 +242,16 @@
   });
 
   /* ---------------------------------------------------------
-     The job trace band: line draws, dot travels, break flashes.
+     The job flow: cards arrive in sequence as you reach them, and the
+     two that leak land last so the eye finishes on the problem.
      --------------------------------------------------------- */
-  var band = document.getElementById("trace");
-  if (band) {
-    var litA = band.querySelector("[data-lit-a]");
-    var litB = band.querySelector("[data-lit-b]");
-    var dot = band.querySelector("[data-dot]");
-    var brks = band.querySelectorAll("[data-brk]");
-    var stops = band.querySelectorAll(".trace-stops li");
-
-    gsap.set([litA, litB], { strokeDasharray: 1, strokeDashoffset: 1 });
-    gsap.set(brks, { opacity: 0.25 });
-    gsap.set(stops, { color: "#8A847B" });
-
-    ScrollTrigger.create({
-      trigger: band,
-      start: "top 78%",
-      end: "bottom 55%",
-      scrub: 0.5,
-      invalidateOnRefresh: true,
-      onUpdate: function (self) {
-        var p = self.progress;
-        /* segment A runs 0 → 0.62, the gap sits 0.62 → 0.72, segment B 0.72 → 1 */
-        var a = Math.min(p / 0.62, 1);
-        var b = Math.max(0, Math.min((p - 0.72) / 0.28, 1));
-        gsap.set(litA, { strokeDashoffset: 1 - a });
-        gsap.set(litB, { strokeDashoffset: 1 - b });
-        /* dot rides the line, pausing across the break */
-        var x = p < 0.62 ? 60 + (1002 - 60) * (p / 0.62)
-              : p < 0.72 ? 1002
-              : 1070 + (1380 - 1070) * ((p - 0.72) / 0.28);
-        gsap.set(dot, { attr: { cx: x } });
-        gsap.set(brks, { opacity: p > 0.58 ? 1 : 0.25 });
-        stops.forEach(function (li, i) {
-          var lit = p > (i * 0.19);
-          gsap.set(li, { color: lit ? (li.classList.contains("broke") ? "#FF5A1F" : "#F5F1EA") : "#8A847B" });
-        });
-      }
+  var flow = document.querySelector("[data-flow]");
+  if (flow) {
+    var steps = flow.querySelectorAll(".step");
+    gsap.set(steps, { y: 20 });
+    gsap.to(steps, {
+      y: 0, duration: 0.8, ease: "expo.out", stagger: 0.07,
+      scrollTrigger: { trigger: flow, start: "top 82%", once: true }
     });
   }
 
