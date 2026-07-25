@@ -1,941 +1,372 @@
-/* John Montejano - Signal System behaviors
-   Character: documentary, precise, quiet. Things draw, settle, lock into place.
-   Everything degrades to fully static content with reduced motion or no JS.
-
-   Motion contract kept by this file:
-   - transform / opacity / strokeDashoffset only. No layout properties are animated.
-   - nothing informational is hidden unless it is below the fold at init.
-   - will-change is set while a tween runs and cleared the moment it stops.
-   - the motion kill switch is an exact query parameter (?motion=off), never a
-     substring match, so no real URL can disable the site by accident. */
+/* ============================================================
+   THE THROUGH-LINE — motion
+   One rail, drawn by scroll, driving everything derived from it.
+   Content renders visible; JS hides only what it will animate, and
+   only when animation is actually going to run.
+   ============================================================ */
 (function () {
   "use strict";
 
-  /* ---------- environment ---------- */
-  var motionOff = false;
-  try {
-    motionOff = new URLSearchParams(window.location.search).get("motion") === "off";
-  } catch (e) { motionOff = false; }
-
-  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches || motionOff;
+  var doc = document.documentElement;
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var hasGsap = typeof window.gsap !== "undefined";
   var animate = hasGsap && !reduce;
-  var hasIO = "IntersectionObserver" in window;
-  var toArray = function (list) { return Array.prototype.slice.call(list || []); };
-  var vh = function () { return window.innerHeight || document.documentElement.clientHeight; };
-  var willChange = function (el, on) {
-    if (!el) return;
-    if (el.length !== undefined && !el.style) { toArray(el).forEach(function (e) { willChange(e, on); }); return; }
-    el.style.willChange = on ? "transform" : "";
-  };
+  var fine = window.matchMedia("(hover:hover) and (pointer:fine)").matches;
 
-  document.documentElement.classList.add("js-ready");
-  if (animate) document.documentElement.classList.add("js-anim");
-
-  /* Runtime stylesheet: the handful of rules that only apply once JS has taken
-     an element over. Injected only in animating mode, so the no-JS and
-     reduced-motion renderings are exactly what ships in styles.css. */
-  if (animate) {
-    var runtime = document.createElement("style");
-    runtime.setAttribute("data-motion-runtime", "");
-    runtime.textContent =
-      /* the static CSS connector is replaced by the drawn cobalt signal line */
-      '[data-sts-line="js"] .node::before{display:none;}';
-    document.head.appendChild(runtime);
-  }
-
-  /* ---------- nav scrolled state (IO sentinel; no scroll listeners) ---------- */
-  var header = document.getElementById("site-header");
-  if (header && hasIO) {
-    /* At the very top the bar sits flush with the page surface. Once the page
-       moves it lifts to paper with a hairline. Colour only: no size change, no
-       hide-on-scroll, no progress cue. */
-    header.style.backgroundColor = "transparent";
-    /* the transition is added a frame later so the first state is not itself
-       animated on page load */
-    requestAnimationFrame(function () {
-      header.style.transition = "background-color 200ms var(--ease-out), border-color 200ms var(--ease-out)";
+  /* ---------------------------------------------------------
+     Width-axis justification.
+     Each display line carries its own wdth so every line ends
+     flush at the same right edge. Hand-set values ship in the
+     HTML; this only refines them once the real font is ready.
+     --------------------------------------------------------- */
+  function justify(scope) {
+    var lines = (scope || document).querySelectorAll(".ln");
+    if (!lines.length) return;
+    lines.forEach(function (ln) {
+      var parent = ln.parentElement;
+      var target = parent.getBoundingClientRect().width;
+      if (!target) return;
+      var lo = 62, hi = 125, best = parseFloat(ln.style.getPropertyValue("--wd")) || 100;
+      /* binary search the width axis until the line fills its column */
+      for (var i = 0; i < 12; i++) {
+        var mid = (lo + hi) / 2;
+        ln.style.setProperty("--wd", mid.toFixed(2));
+        var w = ln.scrollWidth;
+        if (Math.abs(w - target) < 0.5) { best = mid; break; }
+        if (w > target) { hi = mid; } else { lo = mid; best = mid; }
+      }
+      ln.style.setProperty("--wd", best.toFixed(2));
     });
-    var sentinel = document.createElement("div");
-    sentinel.setAttribute("aria-hidden", "true");
-    sentinel.style.cssText = "position:absolute;top:0;height:1px;width:1px;pointer-events:none;";
-    document.body.prepend(sentinel);
+  }
+  var justifyAll = function () { justify(document); };
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(justifyAll);
+  } else {
+    window.addEventListener("load", justifyAll);
+  }
+  var rt;
+  window.addEventListener("resize", function () {
+    clearTimeout(rt);
+    rt = setTimeout(function () {
+      justifyAll();
+      if (animate && window.ScrollTrigger) ScrollTrigger.refresh();
+    }, 150);
+  });
+
+  /* ---------------------------------------------------------
+     Header repaint over the paper band.
+     --------------------------------------------------------- */
+  var head = document.getElementById("head");
+  var paper = document.querySelector(".paper");
+  if (head && paper && "IntersectionObserver" in window) {
     new IntersectionObserver(function (entries) {
-      var scrolled = !entries[0].isIntersecting;
-      header.classList.toggle("scrolled", scrolled);
-      header.setAttribute("data-scrolled", scrolled ? "true" : "false");
-      header.style.backgroundColor = scrolled ? "var(--surface-paper)" : "transparent";
-    }, { threshold: 0 }).observe(sentinel);
+      entries.forEach(function (e) { head.classList.toggle("on-paper", e.isIntersecting); });
+    }, { rootMargin: "-64px 0px -100% 0px", threshold: 0 }).observe(paper);
   }
 
-  /* ---------- mobile menu: a real modal dialog ---------- */
-  var toggle = document.querySelector(".menu-toggle");
-  var menu = document.getElementById("mobile-menu");
-  if (toggle && menu) {
-    var closeBtn = menu.querySelector(".menu-close");
-    var lastFocus = null;
-    var prevOverflow = "";
-    var prevPadRight = "";
-    var inerted = [];
-    var FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),' +
-                    'textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+  /* ---------------------------------------------------------
+     Booking pickers + email compose. Runs with or without GSAP.
+     --------------------------------------------------------- */
+  (function booking() {
+    var root = document.querySelector("[data-cal]");
+    if (!root) return;
+    var form = root.querySelector("form");
+    var daysEl = root.querySelector("[data-days]");
+    var slotsEl = root.querySelector("[data-slots]");
+    var submit = root.querySelector("[data-submit]");
+    var slotField = root.querySelector("[data-slot-field]");
+    var tzField = root.querySelector("[data-tz-field]");
+    if (!form || !daysEl || !slotsEl || !submit) return;
 
-    var isOpen = function () { return menu.classList.contains("open"); };
+    var TO = "johnmontejano2@gmail.com";
+    var DW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    var DL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    var ML = ["January", "February", "March", "April", "May", "June", "July",
+              "August", "September", "October", "November", "December"];
+    var SLOTS = ["9:00 AM", "10:30 AM", "12:00 PM", "2:00 PM", "3:30 PM", "5:00 PM"];
+    var picked = { day: null, slot: null };
 
-    var focusables = function () {
-      return toArray(menu.querySelectorAll(FOCUSABLE)).filter(function (el) {
-        return el.offsetWidth > 0 || el.offsetHeight > 0 || el === document.activeElement;
-      });
-    };
+    try { if (tzField) tzField.value = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) {}
 
-    var lockScroll = function () {
-      var bar = window.innerWidth - document.documentElement.clientWidth;
-      prevOverflow = document.body.style.overflow;
-      prevPadRight = document.body.style.paddingRight;
-      document.body.style.overflow = "hidden";
-      /* compensate for the scrollbar so nothing shifts sideways when it goes */
-      if (bar > 0) document.body.style.paddingRight = bar + "px";
-    };
-    var unlockScroll = function () {
-      document.body.style.overflow = prevOverflow;
-      document.body.style.paddingRight = prevPadRight;
-    };
-
-    var supportsInert = "inert" in HTMLElement.prototype;
-    var setBackgroundInert = function (on) {
-      if (on) {
-        inerted = [];
-        toArray(document.body.children).forEach(function (el) {
-          if (el === menu || el.nodeType !== 1) return;
-          if (supportsInert) {
-            if (el.inert) return;
-            el.inert = true;
-            inerted.push({ el: el, mode: "inert" });
-          } else {
-            if (el.getAttribute("aria-hidden") === "true") return;
-            el.setAttribute("aria-hidden", "true");
-            inerted.push({ el: el, mode: "aria" });
-          }
-        });
-      } else {
-        inerted.forEach(function (rec) {
-          if (rec.mode === "inert") rec.el.inert = false;
-          else rec.el.removeAttribute("aria-hidden");
-        });
-        inerted = [];
-      }
-    };
-
-    var onKeydown = function (e) {
-      if (!isOpen()) return;
-      if (e.key === "Escape" || e.key === "Esc") { e.preventDefault(); closeMenu(); return; }
-      if (e.key !== "Tab") return;
-      var f = focusables();
-      if (!f.length) { e.preventDefault(); menu.focus(); return; }
-      var first = f[0];
-      var last = f[f.length - 1];
-      var active = document.activeElement;
-      var inside = menu.contains(active);
-      if (e.shiftKey) {
-        if (!inside || active === first || active === menu) { e.preventDefault(); last.focus(); }
-      } else if (!inside || active === last) {
-        e.preventDefault(); first.focus();
-      }
-    };
-
-    var openMenu = function () {
-      if (isOpen()) return;
-      lastFocus = document.activeElement;
-      menu.classList.add("open");
-      toggle.setAttribute("aria-expanded", "true");
-      lockScroll();
-      (closeBtn || focusables()[0] || menu).focus();   /* focus first, then seal */
-      setBackgroundInert(true);
-      document.addEventListener("keydown", onKeydown, true);
-    };
-
-    var closeMenu = function () {
-      if (!isOpen()) return;
-      document.removeEventListener("keydown", onKeydown, true);
-      setBackgroundInert(false);
-      menu.classList.remove("open");
-      toggle.setAttribute("aria-expanded", "false");
-      unlockScroll();
-      var back = (lastFocus && document.contains(lastFocus) && lastFocus !== document.body) ? lastFocus : toggle;
-      back.focus();
-      lastFocus = null;
-    };
-
-    toggle.addEventListener("click", openMenu);
-    if (closeBtn) closeBtn.addEventListener("click", closeMenu);
-    menu.querySelectorAll("a").forEach(function (a) { a.addEventListener("click", closeMenu); });
-
-    /* the menu control disappears at the desktop breakpoint: never strand focus there */
-    var wide = window.matchMedia("(min-width: 1024px)");
-    var onWide = function (e) { if (e.matches) closeMenu(); };
-    if (wide.addEventListener) wide.addEventListener("change", onWide);
-    else if (wide.addListener) wide.addListener(onWide);
-  }
-
-  /* ---------- FAQ accordion ---------- */
-  document.querySelectorAll(".faq-item").forEach(function (item, i) {
-    var q = item.querySelector(".faq-q");
-    var panel = item.querySelector(".faq-a");
-    if (!q) return;
-    if (panel) {
-      if (!panel.id) panel.id = "faq-panel-" + (i + 1);
-      q.setAttribute("aria-controls", panel.id);
-      if (!q.id) q.id = "faq-q-" + (i + 1);
-      panel.setAttribute("role", "region");
-      panel.setAttribute("aria-labelledby", q.id);
+    var days = [], d = new Date();
+    d.setDate(d.getDate() + 1);
+    while (days.length < 10) {
+      if (d.getDay() !== 0 && d.getDay() !== 6) days.push(new Date(d));
+      d.setDate(d.getDate() + 1);
     }
-    q.addEventListener("click", function () {
-      var open = item.hasAttribute("data-open");
-      if (open) { item.removeAttribute("data-open"); q.setAttribute("aria-expanded", "false"); }
-      else { item.setAttribute("data-open", ""); q.setAttribute("aria-expanded", "true"); }
-    });
-  });
 
-  /* ---------- image plates: prepare the drift wrapper ----------
-     Every plate image gets a transform-only wrapper so the picture can drift
-     inside its frame without touching the image element itself (the CSS hover
-     scale lives on the image and must keep working). Purely structural: the
-     wrapper covers the frame exactly, so nothing moves until a tween runs. */
-  var frames = [];
-  if (animate) {
-    document.querySelectorAll(".plate-media").forEach(function (frame) {
-      var img = frame.querySelector("img");
-      if (!img || img.parentElement !== frame) return;
-      var wrap = document.createElement("span");
-      wrap.setAttribute("data-plate-drift", "");   /* presentational only; the img keeps its alt text */
-      wrap.style.cssText = "display:block;position:absolute;inset:0;";
-      frame.insertBefore(wrap, img);
-      wrap.appendChild(img);
-      frames.push(frame);
-    });
-  }
-  var driftWrap = function (frame) {
-    var img = frame && frame.querySelector("img");
-    return img && img.parentElement !== frame ? img.parentElement : null;
-  };
-  /* the reveal unit is the block the frame belongs to (link, figure or plate) */
-  var unitOf = function (frame) {
-    return frame.closest(".rv, .rv-group") || frame.closest("figure, a.plate-link, .plate") ||
-           frame.parentElement || frame;
-  };
-  var plateUnits = [];
-  frames.forEach(function (frame) {
-    if (frame.closest("[data-sts-root]")) return;   /* the signature section owns its own figure */
-    var unit = unitOf(frame);
-    unit.setAttribute("data-plate-unit", "");
-    plateUnits.push({ unit: unit, frame: frame });
-  });
+    function label(day, slot) {
+      return DL[day.getDay()] + ", " + ML[day.getMonth()] + " " + day.getDate() +
+             ", " + day.getFullYear() + " at " + slot + " Pacific";
+    }
+    function update() {
+      var ready = !!(picked.day && picked.slot);
+      submit.disabled = !ready;
+      if (slotField) slotField.value = ready ? label(picked.day, picked.slot) : "";
+      submit.textContent = ready ? "Send request" : (picked.day ? "Pick a time" : "Pick a day and time");
+    }
+    function press(container, sel, el) {
+      container.querySelectorAll(sel).forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
+      el.setAttribute("aria-pressed", "true");
+    }
 
-  /* ---------- quiet reveal for everything that is not a plate ----------
-     CSS owns the transition; JS only decides who is eligible and staggers
-     siblings so a row never lands all at once. */
-  if (animate && hasIO) {
-    var els = toArray(document.querySelectorAll(".rv, .rv-group")).filter(function (el) {
-      return !el.hasAttribute("data-plate-unit") && !el.querySelector("[data-plate-unit]");
+    days.forEach(function (day) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "day"; b.setAttribute("aria-pressed", "false");
+      b.innerHTML = '<span class="dw">' + DW[day.getDay()] + '</span><span class="dn">' + day.getDate() + "</span>";
+      b.setAttribute("aria-label", DL[day.getDay()] + " " + ML[day.getMonth()] + " " + day.getDate());
+      b.addEventListener("click", function () { picked.day = day; press(daysEl, ".day", b); update(); });
+      daysEl.appendChild(b);
     });
-    var io = new IntersectionObserver(function (entries) {
-      var landing = entries.filter(function (e) { return e.isIntersecting; });
-      var seen = [];
-      var counts = [];
-      landing.forEach(function (entry) {
-        var parent = entry.target.parentElement;
-        var idx = seen.indexOf(parent);
-        if (idx === -1) { seen.push(parent); counts.push(0); idx = seen.length - 1; }
-        var step = Math.min(counts[idx], 3);
-        counts[idx] += 1;
-        io.unobserve(entry.target);
-        if (step === 0) entry.target.classList.add("rv-in");
-        else setTimeout(function () { entry.target.classList.add("rv-in"); }, step * 90);
-      });
-    }, { rootMargin: "0px 0px -10% 0px", threshold: 0 });
-    els.forEach(function (el) {
-      if (el.getBoundingClientRect().top > vh() * 0.9) {
-        el.classList.add("rv-init");
-        io.observe(el);
-      }
+    SLOTS.forEach(function (slot) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "slot"; b.setAttribute("aria-pressed", "false");
+      b.textContent = slot;
+      b.addEventListener("click", function () { picked.slot = slot; press(slotsEl, ".slot", b); update(); });
+      slotsEl.appendChild(b);
     });
-  }
+    update();
 
-  if (!animate) return;   /* everything below is pure choreography */
+    form.addEventListener("submit", function (e) {
+      if (!picked.day || !picked.slot) { e.preventDefault(); daysEl.scrollIntoView({ block: "center" }); return; }
+      if (!form.checkValidity()) return;
+      e.preventDefault();
+      var fd = new FormData(form);
+      var v = function (k) { return (fd.get(k) || "").toString().trim(); };
+      var slotText = label(picked.day, picked.slot);
+      var lines = ["Requested time: " + slotText, "Name: " + v("name"), "Email: " + v("email")];
+      if (v("business")) lines.push("Business: " + v("business"));
+      if (v("context")) lines.push("", "Where the time goes:", v("context"));
+      if (v("timezone")) lines.push("", "(Visitor timezone: " + v("timezone") + ")");
+      var href = "mailto:" + TO + "?subject=" + encodeURIComponent("Job trace request: " + slotText) +
+                 "&body=" + encodeURIComponent(lines.join("\n") + "\n");
+      window.location.href = href;
+
+      var wrap = document.createElement("div");
+      wrap.className = "sent"; wrap.setAttribute("role", "status"); wrap.setAttribute("tabindex", "-1");
+      wrap.innerHTML = "<h2>Your email is ready.</h2>" +
+        "<p>Your mail app should have opened with the details filled in. Send it and it comes straight to me.</p>" +
+        '<p class="mono-cap">' + slotText + "</p>" +
+        '<p>Nothing opened? <a class="link" href="' + href + '">Open it again</a>, or write to ' +
+        '<a class="link" href="mailto:' + TO + '">' + TO + "</a>.</p>";
+      form.parentNode.replaceChild(wrap, form);
+      wrap.focus();
+    });
+  })();
+
+  if (!animate) return;   /* everything below is choreography only */
 
   gsap.registerPlugin(ScrollTrigger);
   var hasSplit = typeof window.SplitText !== "undefined";
   if (hasSplit) gsap.registerPlugin(SplitText);
 
-  /* ---------- section rule draws (the repeated motion signature) ---------- */
-  document.querySelectorAll("[data-rule]").forEach(function (rule) {
-    gsap.set(rule, { scaleX: 0, transformOrigin: "left center" });
-    gsap.to(rule, {
-      scaleX: 1, duration: 0.65, ease: "power2.inOut",
-      onStart: function () { willChange(rule, true); },
-      onComplete: function () { willChange(rule, false); },
-      scrollTrigger: { trigger: rule, start: "top 82%", once: true }
+  /* ---------------------------------------------------------
+     Load curtain: the monogram draws, then lifts.
+     Hard-capped so it can never hold the page hostage.
+     --------------------------------------------------------- */
+  var curtain = document.getElementById("curtain");
+  if (curtain) {
+    var strokes = curtain.querySelectorAll(".cs");
+    var cross = curtain.querySelector(".cx");
+    strokes.forEach(function (p) {
+      var len = p.getTotalLength ? p.getTotalLength() : 60;
+      gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
     });
-  });
+    gsap.set(cross, { scaleX: 0 });
+    var lift = gsap.timeline();
+    lift.to(strokes, { strokeDashoffset: 0, duration: 0.9, ease: "expo.out", stagger: 0.06 }, 0)
+        .to(cross, { scaleX: 1, duration: 0.4, ease: "power4.inOut" }, 0.35)
+        .to(curtain, { clipPath: "inset(0 0 100% 0)", duration: 0.7, ease: "power4.inOut" }, 0.75)
+        .set(curtain, { display: "none" });
+    setTimeout(function () { lift.progress(1); }, 2200);   /* ceiling */
+  }
 
-  /* ---------- hero entrance ----------
-     The H1 is the LCP element on every page, so it is never hidden and never
-     waits on document.fonts. SplitText masks the lines instead: the headline
-     is in the DOM, painted, and simply wipes up behind its own mask. If
-     SplitText is unavailable or throws, the headline is already visible. */
+  /* ---------------------------------------------------------
+     Hero entrance. Every duration in the sequence differs, so
+     nothing reads keyframed together.
+     --------------------------------------------------------- */
   var heroTitle = document.querySelector("[data-hero-title]");
   if (heroTitle && document.visibilityState === "visible") {
-    var heroRule = document.querySelector("[data-hero-rule]");
-    var heroTicks = document.querySelectorAll("[data-hero-ticks] li");
-    var heroBottom = document.querySelector("[data-hero-bottom]");
-    var heroSplit = null;
-    var titleDone = false;
+    var eyebrow = document.querySelector("[data-hero-eyebrow]");
+    var sub = document.querySelector("[data-hero-sub]");
+    var heroCta = document.querySelector(".hero .cta");
+    var lns = heroTitle.querySelectorAll(".ln");
 
-    if (heroRule) gsap.set(heroRule, { scaleX: 0, transformOrigin: "left center" });
-    if (heroTicks.length) gsap.set(heroTicks, { opacity: 0, y: 8 });
-    if (heroBottom) gsap.set(heroBottom.children, { opacity: 0, y: 16 });
+    /* mask each line by wrapping it, so the wipe has an edge to hide behind */
+    lns.forEach(function (ln) {
+      var mask = document.createElement("span");
+      mask.style.cssText = "display:block;overflow:hidden;padding-bottom:.10em;margin-bottom:-.10em";
+      ln.parentNode.insertBefore(mask, ln);
+      mask.appendChild(ln);
+    });
 
-    var landHero = function () {   /* tab hidden mid-entrance: land everything now */
-      titleDone = true;
-      if (heroSplit && heroSplit.lines) gsap.set(heroSplit.lines, { yPercent: 0, clearProps: "willChange" });
-      if (heroRule) gsap.set(heroRule, { scaleX: 1, clearProps: "willChange" });
-      if (heroTicks.length) gsap.set(heroTicks, { clearProps: "all" });
-      if (heroBottom) gsap.set(heroBottom.children, { clearProps: "all" });
+    gsap.set(lns, { yPercent: 125 });
+    if (eyebrow) gsap.set(eyebrow, { opacity: 0, y: 12 });
+    if (sub) gsap.set(sub, { opacity: 0, y: 14 });
+    if (heroCta) gsap.set(heroCta, { opacity: 0, scale: 0.92 });
+    gsap.set(head, { yPercent: -120 });
+
+    var start = function () {
+      justifyAll();
+      var tl = gsap.timeline({ delay: curtain ? 0.55 : 0 });
+      if (eyebrow) tl.to(eyebrow, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" }, 0.10);
+      tl.to(lns, { yPercent: 0, duration: 1.15, ease: "expo.out", stagger: 0.08 }, 0.18);
+      if (sub) tl.to(sub, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" }, 0.62);
+      if (heroCta) tl.to(heroCta, { opacity: 1, scale: 1, duration: 0.9, ease: "expo.out" }, 0.66);
+      tl.to(head, { yPercent: 0, duration: 0.8, ease: "expo.out" }, 0.70);
     };
+    if (document.fonts && document.fonts.ready) {
+      var fired = false;
+      var go = function () { if (!fired) { fired = true; start(); } };
+      document.fonts.ready.then(go);
+      setTimeout(go, 1200);
+    } else { start(); }
+  }
 
-    if (hasSplit) {
-      try {
-        heroSplit = SplitText.create(heroTitle, {
-          type: "lines",
-          mask: "lines",
-          autoSplit: true,      /* re-splits when the webfont lands or the box resizes */
-          onSplit: function (self) {
-            if (titleDone) return gsap.set(self.lines, { yPercent: 0 });
-            willChange(self.lines, true);
-            return gsap.from(self.lines, {
-              yPercent: 110, duration: 0.85, stagger: 0.08, ease: "power3.out",
-              onComplete: function () { titleDone = true; willChange(self.lines, false); }
-            });
-          }
-        });
-      } catch (err) { heroSplit = null; }
-    }
-    /* the headline is legible either way after this point */
-    setTimeout(function () { titleDone = true; }, 1400);
-
-    var tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-    if (heroRule) tl.to(heroRule, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 0.4);
-    if (heroTicks.length) tl.to(heroTicks, { opacity: 1, y: 0, duration: 0.35, stagger: 0.09, ease: "power2.out" }, 0.8);
-    if (heroBottom) tl.to(heroBottom.children, { opacity: 1, y: 0, duration: 0.55, stagger: 0.1 }, 0.62);
-
-    document.addEventListener("visibilitychange", function () {
-      if (document.visibilityState === "hidden") { tl.progress(1); landHero(); }
+  /* ---------------------------------------------------------
+     THE RAIL. One scrubbed trigger over <main>; every junction
+     derives its progress from it rather than adding triggers.
+     --------------------------------------------------------- */
+  var rail = document.getElementById("rail");
+  var main = document.getElementById("main");
+  if (rail && main) {
+    gsap.set(rail, { scaleY: 0.015 });
+    ScrollTrigger.create({
+      trigger: main,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: window.matchMedia("(max-width:900px)").matches ? 1 : 0.4,
+      invalidateOnRefresh: true,
+      fastScrollEnd: true,
+      onUpdate: function (self) { gsap.set(rail, { scaleY: 0.015 + self.progress * 0.985 }); }
     });
   }
 
-  /* ---------- image plates: the reveal that carries the whole argument ----------
-     The frame opens like a shutter (scaleY from the top edge) while the picture
-     inside counter-scales, so the image never squashes and never moves: the
-     window opens onto a photograph that is already correctly placed. Then the
-     picture drifts a fraction of a percent inside its frame for as long as it
-     crosses the viewport. Transforms only. */
-  var ZOOM = 1.045;    /* headroom so the drift never exposes an edge */
-  var SHUT = 0.86;     /* how far the shutter is closed at rest */
-  var DRIFT = 1.4;     /* percent of frame height, each way */
-  var plateData = new WeakMap();
-
-  /* every hidden state is applied here, at arm time, while the plate is still
-     below the fold. Nothing on screen is ever hidden and then re-revealed. */
-  var preparePlate = function (frame, unit) {
-    var wrap = driftWrap(frame);
-    if (!wrap) return null;
-    var text = (unit && unit !== frame)
-      ? toArray(unit.querySelectorAll("figcaption, .case-next-body"))
-      : [];
-    gsap.set(frame, { scaleY: SHUT, transformOrigin: "50% 0%", opacity: 0 });
-    gsap.set(wrap, { scaleX: ZOOM, scaleY: ZOOM / SHUT, transformOrigin: "50% 0%" });
-    if (text.length) gsap.set(text, { opacity: 0, y: 10 });
-    var data = { wrap: wrap, text: text };
-    plateData.set(frame, data);
-    return data;
-  };
-
-  var playPlate = function (frame, delay) {
-    var data = plateData.get(frame) || { wrap: driftWrap(frame), text: [] };
-    var wrap = data.wrap;
-    var tl = gsap.timeline({
-      delay: delay || 0,
-      onStart: function () { willChange(frame, true); willChange(wrap, true); },
-      onComplete: function () { willChange(frame, false); }
+  /* junction branches + index reveal.
+     The branch rule is a ::before, which GSAP cannot target, so the draw
+     is a CSS transition switched by a class; the index is tweened. */
+  gsap.utils.toArray(".junction").forEach(function (j) {
+    ScrollTrigger.create({
+      trigger: j, start: "top 85%", once: true,
+      onEnter: function () {
+        j.classList.add("drawn");
+        var idx = j.querySelector(".idx");
+        if (idx) gsap.fromTo(idx, { x: -3, opacity: 0.4 },
+          { x: 0, opacity: 1, duration: 0.4, ease: "expo.out", delay: 0.35 });
+      }
     });
-    tl.to(frame, { opacity: 1, duration: 0.45, ease: "power1.out" }, 0);
-    tl.to(frame, { scaleY: 1, duration: 1.05, ease: "power3.out" }, 0);
-    if (wrap) tl.to(wrap, { scaleY: ZOOM, duration: 1.05, ease: "power3.out" }, 0);
-    if (data.text.length) {
-      tl.to(data.text, {
-        opacity: 1, y: 0, duration: 0.5, stagger: 0.06, ease: "power2.out",
-        clearProps: "transform"
-      }, 0.22);
-    }
-    return tl;
-  };
+  });
 
-  var driftPlate = function (frame) {
-    var wrap = driftWrap(frame);
-    if (!wrap) return;
-    gsap.fromTo(wrap,
-      { yPercent: -DRIFT },
-      {
-        yPercent: DRIFT, ease: "none",
-        scrollTrigger: {
-          trigger: frame, start: "top bottom", end: "bottom top", scrub: true,
-          onToggle: function (self) { willChange(wrap, self.isActive); }
-        }
+  /* ---------------------------------------------------------
+     The job trace band: line draws, dot travels, break flashes.
+     --------------------------------------------------------- */
+  var band = document.getElementById("trace");
+  if (band) {
+    var litA = band.querySelector("[data-lit-a]");
+    var litB = band.querySelector("[data-lit-b]");
+    var dot = band.querySelector("[data-dot]");
+    var brks = band.querySelectorAll("[data-brk]");
+    var stops = band.querySelectorAll(".trace-stops li");
+
+    gsap.set([litA, litB], { strokeDasharray: 1, strokeDashoffset: 1 });
+    gsap.set(brks, { opacity: 0.25 });
+    gsap.set(stops, { opacity: 0.35 });
+
+    ScrollTrigger.create({
+      trigger: band,
+      start: "top 78%",
+      end: "bottom 55%",
+      scrub: 0.5,
+      invalidateOnRefresh: true,
+      onUpdate: function (self) {
+        var p = self.progress;
+        /* segment A runs 0 → 0.62, the gap sits 0.62 → 0.72, segment B 0.72 → 1 */
+        var a = Math.min(p / 0.62, 1);
+        var b = Math.max(0, Math.min((p - 0.72) / 0.28, 1));
+        gsap.set(litA, { strokeDashoffset: 1 - a });
+        gsap.set(litB, { strokeDashoffset: 1 - b });
+        /* dot rides the line, pausing across the break */
+        var x = p < 0.62 ? 60 + (1002 - 60) * (p / 0.62)
+              : p < 0.72 ? 1002
+              : 1070 + (1380 - 1070) * ((p - 0.72) / 0.28);
+        gsap.set(dot, { attr: { cx: x } });
+        gsap.set(brks, { opacity: p > 0.58 ? 1 : 0.25 });
+        stops.forEach(function (li, i) {
+          gsap.set(li, { opacity: p > (i * 0.19) ? 1 : 0.35 });
+        });
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------
+     Quiet reveals. Fade only, from 0.14 rather than 0, so text
+     is never actually missing for find-in-page or a screen reader.
+     --------------------------------------------------------- */
+  gsap.utils.toArray(".index li, .steps li, .refuse li, .ev, .refusals li, .op-line, .index-close, .maxim, .ev-rail")
+    .forEach(function (el) {
+      gsap.fromTo(el, { opacity: 0.14, y: 14 }, {
+        opacity: 1, y: 0, duration: 0.9, ease: "expo.out",
+        scrollTrigger: { trigger: el, start: "top 88%", once: true }
       });
-  };
-
-  var revealUnits = [];
-  plateUnits.forEach(function (rec) {
-    /* never hide something the visitor is already looking at */
-    if (rec.frame.getBoundingClientRect().top < vh() * 0.88) return;
-    if (!preparePlate(rec.frame, rec.unit)) return;
-    rec.unit.setAttribute("data-plate-armed", "");
-    revealUnits.push(rec.unit);
-    driftPlate(rec.frame);
-  });
-
-  if (revealUnits.length) {
-    /* siblings that enter together are staggered, so a row of plates never
-       lands on the same frame */
-    ScrollTrigger.batch(revealUnits, {
-      start: "top 88%",
-      once: true,
-      interval: 0.14,
-      batchMax: 4,
-      onEnter: function (batch) {
-        batch.forEach(function (unit, i) {
-          if (!unit.hasAttribute("data-plate-armed")) return;
-          unit.removeAttribute("data-plate-armed");
-          var frame = unit.matches(".plate-media") ? unit : unit.querySelector(".plate-media");
-          if (frame) playPlate(frame, i * 0.14);
-        });
-      }
     });
-  }
 
-  /* ---------- method spine draw (scrubbed install) ---------- */
-  var spine = document.querySelector(".method-spine");
-  if (spine) {
-    var horizontal = window.matchMedia("(min-width: 768px)").matches;
-    gsap.set(spine, horizontal
-      ? { scaleX: 0, transformOrigin: "left center" }
-      : { scaleY: 0, transformOrigin: "top center" });
-    gsap.to(spine, {
-      scaleX: 1, scaleY: 1, ease: "none",
-      scrollTrigger: {
-        trigger: ".method-row", start: "top 85%", end: "top 40%", scrub: 0.5,
-        onToggle: function (self) { willChange(spine, self.isActive); }
-      }
+  /* the evidence media wipes open, the picture inside counter-scales */
+  gsap.utils.toArray(".shot").forEach(function (shot) {
+    var img = shot.querySelector("img");
+    gsap.fromTo(shot, { clipPath: "inset(0 0 100% 0)" }, {
+      clipPath: "inset(0 0 0% 0)", duration: 1.25, ease: "power4.inOut",
+      scrollTrigger: { trigger: shot, start: "top 85%", once: true }
     });
-  }
-
-  /* ---------- about timeline spine ---------- */
-  var tlSpine = document.querySelector(".timeline .tl-spine");
-  if (tlSpine) {
-    gsap.set(tlSpine, { scaleY: 0, transformOrigin: "top center" });
-    gsap.to(tlSpine, {
-      scaleY: 1, ease: "none",
-      scrollTrigger: {
-        trigger: ".timeline", start: "top 80%", end: "bottom 55%", scrub: 0.5,
-        onToggle: function (self) { willChange(tlSpine, self.isActive); }
-      }
-    });
-  }
-
-  /* ---------- footer heading settle (the one parallax-ish move) ---------- */
-  var closeHeading = document.querySelector(".close-heading");
-  if (closeHeading) {
-    gsap.from(closeHeading, {
-      y: 44, ease: "none",
-      scrollTrigger: {
-        trigger: "footer.close", start: "top 92%", end: "top 45%", scrub: 0.5,
-        onToggle: function (self) { willChange(closeHeading, self.isActive); }
-      }
-    });
-  }
-
-  /* ---------- surface to system ----------
-     One story, two tellings. Desktop with a fine pointer gets the pinned,
-     scrubbed sequence. Everything else that allows motion gets a scroll driven
-     telling of the same thing: the nodes arrive in order and the cobalt signal
-     line draws between them. No JS and reduced motion get the static layout
-     that ships in the HTML, complete and readable. */
-  var stsRoot = document.querySelector("[data-sts-root]");
-  if (stsRoot) {
-    var stsNodeList = stsRoot.querySelector(".node-list");
-    var stsDiagram = stsRoot.querySelector(".diagram");
-
-    /* the drawn signal line, built in JS so the static rendering keeps the
-       plain CSS connectors it already ships with */
-    var buildLine = function () {
-      if (!stsNodeList || !stsDiagram) return null;
-      var nodes = toArray(stsNodeList.querySelectorAll(".node"));
-      if (nodes.length < 2) return null;
-      var NS = "http://www.w3.org/2000/svg";
-      var svg = document.createElementNS(NS, "svg");
-      svg.setAttribute("aria-hidden", "true");
-      svg.setAttribute("focusable", "false");
-      svg.setAttribute("preserveAspectRatio", "none");
-      svg.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;";
-      var mk = function () {
-        var p = document.createElementNS(NS, "path");
-        p.setAttribute("pathLength", "1");
-        p.setAttribute("fill", "none");
-        p.setAttribute("stroke-linecap", "butt");
-        p.setAttribute("stroke-linejoin", "round");
-        p.setAttribute("vector-effect", "non-scaling-stroke");
-        p.style.stroke = "var(--accent-cobalt)";
-        p.style.strokeWidth = "1.5";
-        p.style.strokeDasharray = "1";
-        p.style.strokeDashoffset = "1";
-        svg.appendChild(p);
-        return p;
-      };
-      /* one drawable segment per gap, so the line lives strictly between the
-         node boxes and never runs across one */
-      var segs = nodes.slice(1).map(mk);
-      var loop = mk();
-      var measure = function () {
-        var w = stsNodeList.offsetWidth || 1;
-        var h = stsNodeList.offsetHeight || 1;
-        svg.setAttribute("viewBox", "0 0 " + w + " " + h);
-        var x = 28.75;                                   /* matches the static connector gutter */
-        segs.forEach(function (seg, i) {
-          var from = nodes[i].offsetTop + nodes[i].offsetHeight;
-          var to = nodes[i + 1].offsetTop;
-          seg.setAttribute("d", "M" + x + " " + from + " L" + x + " " + to);
-        });
-        /* the return loop: out of the last node, up the gutter, back into the first */
-        var first = nodes[0];
-        var last = nodes[nodes.length - 1];
-        var lx = -11;
-        var bot = last.offsetTop + last.offsetHeight + 8;
-        var top = first.offsetTop - 8;
-        var r = 6;
-        loop.setAttribute("d",
-          "M" + x + " " + (last.offsetTop + last.offsetHeight) +
-          " L" + x + " " + (bot - r) +
-          " Q" + x + " " + bot + " " + (x - r) + " " + bot +
-          " L" + (lx + r) + " " + bot +
-          " Q" + lx + " " + bot + " " + lx + " " + (bot - r) +
-          " L" + lx + " " + (top + r) +
-          " Q" + lx + " " + top + " " + (lx + r) + " " + top +
-          " L" + (x - r) + " " + top +
-          " Q" + x + " " + top + " " + x + " " + (top + r) +
-          " L" + x + " " + first.offsetTop);
-      };
-      measure();
-      stsNodeList.insertBefore(svg, stsNodeList.firstChild);
-      stsDiagram.setAttribute("data-sts-line", "js");
-      ScrollTrigger.addEventListener("refreshInit", measure);
-      return {
-        segs: segs,
-        loop: loop,
-        all: segs.concat([loop]),
-        destroy: function () {
-          ScrollTrigger.removeEventListener("refreshInit", measure);
-          stsDiagram.removeAttribute("data-sts-line");
-          if (svg.parentNode) svg.parentNode.removeChild(svg);
-        }
-      };
-    };
-
-    var mm = gsap.matchMedia();
-    mm.add({
-      pinned: "(min-width: 1024px) and (min-height: 640px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)",
-      flowing: "(prefers-reduced-motion: no-preference)"
-    }, function (ctx) {
-      var cond = ctx.conditions || {};
-      var stage = stsRoot.querySelector(".sts-stage");
-      var fig = stsRoot.querySelector(".sts-surface-fig");
-      var surfLabel = stsRoot.querySelector("[data-sts-label-surface]");
-      var sysBlock = stsRoot.querySelector(".sts-system-block");
-      var sysLabel = stsRoot.querySelector("[data-sts-label-system]");
-      var nodes = stsRoot.querySelectorAll(".node");
-      var tags = stsRoot.querySelectorAll(".node .tag");
-      var disclaimer = stsRoot.querySelector(".disclaimer");
-      var caps = stsRoot.querySelectorAll(".sts-caption-rail p");
-      var line = null;
-      var img = fig && fig.querySelector("img");
-      var refresh = function () { ScrollTrigger.refresh(); };
-
-      /* ---- desktop: the pinned, scrubbed sequence ---- */
-      if (cond.pinned && stage && fig) {
-        stsRoot.setAttribute("data-sts-mode", "pinned");
-        line = buildLine();
-
-        /* hidden states are applied here, client side only, and text animates
-           with opacity so it stays in the accessibility tree */
-        gsap.set(sysLabel, { opacity: 0 });
-        gsap.set(surfLabel, { opacity: 0 });
-        gsap.set(nodes, { opacity: 0, y: 16 });
-        gsap.set(tags, { opacity: 0, y: 6 });
-        gsap.set(disclaimer, { opacity: 0 });
-        gsap.set(caps, { opacity: 0 });
-        gsap.set(sysBlock, { opacity: 0 });
-
-        /* recomputed on every refresh, so a resize can never leave the capture
-           at a stale start scale */
-        var sizeIn = function () {
-          var stageW = stage.offsetWidth;
-          var figW = fig.offsetWidth || 1;
-          var s = Math.min(1.5, (stageW * 0.86) / figW);
-          return { scale: s, x: (stageW - figW * s) / 2, y: 30 };
-        };
-
-        var tlp = gsap.timeline({
-          defaults: { ease: "none" },
-          scrollTrigger: {
-            id: "surface-to-system",
-            trigger: stsRoot,
-            start: "top top",
-            end: "+=180%",
-            pin: stsRoot.querySelector(".sts-pin-wrap"),
-            pinSpacing: true,
-            scrub: 0.75,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-            /* the pin inserts about 1.8 viewports of spacer: it must refresh
-               before every trigger that sits below it on the page */
-            refreshPriority: 10,
-            onToggle: function (self) { willChange(fig, self.isActive); }
-          }
-        });
-
-        /* 100 units = 100% progress. Storyboard per docs/MOTION_SYSTEM.md 3.b:
-           surface recedes, system named, honesty caption, nodes, signal line,
-           automation tags, the loop closes, settle. */
-        tlp.to(caps[0], { opacity: 1, duration: 3, ease: "power1.out" }, 0);
-        tlp.fromTo(fig,
-          {
-            scale: function () { return sizeIn().scale; },
-            x: function () { return sizeIn().x; },
-            y: function () { return sizeIn().y; },
-            transformOrigin: "left top"
-          },
-          { scale: 1, x: 0, y: 0, duration: 14, ease: "power1.inOut", immediateRender: true },
-          4);
-        tlp.to(surfLabel, { opacity: 1, duration: 3, ease: "power1.out" }, 13);
-        tlp.to(sysBlock, { opacity: 1, duration: 4, ease: "power1.out" }, 16);
-        tlp.to(sysLabel, { opacity: 1, duration: 3, ease: "power1.out" }, 18);
-        tlp.to(disclaimer, { opacity: 1, duration: 4, ease: "power1.out" }, 20);
-        tlp.to(caps[0], { opacity: 0, duration: 3 }, 15);
-        tlp.to(caps[1], { opacity: 1, duration: 3, ease: "power1.out" }, 17);
-
-        /* the defining move: the cobalt signal draws down through the workflow,
-           reaching each node just as it rises */
-        var nodeAt = [24, 33, 40, 47, 54];
-        nodeAt.forEach(function (at, i) {
-          if (nodes[i]) tlp.to(nodes[i], { opacity: 1, y: 0, duration: 6, ease: "power1.out" }, at);
-        });
-        if (line) {
-          line.segs.forEach(function (seg, i) {
-            tlp.to(seg, { strokeDashoffset: 0, duration: 5 }, nodeAt[i] + 4);
-          });
-        }
-        tlp.to(caps[1], { opacity: 0, duration: 3 }, 30);
-        tlp.to(caps[2], { opacity: 1, duration: 3, ease: "power1.out" }, 32);
-
-        [62, 67, 72].forEach(function (at, i) {
-          if (tags[i]) tlp.to(tags[i], { opacity: 1, y: 0, duration: 5, ease: "power1.out" }, at);
-        });
-        tlp.to(caps[2], { opacity: 0, duration: 3 }, 60);
-        tlp.to(caps[3], { opacity: 1, duration: 3, ease: "power1.out" }, 62);
-
-        /* the loop closes: the referral return draws back to the first node */
-        if (line) tlp.to(line.loop, { strokeDashoffset: 0, duration: 12 }, 78);
-
-        tlp.to(caps[3], { opacity: 0, duration: 3 }, 84);
-        tlp.to(caps[4], { opacity: 1, duration: 3, ease: "power1.out" }, 86);
-        tlp.to({}, { duration: 10 }, 90);   /* settle: the finished diagram stays readable */
-
-        if (img && !img.complete) img.addEventListener("load", refresh, { once: true });
-
-        return function () {
-          stsRoot.removeAttribute("data-sts-mode");
-          willChange(fig, false);
-          if (img) img.removeEventListener("load", refresh);
-          if (line) line.destroy();
-        };
-      }
-
-      /* ---- phone and tablet: the same story, scroll driven, never pinned ---- */
-      if (cond.flowing && stsNodeList) {
-        stsRoot.setAttribute("data-sts-mode", "flow");
-        line = buildLine();
-        var below = function (el) { return el && el.getBoundingClientRect().top > vh() * 0.86; };
-
-        if (below(surfLabel)) {
-          gsap.fromTo(surfLabel, { opacity: 0, y: 6 }, {
-            opacity: 1, y: 0, duration: 0.5, ease: "power2.out",
-            scrollTrigger: { trigger: surfLabel, start: "top 90%", once: true }
-          });
-        }
-        if (below(sysLabel)) {
-          gsap.fromTo(sysLabel, { opacity: 0, y: 6 }, {
-            opacity: 1, y: 0, duration: 0.5, ease: "power2.out",
-            scrollTrigger: { trigger: sysLabel, start: "top 90%", once: true }
-          });
-        }
-
-        /* the capture gets the same shutter reveal as every other plate */
-        var stsFrame = fig && fig.querySelector(".plate-media");
-        if (stsFrame && below(stsFrame) && preparePlate(stsFrame, fig)) {
-          ScrollTrigger.create({
-            trigger: stsFrame, start: "top 88%", once: true,
-            onEnter: function () { playPlate(stsFrame, 0); }
-          });
-          driftPlate(stsFrame);
-        }
-
-        /* the honesty caption is never hidden here: it is already on screen
-           before any workflow node can be */
-        toArray(nodes).forEach(function (node, i) {
-          if (!below(node)) return;
-          var tag = node.querySelector(".tag");
-          gsap.set(node, { opacity: 0, y: 14 });
-          if (tag) gsap.set(tag, { opacity: 0 });
-          var ntl = gsap.timeline({
-            onStart: function () { willChange(node, true); },
-            onComplete: function () { willChange(node, false); },
-            scrollTrigger: { trigger: node, start: "top 88%", once: true }
-          });
-          ntl.to(node, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0);
-          if (tag) ntl.to(tag, { opacity: 1, duration: 0.45, ease: "power1.out" }, 0.28);
-        });
-
-        if (line && stsNodeList.getBoundingClientRect().top <= vh() * 0.84) {
-          /* deep link straight into the section: the diagram is already on
-             screen, so the connector is simply there, fully drawn */
-          gsap.set(line.all, { strokeDashoffset: 0 });
-        } else if (line) {
-          /* the connector draws from node to node as the list scrolls past */
-          var lineTl = gsap.timeline({
-            defaults: { ease: "none" },
-            scrollTrigger: { trigger: stsNodeList, start: "top 80%", end: "bottom 68%", scrub: 0.5 }
-          });
-          line.segs.forEach(function (seg, i) {
-            lineTl.to(seg, { strokeDashoffset: 0, duration: 1 }, i * 1.15);
-          });
-          lineTl.to(line.loop, { strokeDashoffset: 0, duration: 1.6 }, line.segs.length * 1.15);
-        }
-
-        if (img && !img.complete) img.addEventListener("load", refresh, { once: true });
-
-        return function () {
-          stsRoot.removeAttribute("data-sts-mode");
-          if (img) img.removeEventListener("load", refresh);
-          if (line) line.destroy();
-        };
-      }
-
-      return function () {};
-    });
-  }
-
-  /* ---------- keep start positions honest ----------
-     Late arriving images and webfonts change the document height, which moves
-     every trigger below them. One debounced refresh covers the lot. */
-  var refreshTimer = null;
-  var queueRefresh = function () {
-    if (refreshTimer) clearTimeout(refreshTimer);
-    refreshTimer = setTimeout(function () {
-      refreshTimer = null;
-      ScrollTrigger.refresh();
-    }, 140);
-  };
-  toArray(document.images).forEach(function (im) {
-    if (im.complete) return;
-    im.addEventListener("load", queueRefresh, { once: true });
-    im.addEventListener("error", queueRefresh, { once: true });
-  });
-  window.addEventListener("load", queueRefresh);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(queueRefresh);
-})();
-
-/* ---------- booking form (real submission via Netlify Forms) ----------
-   Progressive enhancement: without JS the form is a plain POST with a
-   typed-in preferred time. With JS it becomes a day/time picker that fills
-   the same field, submits over fetch, and confirms in place. */
-(function () {
-  "use strict";
-  var root = document.querySelector("[data-cal]");
-  if (!root) return;
-  var form = root.querySelector("[data-book-form]");
-  var daysEl = root.querySelector("[data-cal-days]");
-  var slotsEl = root.querySelector("[data-cal-slots]");
-  var submit = root.querySelector("[data-cal-submit]");
-  var slotField = root.querySelector("[data-slot-field]");
-  var summary = root.querySelector("[data-cal-summary]");
-  var status = root.querySelector("[data-form-status]");
-  var tzField = root.querySelector("[data-tz-field]");
-  var tzNote = root.querySelector("[data-tz-note]");
-  if (!form || !daysEl || !slotsEl || !submit || !slotField) return;
-
-  var DOW_S = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  var DOW_L = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  var MON_S = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  var MON_L = ["January", "February", "March", "April", "May", "June", "July",
-               "August", "September", "October", "November", "December"];
-  var SLOTS = ["9:00 AM", "10:30 AM", "12:00 PM", "2:00 PM", "3:30 PM", "5:00 PM"];
-  var picked = { day: null, slot: null };
-
-  /* visitor timezone, recorded for John and surfaced when it isn't Pacific */
-  var tz = "";
-  try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) { tz = ""; }
-  if (tzField) tzField.value = tz;
-  if (tzNote && tz && tz !== "America/Los_Angeles") {
-    tzNote.textContent = "Times shown in Pacific Time. Yours looks like " + tz.replace(/_/g, " ") + ".";
-  }
-
-  /* next 10 weekdays, starting tomorrow */
-  var days = [];
-  var d = new Date();
-  d.setDate(d.getDate() + 1);
-  while (days.length < 10) {
-    if (d.getDay() !== 0 && d.getDay() !== 6) days.push(new Date(d));
-    d.setDate(d.getDate() + 1);
-  }
-
-  var shortLabel = function (day, slot) {
-    return DOW_S[day.getDay()] + ", " + MON_S[day.getMonth()] + " " + day.getDate() + " at " + slot;
-  };
-  var fullLabel = function (day, slot) {
-    return DOW_L[day.getDay()] + ", " + MON_L[day.getMonth()] + " " + day.getDate() +
-           ", " + day.getFullYear() + " at " + slot + " Pacific";
-  };
-
-  var update = function () {
-    var ready = !!(picked.day && picked.slot);
-    submit.disabled = !ready;
-    if (ready) {
-      slotField.value = fullLabel(picked.day, picked.slot);
-      if (summary) {
-        summary.hidden = false;
-        summary.innerHTML = "";
-        summary.appendChild(document.createTextNode(shortLabel(picked.day, picked.slot)));
-        var tzLine = document.createElement("span");
-        tzLine.className = "tz";
-        tzLine.textContent = "Pacific Time";
-        summary.appendChild(tzLine);
-      }
-      submit.textContent = "Send request";
-    } else {
-      slotField.value = "";
-      if (summary) summary.hidden = true;
-      submit.textContent = picked.day ? "Pick a time" : "Pick a day and time";
+    if (img) {
+      gsap.fromTo(img, { scale: 1.18 }, {
+        scale: 1, duration: 1.45, ease: "power3.out",
+        scrollTrigger: { trigger: shot, start: "top 85%", once: true }
+      });
     }
-  };
-
-  var pressGroup = function (container, sel, active) {
-    container.querySelectorAll(sel).forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
-    active.setAttribute("aria-pressed", "true");
-  };
-
-  days.forEach(function (day) {
-    var b = document.createElement("button");
-    b.type = "button";
-    b.className = "cal-day";
-    b.setAttribute("aria-pressed", "false");
-    b.innerHTML = '<span class="dow">' + DOW_S[day.getDay()] + '</span><span class="dom">' + day.getDate() + "</span>";
-    b.setAttribute("aria-label", DOW_L[day.getDay()] + " " + MON_L[day.getMonth()] + " " + day.getDate());
-    b.addEventListener("click", function () {
-      picked.day = day;
-      pressGroup(daysEl, ".cal-day", b);
-      update();
-    });
-    daysEl.appendChild(b);
   });
 
-  SLOTS.forEach(function (slot) {
-    var b = document.createElement("button");
-    b.type = "button";
-    b.className = "cal-slot";
-    b.setAttribute("aria-pressed", "false");
-    b.textContent = slot;
-    b.addEventListener("click", function () {
-      picked.slot = slot;
-      pressGroup(slotsEl, ".cal-slot", b);
-      update();
+  /* the closing headline, then the terminal rule: the page lands */
+  var closeTitle = document.querySelector("[data-close-title]");
+  var terminal = document.getElementById("terminal");
+  if (closeTitle) {
+    var clns = closeTitle.querySelectorAll(".ln");
+    clns.forEach(function (ln) {
+      var mask = document.createElement("span");
+      mask.style.cssText = "display:block;overflow:hidden;padding-bottom:.10em;margin-bottom:-.10em";
+      ln.parentNode.insertBefore(mask, ln);
+      mask.appendChild(ln);
     });
-    slotsEl.appendChild(b);
-  });
-
-  update();
-
-  /* ---- submit by composing the email ----
-     The site is hosted as static files with no form backend, so the request
-     is handed to the visitor's own mail client with everything filled in.
-     Honest by construction: the message only reaches John when they hit send,
-     and the confirmation copy says exactly that. */
-  var TO = "johnmontejano2@gmail.com";
-
-  var composed = function (name, slotText, href) {
-    var card = form.parentNode;
-    var wrap = document.createElement("div");
-    wrap.className = "book-sent";
-    wrap.setAttribute("role", "status");
-    wrap.innerHTML =
-      '<span class="sent-mark" aria-hidden="true">' +
-      '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 12.5 L10 17.5 L19 6.5" fill="none" stroke="#0047AB" stroke-width="2.2" stroke-linecap="square"/></svg>' +
-      "</span>" +
-      "<h2>Your email is ready.</h2>" +
-      "<p>Thanks" + (name ? ", " + name : "") + ". Your mail app should have opened with the details filled in. " +
-      "Hit send and it comes straight to me. I reply to confirm, usually the same day.</p>" +
-      (slotText ? '<p class="sent-slot">' + slotText + "</p>" : "") +
-      /* not every device has a mail handler, so the same prefilled message is
-         one click away rather than lost */
-      '<p>Nothing opened? <a class="link-tertiary" data-cal-fallback href="' + href +
-      '">Open the message again</a>, or write to ' +
-      '<a class="link-tertiary" href="mailto:' + TO + '">' + TO + "</a>.</p>";
-    card.replaceChild(wrap, form);
-    wrap.setAttribute("tabindex", "-1");
-    wrap.focus();
-  };
-
-  form.addEventListener("submit", function (e) {
-    if (!picked.day || !picked.slot) {
-      /* the field is hidden under JS, so guard it here rather than with :required */
-      e.preventDefault();
-      if (status) { status.textContent = "Pick a day and a time first."; status.setAttribute("data-state", "error"); }
-      daysEl.scrollIntoView({ block: "center", behavior: "smooth" });
-      return;
+    var ctl = gsap.timeline({ scrollTrigger: { trigger: closeTitle, start: "top 75%", once: true } });
+    ctl.fromTo(clns, { yPercent: 125 }, { yPercent: 0, duration: 1.0, ease: "expo.out", stagger: 0.07 }, 0);
+    if (terminal) {
+      gsap.set(terminal, { scaleX: 0 });
+      ctl.to(terminal, { scaleX: 1, duration: 1.4, ease: "power4.inOut" }, 0.6);
     }
-    if (!form.checkValidity()) return;   /* let the browser show its own messages */
+  }
 
-    e.preventDefault();
-    var fd = new FormData(form);
-    var val = function (k) { return (fd.get(k) || "").toString().trim(); };
-    var name = val("name");
-    var first = name.split(" ")[0];
-    var slotText = val("requested-slot");
+  /* ---------------------------------------------------------
+     Magnetic CTA. Applied to the inner span so the hit area and
+     keyboard target never move.
+     --------------------------------------------------------- */
+  if (fine) {
+    document.querySelectorAll("[data-magnet]").forEach(function (el) {
+      var inner = el.querySelector("span");
+      if (!inner) return;
+      var xTo = gsap.quickTo(inner, "x", { duration: 0.5, ease: "power3.out" });
+      var yTo = gsap.quickTo(inner, "y", { duration: 0.5, ease: "power3.out" });
+      el.addEventListener("pointermove", function (e) {
+        var r = el.getBoundingClientRect();
+        xTo((e.clientX - (r.left + r.width / 2)) * 0.28);
+        yTo((e.clientY - (r.top + r.height / 2)) * 0.28);
+      });
+      el.addEventListener("pointerleave", function () {
+        gsap.to(inner, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1,0.45)" });
+      });
+    });
+  }
 
-    var lines = [
-      "Requested time: " + (slotText || "(not specified)"),
-      "Name: " + name,
-      "Email: " + val("email")
-    ];
-    if (val("business")) lines.push("Business: " + val("business"));
-    if (val("context")) lines.push("", "What eats the most time right now:", val("context"));
-    if (val("timezone")) lines.push("", "(Visitor timezone: " + val("timezone") + ")");
-
-    var subject = "Workflow assessment request" + (slotText ? ": " + slotText : "");
-    var href = "mailto:" + TO +
-               "?subject=" + encodeURIComponent(subject) +
-               "&body=" + encodeURIComponent(lines.join("\n") + "\n");
-
-    if (status) { status.textContent = "Opening your email app"; status.setAttribute("data-state", "sending"); }
-    window.location.href = href;
-    composed(first, slotText, href);
-  });
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
+  }
 })();

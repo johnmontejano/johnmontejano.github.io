@@ -4,233 +4,133 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FastFix Case Study — John Montejano</title>
-<meta name="description" content="How I built and run FastFix, a platform for home-service businesses: owning website, marketing, product, growth, and automation end to end.">
+<meta name="description" content="FastFix is my company: a platform for home-service businesses. I own website, marketing, product, growth and automation.">
 <link rel="canonical" href="https://johnmontejano.github.io/work/fastfix/">
-<meta name="theme-color" content="#F7F8FA">
-<meta property="og:title" content="FastFix: I built the platform service businesses run on">
-<meta property="og:description" content="The flagship case study. Every workflow a service-business owner absorbs, designed out of the business.">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://johnmontejano.github.io/work/fastfix/">
+<meta name="theme-color" content="#0C0B0A">
+<meta property="og:type" content="website">
 <meta property="og:site_name" content="John Montejano">
-<meta property="og:locale" content="en_US">
+<meta property="og:url" content="https://johnmontejano.github.io/work/fastfix/">
+<meta property="og:title" content="FastFix: I built the platform service businesses run on">
+<meta property="og:description" content="FastFix is my company: a platform for home-service businesses. I own website, marketing, product, growth and automation.">
 <meta property="og:image" content="https://johnmontejano.github.io/assets/img/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="John Montejano, workflow automation for service businesses.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="FastFix: I built the platform service businesses run on">
-<meta name="twitter:description" content="The flagship case study. Every workflow a service-business owner absorbs, designed out of the business.">
+<meta name="twitter:description" content="FastFix is my company: a platform for home-service businesses. I own website, marketing, product, growth and automation.">
 <meta name="twitter:image" content="https://johnmontejano.github.io/assets/img/og-card.png">
-<meta name="twitter:image:alt" content="John Montejano, workflow automation for service businesses.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preload" href="/assets/fonts/pxiTypc9vsFDm051Uf6KVwgkfoSxQ0GsQv8ToedPibnr0SZe1ZuWi3g.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/fonts/fonts.css">
+<link rel="preload" href="/assets/fonts2/archivo-2.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts2/switzer-1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/fonts2/fonts.css">
 <link rel="stylesheet" href="/styles.css">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "CreativeWork",
-  "name": "FastFix: the platform version of everything I'd learned running a service business.",
-  "headline": "FastFix case study",
-  "description": "How I built and run FastFix, a platform for home-service businesses: owning website, marketing, product, growth, and automation end to end.",
-  "url": "https://johnmontejano.github.io/work/fastfix/",
-  "inLanguage": "en",
-  "image": "https://johnmontejano.github.io/assets/img/og-card.png",
-  "author": {
-    "@type": "Person",
-    "name": "John Montejano",
-    "jobTitle": "Workflow Automation Consultant",
-    "url": "https://johnmontejano.github.io/about/"
-  },
-  "creator": {
-    "@type": "Person",
-    "name": "John Montejano"
-  },
-  "about": {
-    "@type": "Thing",
-    "name": "FastFix, a platform for home-service businesses"
-  },
-  "isPartOf": {
-    "@type": "WebSite",
-    "name": "John Montejano",
-    "url": "https://johnmontejano.github.io/"
-  }
-}
-</script>
+<script>document.documentElement.className+=" js";</script>
 </head>
 <body>
-<a class="skip-link" href="#main">Skip to content</a>
+<a class="skip" href="#main">Skip to content</a>
 
-<header id="site-header">
-  <div class="container nav-row">
-    <a aria-label="John Montejano, home" class="wordmark" href="/">
-      <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M8,4 V19 H2.5 V16" fill="none" stroke="#1B1F24" stroke-width="2" stroke-linecap="square"/><path d="M12.5,4 V20 M21.5,4 V20" fill="none" stroke="#1B1F24" stroke-width="2" stroke-linecap="square"/><path d="M12.5,4 L17,9.6 L21.5,4" fill="none" stroke="#1B1F24" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"/><rect x="0" y="11.5" width="6.4" height="1" fill="#0047AB"/><rect x="9.6" y="11.5" width="1.3" height="1" fill="#0047AB"/><rect x="14.1" y="11.5" width="5.8" height="1" fill="#0047AB"/><rect x="23.1" y="11.5" width="0.9" height="1" fill="#0047AB"/></svg>
-      <span class="wordmark-text"><span class="wordmark-name">John Montejano</span><span class="wordmark-descriptor">Workflow Automation</span></span>
-    </a>
-    <nav aria-label="Primary">
-      <ul class="nav-links">
-        <li class="desktop-only"><a class="navlink" href="/work/">Work</a></li>
-        <li class="desktop-only"><a class="navlink" href="/services/workflow-automation/">Services</a></li>
-        <li class="desktop-only"><a class="navlink" href="/about/">About</a></li>
-        <li><a class="btn btn-primary btn-compact" href="/book/">Book a workflow assessment</a></li>
-        <li><button class="menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
-          <svg width="18" height="14" viewBox="0 0 18 14" aria-hidden="true"><path d="M0 1h18M0 7h18M0 13h18" stroke="currentColor" stroke-width="1.6"/></svg>
-        </button></li>
-      </ul>
-    </nav>
-  </div>
+<header id="head">
+  <a class="brand" href="/" aria-label="John Montejano, home">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path class="stroke" d="M8,4 V19 H2.5 V16" fill="none" stroke-width="2" stroke-linecap="square"/>
+      <path class="stroke" d="M12.5,4 V20 M21.5,4 V20" fill="none" stroke-width="2" stroke-linecap="square"/>
+      <path class="stroke" d="M12.5,4 L17,9.6 L21.5,4" fill="none" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"/>
+      <rect class="cross" x="0" y="11.5" width="6.4" height="1"/>
+      <rect class="cross" x="9.6" y="11.5" width="1.3" height="1"/>
+      <rect class="cross" x="14.1" y="11.5" width="5.8" height="1"/>
+      <rect class="cross" x="23.1" y="11.5" width="0.9" height="1"/>
+    </svg>
+    <span class="brand-name">John Montejano</span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    <a class="nav-full" href="/work/">Work</a>
+    <a class="nav-full" href="/about/">About</a>
+    <a href="/book/">Book the job trace</a>
+  </nav>
 </header>
 
-<div class="mobile-menu" id="mobile-menu" role="dialog" aria-modal="true" aria-label="Menu" tabindex="-1">
-  <div class="mobile-menu-inner">
-    <div class="mobile-menu-top container" style="padding-inline:0;">
-      <span class="wordmark-name">John Montejano</span>
-      <button class="menu-close" aria-label="Close menu"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 1l14 14M15 1L1 15" stroke="currentColor" stroke-width="1.6"/></svg></button>
-    </div>
-    <nav aria-label="Mobile"><ul>
-      <li><a href="/work/">Work</a></li>
-      <li><a href="/services/workflow-automation/">Services</a></li>
-      <li><a href="/about/">About</a></li>
-    </ul></nav>
-    <a class="btn btn-primary" href="/book/">Book a workflow assessment</a>
-  </div>
-</div>
+<div id="rail" aria-hidden="true"></div>
 
 <main id="main">
 
-  <section class="page-hero" aria-label="Case study introduction">
-    <div class="container">
-      <p class="mono-annot meta-row">FASTFIX &middot; OWNER &middot; PLATFORM FOR HOME-SERVICE BUSINESSES</p>
-      <div class="sec-rule" data-rule aria-hidden="true"></div>
-      <h1 class="h1" data-hero-title>FastFix: the platform version of everything I'd learned running a service business.</h1>
-      <figure class="case-lead-plate rv">
-        <div class="plate"><div class="plate-media ar-1610"><img src="/assets/img/ff-hero.webp" width="2880" height="1800" alt="FastFix website homepage presenting a platform for home-service businesses, with navigation, headline, and demo call to action." loading="eager" decoding="async"></div></div>
-        <figcaption class="figcap"><span class="l1 mono-label">Fastfix public site</span><span class="l2 mono-annot"><a class="link-tertiary" href="https://fastfix.ai/" rel="noopener">fastfix.ai</a>, captured July 2026</span></figcaption>
-      </figure>
-      <dl class="meta-table rv">
-        <div><dt class="mono-label">Role</dt><dd>Owner</dd></div>
-        <div><dt class="mono-label">Scope</dt><dd>Website, marketing, product, growth, automation</dd></div>
-        <div><dt class="mono-label">Context</dt><dd>Platform for home-service businesses</dd></div>
-        <div><dt class="mono-label">Site</dt><dd><a class="link-tertiary" href="https://fastfix.ai/" target="_blank" rel="noopener">Visit fastfix.ai<span class="sr-only"> (opens in new tab)</span></a></dd></div>
-      </dl>
-    </div>
+  <section class="page-head wrap">
+    <p class="mono" style="margin-bottom:var(--s4)">FastFix &middot; Owner. Website, marketing, product, growth, automation.</p>
+    <h1 class="display" data-hero-title>
+      <span class="ln" style="--wd:78">The platform version</span>
+      <span class="ln" style="--wd:88">of what I learned.</span>
+    </h1>
   </section>
 
-  <section class="tight" aria-label="The story">
-    <div class="container">
-      <div class="prose">
-        <h2>What was happening</h2>
-        <p>Home-service businesses (plumbers, HVAC techs, repair crews) win work by being good at the work. The business around the work is what wears an owner down: calls to answer, jobs to schedule, quotes to chase, reviews to request, invoices to send.</p>
-        <p>I had run a service business myself, so I knew where those hours went. They had been mine.</p>
-        <p class="pull">Instead of automating one business at a time, build the platform that handles the busywork for the trade.</p>
+  <section class="wrap tight" aria-label="Evidence">
+    <figure>
+      <div class="shot"><img src="/assets/img/ev-fastfix.webp" srcset="/assets/img/ev-fastfix-1200.webp 1200w, /assets/img/ev-fastfix.webp 2100w" sizes="92vw" width="2100" height="900" alt="The FastFix website explaining the four steps its platform runs for a home-service business." loading="eager" decoding="async"></div>
+      <figcaption class="mono-cap" style="margin-top:var(--s3)">fastfix.ai &middot; captured July 2026</figcaption>
+    </figure>
+    <dl class="spec">
+      <div><dt class="mono">Role</dt><dd>Owner</dd></div>
+      <div><dt class="mono">Scope</dt><dd>Website, marketing, product, growth, automation</dd></div>
+      <div><dt class="mono">Context</dt><dd>Platform for home-service businesses</dd></div>
+      <div><dt class="mono">Site</dt><dd><a class="link" href="https://fastfix.ai/" target="_blank" rel="noopener">fastfix.ai</a></dd></div>
+    </dl>
+  </section>
 
-        <h2>What I owned</h2>
-        <p>FastFix is my company. I own the website, the marketing, the product, the growth, and the automation: the storefront and the machinery behind it. There is no version of this project where someone else made the important decisions.</p>
-
-        <h2>The decisions behind it</h2>
-        <h3>Build the platform, not one more one-off automation</h3>
-        <p>Consulting fixes one operation at a time. A platform addresses the same pattern across a trade. That is the trade-off I took on deliberately: a platform is slower to build than a single automation, and it only earns its keep if the same workflows genuinely repeat from one business to the next.</p>
-        <h3 style="margin-top:32px;">Own the surface and the system as one thing</h3>
-        <p>The website, the marketing, and the automation behind them are usually three different vendors making three different assumptions. Here they are one decision. What the site promises is exactly what the system underneath has to deliver, so the promise and the machinery get designed together.</p>
-        <h3 style="margin-top:32px;">Take the workflows in the order an owner feels them</h3>
-        <p>The product is organized around the jobs owners actually absorb, taken one workflow at a time rather than all at once. The call. The schedule. The quote. The finished job. Each one is a manual task I have watched eat an owner's day, designed out of the business.</p>
-
+  <section class="wrap" aria-label="The work">
+    <p class="lead prose" style="margin-bottom:var(--s6)">Home-service businesses win on the work. The business around the work is what wears an owner down.</p>
+    <div class="prose">
+<h2>What I owned</h2>
+        <p>All of it. Website, marketing, product, growth, automation. Every important decision was mine.</p>
         <h2>What changed</h2>
-        <ul>
-          <li><strong>Calls</strong> answered and booked around the clock.</li>
-          <li><strong>Scheduling</strong> without a wall calendar.</li>
-          <li><strong>Quotes</strong> with follow-up built in, not remembered.</li>
-          <li><strong>Finished jobs</strong> that become reviews and repeat work.</li>
-        </ul>
-        <p style="margin-top:20px;">Those four are the shape of the product, and they are also the shape of the problem. Answering, scheduling, quoting, and closing the loop are the parts of a service business that depend on somebody remembering. Moving them out of memory and into a system is the whole idea.</p>
-      </div>
+        <p>Calls answered and booked around the clock. Scheduling without a wall calendar. Quotes with follow-up built in rather than remembered. Finished jobs that turn into reviews and repeat work.</p>
+        <p>Each one is a manual step I watched eat an owner's day, designed out of the business.</p>
+        <h2>What it proves</h2>
+        <p>Pattern recognition from building the system itself: where service businesses leak time, and which workflows repay automation first.</p>
     </div>
   </section>
 
-  <section class="band-recessed" aria-label="Evidence">
-    <div class="container">
-      <div class="sec-rule" data-rule aria-hidden="true"></div>
-      <h2 style="margin-bottom:56px;">The evidence</h2>
-      <div class="evidence-stack">
-        <div class="evidence-row">
-          <div class="evidence-note rv">
-            <span class="mono-label">The workflow, productized</span>
-            <p>FastFix's own explanation of what it runs for an owner: leads, calls, closing, and day-to-day jobs. The manual steps of a service business, taken over one by one.</p>
-          </div>
-          <figure class="rv">
-            <div class="plate"><div class="plate-media ar-1610"><img src="/assets/img/ff-how.webp" width="2400" height="1500" alt="FastFix website section describing the four steps the platform runs for a home-service business." loading="lazy" decoding="async"></div></div>
-            <figcaption class="figcap"><span class="l1 mono-label">Fastfix, how it works</span><span class="l2 mono-annot">fastfix.ai, captured July 2026</span></figcaption>
-          </figure>
-        </div>
-        <div class="evidence-row">
-          <div class="evidence-note rv">
-            <span class="mono-label">One system, not seven tools</span>
-            <p>The problem FastFix exists to end: job details scattered across inboxes, spreadsheets, and missed-call voicemail. One stack replaces the pile.</p>
-          </div>
-          <figure class="rv">
-            <div class="plate"><div class="plate-media ar-21"><img src="/assets/img/ff-stack.webp" width="2400" height="1200" alt="FastFix website section showing the scattered tools a service business usually juggles, gathered into one platform." loading="lazy" decoding="async"></div></div>
-            <figcaption class="figcap"><span class="l1 mono-label">Fastfix, product stack</span><span class="l2 mono-annot">fastfix.ai, captured July 2026</span></figcaption>
-          </figure>
-        </div>
-      </div>
-    </div>
+  <section class="wrap tight" aria-label="Next">
+    <div class="junction"><span class="mono idx">Next</span><span class="mono name">Where the operating instincts came from.</span></div>
+    <a class="ev" href="/work/gelatotech/">
+      <figure>
+        <div class="shot"><img src="/assets/img/ev-gelatotech.webp" srcset="/assets/img/ev-gelatotech-1200.webp 1200w, /assets/img/ev-gelatotech.webp 2100w" sizes="92vw" width="2100" height="900" alt="" loading="lazy" decoding="async"></div>
+        <figcaption class="ev-meta"><span class="ev-name">GelatoTech</span></figcaption>
+      </figure>
+    </a>
   </section>
 
-  <section aria-label="What this proves">
-    <div class="container">
-      <div class="prose">
-        <h2>What this proves</h2>
-        <p>This is what I bring to an assessment. Not a framework out of a book, but pattern recognition from building the system itself: where service businesses leak time, and which workflows repay automation first.</p>
-        <p>It is also checkable. FastFix is a live public product you can visit right now, at <a class="link-tertiary" href="https://fastfix.ai/" rel="noopener">fastfix.ai</a>.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="tight" aria-label="Next case study">
-    <div class="container">
-      <p class="mono-annot" style="margin-bottom:20px;">NEXT: GELATOTECH, WHERE THE OPERATING INSTINCTS CAME FROM</p>
-      <a class="case-next-card rv" href="/work/gelatotech/">
-        <div class="plate-media ar-1610"><img src="/assets/img/gt-hero-1610.webp" width="1368" height="855" alt="GelatoTech website hero offering on-site iPhone repair in San Francisco." loading="lazy" decoding="async"></div>
-        <div class="case-next-body">
-          <span class="mono-label">Case study</span>
-          <h3>GelatoTech: every role in the business, including the one holding the screwdriver.</h3>
-          <p>Owner-operator. Website, SEO, ads, operations, repairs.</p>
-          <span class="link-tertiary link-arrow">Read the GelatoTech case study<span class="arr">&#8594;</span></span>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <!-- Primary conversion band. Graphite treatment declared inline so the band renders
-       correctly whether the stylesheet scopes the close band to footer.close or to .close. -->
-  <section class="close close-cta" aria-labelledby="cta-heading" style="background:var(--close-bg); color:var(--close-ink); padding:clamp(72px,10vh,128px) 0 0;">
-    <div class="container">
-      <div class="sec-rule" data-rule aria-hidden="true"></div>
-      <h2 class="close-heading" id="cta-heading">Want this thinking on your operation?</h2>
-      <div class="close-actions">
-        <a class="btn btn-primary" href="/book/">Book a workflow assessment</a>
-        <a class="close-mail" href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a>
-      </div>
-      <p class="close-reassure">One conversation. No prep needed. No obligation to build anything.</p>
-    </div>
+  <section class="close wrap" aria-labelledby="cl-h">
+    <h2 class="display" id="cl-h" data-close-title>
+      <span class="ln" style="--wd:84">Show me where</span>
+      <span class="ln" style="--wd:96">it leaks.</span>
+    </h2>
+    <a class="cta" href="/book/" data-magnet><span>Book the job trace</span></a>
+    <p class="mono-cap close-note">One conversation. One job, start to paid.</p>
+    <div id="terminal" aria-hidden="true"></div>
   </section>
 
 </main>
 
-<footer class="close" style="padding-top:clamp(56px,8vh,88px);">
-  <div class="container">
-    <h2 class="sr-only">Site links</h2>
-    <nav class="footer-grid" aria-label="Footer" style="margin-top:0;">
-      <div><span class="wordmark-name">John Montejano</span><p class="footer-blurb">Workflow automation for service businesses.</p></div>
-      <div><h3>Work</h3><ul><li><a href="/work/fastfix/" aria-current="page">FastFix</a></li><li><a href="/work/gelatotech/">GelatoTech</a></li><li><a href="/work/lisa/">LISA</a></li></ul></div>
-      <div><h3>Site</h3><ul><li><a href="/services/workflow-automation/">Services</a></li><li><a href="/about/">About</a></li><li><a href="/book/">Book</a></li></ul></div>
-      <div><h3>Contact</h3><ul><li><a href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a></li><li><a href="https://www.linkedin.com/in/johnmontejano/" target="_blank" rel="noopener">LinkedIn<span class="sr-only"> (opens in a new tab)</span></a></li></ul></div>
-    </nav>
-    <div class="footer-bottom">
-      <span class="footer-copy">&copy; 2026 John Montejano</span>
-      <a class="footer-top" href="#site-header">Back to top</a>
+<footer class="wrap">
+  <div class="foot">
+    <div class="col">
+      <span class="mono">John Montejano</span>
+      <span class="mono-cap">Workflow automation for service businesses.</span>
+    </div>
+    <div class="col">
+      <a class="mono" href="/work/fastfix/">FastFix</a>
+      <a class="mono" href="/work/gelatotech/">GelatoTech</a>
+      <a class="mono" href="/work/lisa/">LISA</a>
+    </div>
+    <div class="col">
+      <a class="mono" href="/work/">Work</a>
+      <a class="mono" href="/about/">About</a>
+      <a class="mono" href="/book/">Book</a>
+    </div>
+    <div class="col">
+      <a class="mono" href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a>
+      <a class="mono" href="https://www.linkedin.com/in/johnmontejano/" target="_blank" rel="noopener">LinkedIn</a>
+      <span class="mono">&copy; 2026</span>
     </div>
   </div>
 </footer>
