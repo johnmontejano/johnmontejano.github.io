@@ -2,141 +2,276 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Book a call · John Montejano</title>
-<meta name="description" content="Pick a day and a time. One conversation, one job traced end to end.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pick a time · John Montejano</title>
+<meta name="description" content="Pick a day and a time, or name your own. We get on a call, follow one real job end to end, and you get the map. Nothing is booked until I reply to confirm.">
 <link rel="canonical" href="https://johnmontejano.github.io/book/">
-<meta name="theme-color" content="#0C0B0A">
+<meta name="theme-color" content="#E7EAFF">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="John Montejano">
 <meta property="og:url" content="https://johnmontejano.github.io/book/">
-<meta property="og:title" content="Book a call">
-<meta property="og:description" content="Pick a day and a time. One conversation, one job traced end to end.">
+<meta property="og:title" content="Pick a time. Bring one job.">
+<meta property="og:description" content="We get on a call, follow one real job end to end, and you get the map. Nothing is booked until I reply to confirm.">
 <meta property="og:image" content="https://johnmontejano.github.io/assets/img/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Book a call">
-<meta name="twitter:description" content="Pick a day and a time. One conversation, one job traced end to end.">
+<meta name="twitter:title" content="Pick a time. Bring one job.">
+<meta name="twitter:description" content="We get on a call, follow one real job end to end, and you get the map. Nothing is booked until I reply to confirm.">
 <meta name="twitter:image" content="https://johnmontejano.github.io/assets/img/og-card.png">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preload" href="/assets/fonts2/archivo-2.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/assets/fonts2/switzer-0.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/type/bricolage-1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/type/manrope-1.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/styles.css">
 <script>document.documentElement.className+=" js";</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+ {"@type":"Person","@id":"https://johnmontejano.github.io/#john","name":"John Montejano","jobTitle":"Workflow Automation Consultant","email":"mailto:johnmontejano2@gmail.com","url":"https://johnmontejano.github.io/about/","image":"https://johnmontejano.github.io/assets/img/jm-portrait-45.webp","sameAs":["https://www.linkedin.com/in/johnmontejano/"],"knowsAbout":["workflow automation","service business operations","product design"]},
+ {"@type":"ContactPage","@id":"https://johnmontejano.github.io/book/#page","url":"https://johnmontejano.github.io/book/","name":"Pick a time","description":"Request a call with John Montejano. Pick a day and a time, or name your own. Nothing is booked until he replies to confirm.","inLanguage":"en","about":{"@id":"https://johnmontejano.github.io/#john"},"mainEntity":{"@id":"https://johnmontejano.github.io/#john"},"isPartOf":{"@type":"WebSite","name":"John Montejano","url":"https://johnmontejano.github.io/"},"breadcrumb":{"@id":"https://johnmontejano.github.io/book/#crumb"}},
+ {"@type":"BreadcrumbList","@id":"https://johnmontejano.github.io/book/#crumb","itemListElement":[
+  {"@type":"ListItem","position":1,"name":"Home","item":"https://johnmontejano.github.io/"},
+  {"@type":"ListItem","position":2,"name":"Pick a time","item":"https://johnmontejano.github.io/book/"}]}]}
+</script>
 </head>
 <body>
+
 <a class="skip" href="#main">Skip to content</a>
 
-<header id="head">
-  <a class="brand" href="/" aria-label="John Montejano, home">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path class="stroke" d="M8,4 V19 H2.5 V16" fill="none" stroke-width="2" stroke-linecap="square"/>
-      <path class="stroke" d="M12.5,4 V20 M21.5,4 V20" fill="none" stroke-width="2" stroke-linecap="square"/>
-      <path class="stroke" d="M12.5,4 L17,9.6 L21.5,4" fill="none" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"/>
-      <rect class="cross" x="0" y="11.5" width="6.4" height="1"/>
-      <rect class="cross" x="9.6" y="11.5" width="1.3" height="1"/>
-      <rect class="cross" x="14.1" y="11.5" width="5.8" height="1"/>
-      <rect class="cross" x="23.1" y="11.5" width="0.9" height="1"/>
-    </svg>
-    <span class="brand-name">John Montejano</span>
-  </a>
-  <nav class="nav" aria-label="Primary">
-    <a href="/work/">Work</a>
-    <a href="/about/">About</a>
-    <a class="nav-cta" href="/book/">Book</a>
-  </nav>
+<header class="hdr">
+  <div class="hdr__in">
+    <a class="wordmark" href="/">John Montejano<i></i></a>
+    <button class="hdr__toggle" type="button" aria-expanded="false" aria-controls="nav" hidden>
+      <span class="bars" aria-hidden="true"></span>Menu
+    </button>
+    <nav class="nav" id="nav" aria-label="Primary">
+      <a href="/work/">Work</a>
+      <a href="/about/">About</a>
+      <a class="btn btn--brand btn--sm" href="/book/" aria-current="page">Show me where it leaks</a>
+    </nav>
+  </div>
 </header>
-
-<div id="rail" aria-hidden="true"></div>
 
 <main id="main">
 
-  <section class="page-head wrap">
-    <h1 class="display" data-hero-title>
-      <span class="ln" style="--wd:88">Show me where</span>
-      <span class="ln" style="--wd:70">it leaks.</span>
-    </h1>
-  </section>
+<!-- ======================================================== 1. REQUEST === -->
+<section class="sec sec--tight s--ground" id="request" aria-labelledby="bk-h">
+  <div class="wrap">
 
-  <section class="wrap" aria-label="Booking">
-    <div class="book-grid">
-      <div class="book-left">
-        <ul class="steps">
-          <li><span class="sn">01</span><span><span class="v">Pick a time.</span><span class="d">Two taps. It opens an email with the details filled in.</span></span></li>
-          <li><span class="sn">02</span><span><span class="v">We trace one job.</span><span class="d">Have one recent job in mind. That is the prep.</span></span></li>
-          <li><span class="sn">03</span><span><span class="v">You get the map.</span><span class="d">Where it leaks, what I would fix first, what I would leave alone.</span></span></li>
-        </ul>
-        <p class="mono-cap" style="margin-top:var(--s6)">Nothing is booked until I reply to confirm. You talk to me directly.</p>
+    <div class="bk__top">
+
+      <div class="bk__head">
+        <p class="eyebrow">One next step</p>
+        <h1 class="d1" id="bk-h">
+          <span class="d1__l">Pick <br class="brk-s">a time.</span>
+          <span class="d1__l">Bring <br class="brk-s"><span class="hl">one job.</span></span>
+        </h1>
+        <p class="lead bk__lead">We get on a call, we follow one real job end to end, and you get the map. Where it leaks, what I would fix first, what I would leave alone.</p>
+
+        <div class="creds bk__creds">
+          <img src="/assets/img/jm-portrait-45.webp" width="585" height="732" loading="lazy" decoding="async" alt="John Montejano, photographed in three-quarter view.">
+          <div>
+            <p class="creds__t">Owner, FastFix. Owner-operator, GelatoTech.</p>
+            <p class="creds__d">San Francisco. You talk to me directly.</p>
+          </div>
+        </div>
       </div>
 
-      <div class="book-right" data-cal>
-        <form method="POST" action="mailto:johnmontejano2@gmail.com" enctype="text/plain">
-          <input type="hidden" name="timezone" value="" data-tz-field>
-          <p class="mono">Step 1 &nbsp;/&nbsp; Pick a day</p>
-          <div class="pickers" data-days role="group" aria-label="Pick a day" style="margin-top:var(--s3)"></div>
-          <p class="mono" style="margin-top:var(--s5)">Step 2 &nbsp;/&nbsp; Pick a time</p>
-          <div class="slots" data-slots role="group" aria-label="Pick a time"></div>
-          <p class="mono-cap" style="margin-top:var(--s3)">Times shown in Pacific.</p>
-          <label class="field"><span class="field-label">None of these work? Tell me when.</span><input type="text" name="othertime" placeholder="Early mornings, or after six" autocomplete="off"></label>
+      <aside class="bk__aside" aria-labelledby="bk-pre-h">
+        <div class="card card--flat card--pad-lg">
+          <p class="kicker" id="bk-pre-h">Before you book</p>
+          <ul class="marks bk__marks">
+            <li>One conversation. No pitch.</li>
+            <li>If automation is not your problem, I will say so and we are done.</li>
+            <li>Nothing is booked until I reply to confirm.</li>
+          </ul>
+          <p class="note bk__marks-note">Bring one recent job. That is the whole preparation.</p>
+        </div>
 
-          <input type="hidden" name="requested-slot" data-slot-field>
+        <p class="kicker bk__alt-k">Rather just write to me</p>
+        <a class="linkish" href="mailto:johnmontejano2@gmail.com"><span>johnmontejano2@gmail.com</span></a>
+      </aside>
 
-          <p class="mono" style="margin-top:var(--s5)">Step 3 &nbsp;/&nbsp; Where I send the confirmation</p>
-          <label class="field"><span class="field-label">Name</span><input type="text" name="name" required autocomplete="name"></label>
-          <label class="field"><span class="field-label">Email</span><input type="email" name="email" required autocomplete="email" inputmode="email"></label>
-          <label class="field"><span class="field-label">Business</span><input type="text" name="business" autocomplete="organization"></label>
-          <label class="field"><span class="field-label">Where does the time go?</span><textarea name="context" rows="3"></textarea></label>
+    </div>
 
-          <p class="book-hint" data-hint>Pick a day and a time above, or tell me when suits you.</p>
-          <button class="book-submit" type="submit" data-submit aria-disabled="true">Send request</button>
-        </form>
-        <p class="mono-cap" style="margin-top:var(--s4)">Prefer plain email? <a class="link" href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a></p>
+    <div class="bk__col">
+
+      <!-- Written by /js/main.js on submit. It is inserted ABOVE the form and
+           the form itself is never touched, so every word the visitor typed
+           survives and stays editable even with no mail handler. -->
+      <div class="card card--deep card--pad-lg bk__done" id="bk-done" tabindex="-1" hidden>
+        <p class="kicker">Ready to send</p>
+        <h2 class="d4 bk__done-t">Your email is written. Nothing has been sent yet.</h2>
+        <p class="bk__done-d">Your mail app should have opened with this message in it. If it did not, use one of these. Your answers are still in the form below, exactly as you left them.</p>
+
+        <p class="bk__slot"><span class="bk__slot-k">Requested slot</span><span class="bk__slot-v" id="bk-slot"></span></p>
+
+        <div class="actions bk__done-go">
+          <a class="btn btn--light" id="bk-again" href="mailto:johnmontejano2@gmail.com">Open it again</a>
+          <a class="bk__mail" href="mailto:johnmontejano2@gmail.com"><span>johnmontejano2@gmail.com</span></a>
+        </div>
+
+        <label class="bk__label bk__out-l" for="bk-msg">The whole message, ready to copy</label>
+        <textarea class="bk__out" id="bk-msg" rows="12" readonly></textarea>
+
+        <div class="actions bk__copy-row">
+          <button class="btn btn--light" type="button" id="bk-copy">Copy the message</button>
+          <p class="bk__copy-s" id="bk-copy-status" role="status"></p>
+        </div>
+      </div>
+
+      <form class="form bk__form" id="bk-form" method="post" action="mailto:johnmontejano2@gmail.com" enctype="text/plain">
+
+        <div class="bk__form-grid">
+
+          <div class="bk__form-a">
+            <!-- The day and time buttons are generated at load, so the page
+                 never ships a hard-coded calendar. With no JavaScript this
+                 block stays hidden and the plain text field carries the ask. -->
+            <div id="bk-pick" hidden>
+              <fieldset class="form__set">
+                <legend class="form__legend">Pick a day</legend>
+                <div class="opts" id="bk-days"></div>
+              </fieldset>
+
+              <fieldset class="form__set">
+                <legend class="form__legend">Pick a time, Pacific</legend>
+                <div class="opts" id="bk-times"></div>
+                <p class="bk__hint">This is a request, not a calendar. Ask for whatever suits you.</p>
+              </fieldset>
+
+              <p class="bk__chosen" id="bk-chosen" aria-live="polite"></p>
+            </div>
+
+            <div class="form__set bk__field">
+              <label class="bk__label" for="bk-when">Tell me when suits you <span class="bk__opt">Optional</span></label>
+              <input class="bk__input" type="text" id="bk-when" name="when-else" autocomplete="off" placeholder="Early mornings, or after six">
+              <p class="bk__hint">A day and a rough time is enough. On its own this is a complete request.</p>
+            </div>
+          </div>
+
+          <div class="bk__form-b">
+            <fieldset class="form__set">
+              <legend class="form__legend">Where I reply</legend>
+
+              <div class="bk__field">
+                <label class="bk__label" for="bk-name">Your name</label>
+                <input class="bk__input" type="text" id="bk-name" name="name" autocomplete="name" required>
+              </div>
+
+              <div class="bk__field">
+                <label class="bk__label" for="bk-email">Your email</label>
+                <input class="bk__input" type="email" id="bk-email" name="email" autocomplete="email" inputmode="email" required>
+              </div>
+
+              <div class="bk__field">
+                <label class="bk__label" for="bk-business">Business <span class="bk__opt">Optional</span></label>
+                <input class="bk__input" type="text" id="bk-business" name="business" autocomplete="organization">
+              </div>
+
+              <div class="bk__field">
+                <label class="bk__label" for="bk-context">Where does the time go? <span class="bk__opt">Optional</span></label>
+                <textarea class="bk__input bk__area" id="bk-context" name="context" rows="4"></textarea>
+                <p class="bk__hint">One recent job is plenty. I will ask the rest on the call.</p>
+              </div>
+            </fieldset>
+          </div>
+
+        </div>
+
+        <div class="bk__go">
+          <p class="bk__alert" id="bk-alert" role="alert" hidden></p>
+
+          <div class="form__go">
+            <button class="btn btn--brand" type="submit" id="bk-submit">Send the request</button>
+          </div>
+
+          <p class="form__note bk__go-note">This opens an email in your own mail app with everything filled in. Nothing leaves this page until you send it.</p>
+          <p class="form__note">Nothing is booked until I reply to confirm.</p>
+        </div>
+      </form>
+
+      <p class="note bk__plain">Prefer plain email? Write to me and say when suits you.</p>
+      <a class="linkish" href="mailto:johnmontejano2@gmail.com"><span>johnmontejano2@gmail.com</span></a>
+
+    </div>
+  </div>
+</section>
+
+<!-- =================================================== 2. WHAT HAPPENS === -->
+<section class="sec s--field" id="what" aria-labelledby="what-h">
+  <div class="wrap">
+    <div class="sec__head">
+      <p class="eyebrow">What happens</p>
+      <h2 class="d2" id="what-h">Three steps, and you only prepare for one.</h2>
+      <p class="lead">Not a workshop. Not a questionnaire. One job you actually ran.</p>
+    </div>
+
+    <ol class="steps">
+      <li class="step reveal">
+        <span class="step__n" aria-hidden="true">01</span>
+        <h3 class="step__t">We get on a call.</h3>
+        <p class="step__d">Pick a time. Nothing is booked until I reply to confirm.</p>
+        <p class="step__bring">You bring: nothing</p>
+      </li>
+      <li class="step reveal">
+        <span class="step__n" aria-hidden="true">02</span>
+        <h3 class="step__t">We follow one real job, end to end.</h3>
+        <p class="step__d">The call, the booking, the work, the invoice, the follow-up. I ask where it sticks.</p>
+        <p class="step__bring">You bring: one recent job</p>
+      </li>
+      <li class="step step--last reveal">
+        <span class="step__n" aria-hidden="true">03</span>
+        <h3 class="step__t">You get the map.</h3>
+        <p class="step__d">Where it leaks, what I would fix first, what I would leave alone.</p>
+        <p class="step__bring">You bring: nothing</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ========================================================== 3. DIRECT == -->
+<section class="sec s--deep" id="direct" aria-labelledby="direct-h">
+  <div class="wrap">
+    <div class="close__box">
+      <div>
+        <p class="eyebrow">If a form is not your thing</p>
+        <h2 class="d2" id="direct-h">Write to me instead.</h2>
+        <p class="lead">Same thing, fewer boxes. Tell me a day and a time that suits you, and bring one recent job.</p>
+      </div>
+      <div class="close__cta">
+        <a class="btn btn--light btn--wide" href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a>
+        <p class="note">Nothing is booked until I reply to confirm.</p>
+        <p class="note">You talk to me directly.</p>
       </div>
     </div>
-  </section>
-
-  <section class="close wrap" aria-labelledby="cl-h">
-    <h2 class="display" id="cl-h" data-close-title>
-      <span class="ln" style="--wd:92">One job.</span>
-      <span class="ln" style="--wd:88">Start to paid.</span>
-    </h2>
-    <a class="cta" href="/book/" data-magnet><span>Show me where it leaks</span></a>
-    <p class="cta-note">One conversation. No pitch. If automation isn't your problem, I'll say so.</p>
-    <span class="sig">John Montejano</span>
-    <div id="terminal" aria-hidden="true"></div>
-  </section>
+  </div>
+</section>
 
 </main>
 
-<footer class="wrap">
-  <div class="foot">
-    <div class="col">
-      <span class="mono">John Montejano</span>
-      <span class="mono-cap">I get the manual work out of service businesses.</span>
-    </div>
-    <div class="col">
-      <a class="mono" href="/work/fastfix/">FastFix</a>
-      <a class="mono" href="/work/gelatotech/">GelatoTech</a>
-      <a class="mono" href="/work/lisa/">LISA</a>
-    </div>
-    <div class="col">
-      <a class="mono" href="/work/">Work</a>
-      <a class="mono" href="/about/">About</a>
-      <a class="mono" href="/book/">Book</a>
-    </div>
-    <div class="col">
-      <a class="mono" href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a>
-      <a class="mono" href="https://www.linkedin.com/in/johnmontejano/" target="_blank" rel="noopener">LinkedIn</a>
-      <span class="mono">&copy; 2026</span>
+<!-- ========================================================== 4. FOOTER == -->
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__in">
+      <nav class="foot__l" aria-label="Footer">
+        <a href="/work/">Work</a>
+        <a href="/services/workflow-automation/">Workflow automation</a>
+        <a href="/about/">About</a>
+        <a href="/book/">Show me where it leaks</a>
+      </nav>
+      <div class="foot__c">
+        <a href="mailto:johnmontejano2@gmail.com"><span>johnmontejano2@gmail.com</span></a>
+        <a href="https://www.linkedin.com/in/johnmontejano/" rel="me noopener"><span>LinkedIn</span></a>
+      </div>
+      <div class="foot__b">
+        <p>John Montejano. San Francisco.</p>
+        <p>You talk to me directly.</p>
+      </div>
     </div>
   </div>
 </footer>
-
-<script src="/vendor/gsap.min.js" defer></script>
-<script src="/vendor/ScrollTrigger.min.js" defer></script>
 <script src="/js/main.js" defer></script>
 </body>
 </html>
