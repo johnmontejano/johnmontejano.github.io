@@ -162,27 +162,6 @@
   if (hasSplit) gsap.registerPlugin(SplitText);
 
   /* ---------------------------------------------------------
-     Load curtain: the monogram draws, then lifts.
-     Hard-capped so it can never hold the page hostage.
-     --------------------------------------------------------- */
-  var curtain = document.getElementById("curtain");
-  if (curtain) {
-    var strokes = curtain.querySelectorAll(".cs");
-    var cross = curtain.querySelector(".cx");
-    strokes.forEach(function (p) {
-      var len = p.getTotalLength ? p.getTotalLength() : 60;
-      gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
-    });
-    gsap.set(cross, { scaleX: 0 });
-    var lift = gsap.timeline();
-    lift.to(strokes, { strokeDashoffset: 0, duration: 0.9, ease: "expo.out", stagger: 0.06 }, 0)
-        .to(cross, { scaleX: 1, duration: 0.4, ease: "power4.inOut" }, 0.35)
-        .to(curtain, { clipPath: "inset(0 0 100% 0)", duration: 0.7, ease: "power4.inOut" }, 0.75)
-        .set(curtain, { display: "none" });
-    setTimeout(function () { lift.progress(1); }, 2200);   /* ceiling */
-  }
-
-  /* ---------------------------------------------------------
      Hero entrance. Every duration in the sequence differs, so
      nothing reads keyframed together.
      --------------------------------------------------------- */
@@ -203,18 +182,19 @@
     });
 
     gsap.set(lns, { yPercent: 125 });
-    if (eyebrow) gsap.set(eyebrow, { opacity: 0, y: 12 });
-    if (sub) gsap.set(sub, { opacity: 0, y: 14 });
+    if (eyebrow) gsap.set(eyebrow, { y: 12 });
+    if (sub) gsap.set(sub, { y: 14 });
     if (heroCta) gsap.set(heroCta, { opacity: 0, scale: 0.92 });
     if (chips.length) gsap.set(chips, { y: 14 });
     gsap.set(head, { yPercent: -120 });
 
     var start = function () {
       justifyAll();
-      var tl = gsap.timeline({ delay: curtain ? 0.55 : 0 });
-      if (eyebrow) tl.to(eyebrow, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" }, 0.10);
+      var onHome = !!document.querySelector("#curtain");
+      var tl = gsap.timeline({ delay: onHome && window.innerWidth > 900 ? 0.75 : 0 });
+      if (eyebrow) tl.to(eyebrow, { y: 0, duration: 0.7, ease: "expo.out" }, 0.10);
       tl.to(lns, { yPercent: 0, duration: 1.15, ease: "expo.out", stagger: 0.08 }, 0.18);
-      if (sub) tl.to(sub, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" }, 0.62);
+      if (sub) tl.to(sub, { y: 0, duration: 0.6, ease: "expo.out" }, 0.62);
       if (heroCta) tl.to(heroCta, { opacity: 1, scale: 1, duration: 0.9, ease: "expo.out" }, 0.66);
       if (chips.length) tl.to(chips, { y: 0, duration: 0.75, ease: "expo.out", stagger: 0.05 }, 0.74);
       tl.to(head, { yPercent: 0, duration: 0.8, ease: "expo.out" }, 0.70);
@@ -223,7 +203,7 @@
       var fired = false;
       var go = function () { if (!fired) { fired = true; start(); } };
       document.fonts.ready.then(go);
-      setTimeout(go, 1200);
+      setTimeout(go, 450);
     } else { start(); }
   }
 
