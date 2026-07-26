@@ -2,28 +2,28 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>John Montejano — The Job Trace</title>
-<meta name="description" content="I trace one real job end to end through a service business and show you where it leaks. Founder of FastFix.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>John Montejano · Do the job once.</title>
+<meta name="description" content="I follow one real job through your service business, cut the steps that should not exist, and build the automation for what is left. Owner of FastFix. Owner-operator of GelatoTech. San Francisco.">
 <link rel="canonical" href="https://johnmontejano.github.io/">
-<meta name="theme-color" content="#0C0B0A">
+<meta name="theme-color" content="#E7EAFF">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="John Montejano">
 <meta property="og:url" content="https://johnmontejano.github.io/">
-<meta property="og:title" content="Nothing's broken. Everything's manual.">
-<meta property="og:description" content="I trace one real job end to end through a service business and show you where it leaks.">
+<meta property="og:title" content="Do the job once.">
+<meta property="og:description" content="I follow one real job through your service business, cut the steps that should not exist, and build the automation for what is left.">
 <meta property="og:image" content="https://johnmontejano.github.io/assets/img/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Nothing's broken. Everything's manual.">
-<meta name="twitter:description" content="I trace one real job end to end through a service business and show you where it leaks.">
+<meta name="twitter:title" content="Do the job once.">
+<meta name="twitter:description" content="I follow one real job through your service business, cut the steps that should not exist, and build the automation for what is left.">
 <meta name="twitter:image" content="https://johnmontejano.github.io/assets/img/og-card.png">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preload" href="/assets/fonts2/archivo-2.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/assets/fonts2/switzer-0.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/type/bricolage-1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/type/manrope-1.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/styles.css">
 <script>document.documentElement.className+=" js";</script>
 <script type="application/ld+json">
@@ -33,220 +33,645 @@
 </script>
 </head>
 <body>
+
+<!--
+=================================================================================
+ SHARED PATTERN CONTRACT . read this before building any interior route
+ Every class used here is defined and documented in /styles.css.
+=================================================================================
+
+ 1. HEADER . paste verbatim on every route. Only two things change:
+    add aria-current="page" to the matching nav link, and drop it elsewhere.
+
+    <header class="hdr">
+      <div class="hdr__in">
+        <a class="wordmark" href="/">John Montejano<i></i></a>
+        <button class="hdr__toggle" type="button" aria-expanded="false" aria-controls="nav" hidden>
+          <span class="bars" aria-hidden="true"></span>Menu
+        </button>
+        <nav class="nav" id="nav" aria-label="Primary">
+          <a href="/work/">Work</a>
+          <a href="/about/">About</a>
+          <a class="btn btn--brand btn--sm" href="/book/">Show me where it leaks</a>
+        </nav>
+      </div>
+    </header>
+
+    The toggle carries the [hidden] attribute in the HTML. /js/main.js removes it.
+    With no JS the nav is a plain wrapping row, so Work, About and the CTA are
+    always reachable and no dead buttons sit in the tab order.
+
+ 2. FOOTER . paste verbatim on every route. See the bottom of this file.
+
+ 3. SECTION WRAPPER . every section is
+      <section class="sec s--GROUND" id="..." aria-labelledby="...">
+        <div class="wrap"> ... </div>
+      </section>
+    GROUND is exactly one of:
+      s--ground  daylight lavender #E7EAFF   the default surface
+      s--field   white             #FFFFFF   card field
+      s--brand   electric indigo   #3D2BFF   white text
+      s--deep    deep indigo       #16123C   white text
+    Modifiers: .sec--tight, .sec--tall. Containers: .wrap, .wrap--narrow.
+    Section intro block: .sec__head containing .eyebrow, h2.d2 and p.lead.
+
+ 4. BUTTONS
+      .btn .btn--brand    primary action anywhere on a light ground
+      .btn .btn--light    primary action on s--brand or s--deep
+      .btn .btn--quiet    secondary
+      .btn--sm            compact, still 44px tall
+      .btn--wide          full width
+      a.linkish > span    underlined text link
+    The primary CTA label is always exactly "Show me where it leaks" and it
+    always points at /book/.
+
+ 5. CARDS
+      .card               white raised card
+      .card--flat .card--raise .card--wash .card--pad-lg
+      .card--brand .card--deep .card--lime .card--coral
+    Signals: .chip (--lime --coral --brand --plain), .badge (--you --auto --gone),
+    .marks (--coral --lime). Lime always means "this no longer costs you
+    anything". Coral always means "this is where your time goes". Never
+    decorative.
+
+ 6. GROUND CLASSES SET THE INK. Inside any s--* section or card variant use
+    var(--fg), var(--fg-2), var(--fg-3) and var(--on). Do not hardcode colours.
+=================================================================================
+-->
+
 <a class="skip" href="#main">Skip to content</a>
 
-<div id="curtain" aria-hidden="true">
-  <svg viewBox="0 0 24 24">
-    <path class="cs" pathLength="1" d="M8,4 V19 H2.5 V16"/>
-    <path class="cs" pathLength="1" d="M12.5,4 V20 M21.5,4 V20"/>
-    <path class="cs" pathLength="1" d="M12.5,4 L17,9.6 L21.5,4"/>
-    <rect class="cx" x="0" y="11.4" width="24" height="1.2"/>
-  </svg>
-</div>
-
-<header id="head">
-  <a class="brand" href="/" aria-label="John Montejano, home">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path class="stroke" d="M8,4 V19 H2.5 V16" fill="none" stroke-width="2" stroke-linecap="square"/>
-      <path class="stroke" d="M12.5,4 V20 M21.5,4 V20" fill="none" stroke-width="2" stroke-linecap="square"/>
-      <path class="stroke" d="M12.5,4 L17,9.6 L21.5,4" fill="none" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"/>
-      <rect class="cross" x="0" y="11.5" width="6.4" height="1"/>
-      <rect class="cross" x="9.6" y="11.5" width="1.3" height="1"/>
-      <rect class="cross" x="14.1" y="11.5" width="5.8" height="1"/>
-      <rect class="cross" x="23.1" y="11.5" width="0.9" height="1"/>
-    </svg>
-    <span class="brand-name">John Montejano</span>
-  </a>
-  <nav class="nav" aria-label="Primary">
-    <a class="nav-full" href="/work/">Work</a>
-    <a class="nav-full" href="/about/">About</a>
-    <a href="/book/">Book the job trace</a>
-  </nav>
+<header class="hdr">
+  <div class="hdr__in">
+    <a class="wordmark" href="/">John Montejano<i></i></a>
+    <button class="hdr__toggle" type="button" aria-expanded="false" aria-controls="nav" hidden>
+      <span class="bars" aria-hidden="true"></span>Menu
+    </button>
+    <nav class="nav" id="nav" aria-label="Primary">
+      <a href="/work/">Work</a>
+      <a href="/about/">About</a>
+      <a class="btn btn--brand btn--sm" href="/book/">Show me where it leaks</a>
+    </nav>
+  </div>
 </header>
-
-<div id="rail" aria-hidden="true"></div>
 
 <main id="main">
 
-  <!-- 01 HERO -->
-  <section class="hero wrap" aria-label="Introduction">
-    <p class="mono" data-hero-eyebrow>Workflow automation &middot; Service businesses</p>
-    <h1 class="display" data-hero-title>
-      <span class="ln" style="--wd:88">Nothing's broken.</span>
-      <span class="ln" style="--wd:74">Everything's manual.</span>
-    </h1>
-    <div class="hero-foot">
-      <div data-hero-sub>
-        <p class="sub body-lg">I trace one real job end to end and show you where it leaks.</p>
-      </div>
-      <a class="cta" href="/book/" data-magnet><span>Book the job trace</span></a>
-    </div>
-    <ul class="chips" data-hero-chips>
-      <li>Owner, FastFix</li>
-      <li>Owner-operator, GelatoTech</li>
-      <li>San Francisco</li>
-      <li>You talk to me</li>
-    </ul>
-  </section>
+<!-- ============================================================ 1. HERO === -->
+<section class="hero s--ground" aria-labelledby="hero-h">
+  <div class="wrap">
+    <div class="hero__grid">
 
-  <!-- 02 THE JOB — the visual that carries the argument -->
-  <section class="job wrap" id="trace" aria-labelledby="job-h">
-    <div class="junction"><span class="mono idx">01</span><span class="mono name" id="job-h">One job</span></div>
-    <ol class="flow" data-flow>
-      <li class="step"><span class="s-n">01</span><span class="s-t">Call</span><span class="s-tag">Manual</span></li>
-      <li class="step"><span class="s-n">02</span><span class="s-t">Dispatch</span><span class="s-tag">Manual</span></li>
-      <li class="step"><span class="s-n">03</span><span class="s-t">On site</span><span class="s-tag">You</span></li>
-      <li class="step leak"><span class="s-n">04</span><span class="s-t">Invoice</span><span class="s-tag">Leaks here</span></li>
-      <li class="step leak"><span class="s-n">05</span><span class="s-t">Follow-up</span><span class="s-tag">Leaks here</span></li>
-    </ol>
-    <p class="flow-note mono-cap">I find the leaks, then wire them shut.</p>
-  </section>
+      <!-- .hero__left is display:contents on phones, so the phone order is
+           message, drawing, credential card. It becomes a real column at 960px. -->
+      <div class="hero__left">
+      <div class="hero__copy">
+        <p class="eyebrow eyebrow--wide">For home services, repair and appointment businesses.</p>
 
-  <!-- 03 SYMPTOMS -->
-  <section class="wrap" aria-labelledby="sym-h">
-    <div class="junction"><span class="mono idx">02</span><span class="mono name" id="sym-h">Symptoms</span></div>
-    <ul class="index">
-      <li><div class="row"><span class="n">001</span><span class="t">Missed calls after five.</span></div></li>
-      <li><div class="row"><span class="n">002</span><span class="t">The same job typed into three systems.</span></div></li>
-      <li><div class="row"><span class="n">003</span><span class="t">Quotes sitting with no nudge behind them.</span></div></li>
-      <li><div class="row"><span class="n">004</span><span class="t">No-shows nobody texted.</span></div></li>
-      <li><div class="row"><span class="n">005</span><span class="t">Invoices that wait for the evening.</span></div></li>
-      <li><div class="row"><span class="n">006</span><span class="t">Follow-up that runs on memory.</span></div></li>
-    </ul>
-    <p class="index-close">Not people problems. Missing-system problems.</p>
-  </section>
+        <h1 class="d1" id="hero-h">
+          <span class="d1__l">Do the job</span>
+          <span class="d1__l"><span class="hl">once.</span></span>
+        </h1>
 
-  <!-- 04 EVIDENCE -->
-  <section class="evidence wrap" aria-labelledby="ev-h">
-    <div class="junction"><span class="mono idx">03</span><span class="mono name" id="ev-h">Built and run</span></div>
-    <div class="grid">
-      <div class="ev-rail">
-        <p class="body-lg" style="max-width:22ch">Three businesses. Every role in them was mine.</p>
-        <p class="mono-cap" style="margin-top:var(--s4)">Captured July 2026</p>
-      </div>
-      <div class="ev-stack">
-        <a class="ev" href="/work/fastfix/">
-          <figure>
-            <div class="shot"><img src="/assets/img/ev-fastfix.webp" srcset="/assets/img/ev-fastfix-1200.webp 1200w, /assets/img/ev-fastfix.webp 2100w" sizes="(min-width:900px) 60vw, 92vw" width="2100" height="900" alt="The FastFix website explaining the four steps its platform runs for a home-service business." loading="eager" decoding="async"></div>
-            <figcaption class="ev-meta">
-              <span><span class="ev-name">FastFix</span><span class="ev-role">Owner. Website, marketing, product, growth, automation.</span></span>
-              <span class="ev-url">fastfix.ai</span>
-            </figcaption>
-          </figure>
-        </a>
-        <a class="ev" href="/work/gelatotech/">
-          <figure>
-            <div class="shot"><img src="/assets/img/ev-gelatotech.webp" srcset="/assets/img/ev-gelatotech-1200.webp 1200w, /assets/img/ev-gelatotech.webp 2100w" sizes="(min-width:900px) 60vw, 92vw" width="2100" height="900" alt="The GelatoTech website showing its three-step on-site repair process." loading="lazy" decoding="async"></div>
-            <figcaption class="ev-meta">
-              <span><span class="ev-name">GelatoTech</span><span class="ev-role">Owner-operator. Site, SEO, ads, dispatch, repairs.</span></span>
-              <span class="ev-url">gelatotech.com</span>
-            </figcaption>
-          </figure>
-        </a>
-        <a class="ev" href="/work/lisa/">
-          <figure>
-            <div class="shot"><img src="/assets/img/ev-lisa.webp" srcset="/assets/img/ev-lisa-1200.webp 1200w, /assets/img/ev-lisa.webp 2100w" sizes="(min-width:900px) 60vw, 92vw" width="2100" height="900" alt="Photography from the LISA accelerator program site." loading="lazy" decoding="async"></div>
-            <figcaption class="ev-meta">
-              <span><span class="ev-name">LISA</span><span class="ev-role">Product and web design.</span></span>
-              <span class="ev-url">gsb-lead-lisa.com</span>
-            </figcaption>
-          </figure>
-        </a>
-      </div>
-    </div>
-  </section>
+        <p class="lead hero__sub">I follow one real job through your business, cut the steps that shouldn&rsquo;t exist, and build the automation for what&rsquo;s left.</p>
 
-  <!-- 05 OPERATOR — the inversion -->
-  <section class="paper" id="operator" aria-labelledby="op-h">
-    <div class="wrap">
-      <div class="junction"><span class="mono idx">04</span><span class="mono name" id="op-h">Operator</span></div>
-      <div class="op-grid">
-        <figure class="op-portrait">
-          <img src="/assets/img/jm-portrait-45.webp" width="585" height="732" alt="Portrait of John Montejano." loading="lazy" decoding="async">
-          <figcaption class="mono op-cap">John Montejano &middot; San Francisco</figcaption>
-        </figure>
-        <div class="op-body">
-          <ul class="refusals">
-            <li>Not an agency.</li>
-            <li>Not software.</li>
-            <li>One operator.</li>
-          </ul>
-          <p class="op-line">I did the repairs myself before I built the platform they run on.</p>
-          <p style="margin-top:var(--s5)"><a class="link" href="/about/">More about me</a></p>
+        <div class="actions hero__cta">
+          <a class="btn btn--brand" href="/book/">
+            Show me where it leaks
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="linkish" href="#run"><span>See it on one job</span></a>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- 06 METHOD -->
-  <section class="wrap" aria-labelledby="me-h">
-    <div class="junction"><span class="mono idx">05</span><span class="mono name" id="me-h">Method</span></div>
-    <div class="method-grid">
-      <ul class="steps">
-        <li><span class="sn">01</span><span><span class="v">Trace.</span><span class="d">Follow one real job, end to end.</span></span></li>
-        <li><span class="sn">02</span><span><span class="v">Cut.</span><span class="d">Delete steps before automating them.</span></span></li>
-        <li><span class="sn">03</span><span><span class="v">Wire.</span><span class="d">Automate what's left, with tools you already pay for.</span></span></li>
-        <li><span class="sn">04</span><span><span class="v">Watch.</span><span class="d">See it run. Fix what breaks.</span></span></li>
-      </ul>
-      <div class="maxim">
-        <h2 class="h1" style="--wd:82">Cut before you wire.</h2>
+      <div class="creds">
+        <img src="/assets/img/jm-portrait-45.webp" width="585" height="732" loading="lazy" decoding="async" alt="John Montejano">
+        <div>
+          <p class="creds__t">Owner, FastFix. Owner-operator, GelatoTech.</p>
+          <p class="creds__d">San Francisco. I did the repairs myself before I built the platform they run on.</p>
+        </div>
+      </div>
+      </div><!-- /.hero__left -->
+
+      <figure class="scene reveal" data-reveal="pop">
+        <div class="scene__lab"><span class="kicker">One job, today</span></div>
+
+        <div class="pile">
+          <div class="slip slip--1">
+            <div class="slip__top"><span class="slip__k">Message</span><span class="slip__stamp slip__stamp--in">It arrives</span></div>
+            <p class="slip__a">Cracked screen, iPhone</p>
+            <p class="slip__b">Mission, San Francisco. Thursday 2:00 PM</p>
+          </div>
+          <div class="slip slip--2">
+            <div class="slip__top"><span class="slip__k">Notepad</span><span class="slip__stamp">Written down</span></div>
+            <p class="slip__a">Cracked screen, iPhone</p>
+            <p class="slip__b">Mission, San Francisco. Thursday 2:00 PM</p>
+          </div>
+          <div class="slip slip--3">
+            <div class="slip__top"><span class="slip__k">Calendar</span><span class="slip__stamp">Written again</span></div>
+            <p class="slip__a">Cracked screen, iPhone</p>
+            <p class="slip__b">Mission, San Francisco. Thursday 2:00 PM</p>
+          </div>
+          <div class="slip slip--4">
+            <div class="slip__top"><span class="slip__k">Invoice</span><span class="slip__stamp">And again</span></div>
+            <p class="slip__a">Cracked screen, iPhone</p>
+            <p class="slip__b">Mission, San Francisco. Thursday 2:00 PM</p>
+          </div>
+        </div>
+
+        <p class="chip chip--coral scene__count">The same job, written down three times.</p>
+
+        <div class="scene__drop" aria-hidden="true">
+          <svg width="30" height="46" viewBox="0 0 30 46" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3v36"/><path d="M5 30l10 11 10-11"/></svg>
+        </div>
+
+        <div class="solved">
+          <div class="slip__top"><span class="slip__k">Booked once</span></div>
+          <p class="slip__a">Cracked screen, iPhone</p>
+          <p class="slip__b">Mission, San Francisco. Thursday 2:00 PM</p>
+          <p class="solved__t">Booked once. It shows up everywhere.</p>
+        </div>
+
+        <p class="chip chip--lime scene__after-chip">Reminder, invoice and follow-up read from here.</p>
+
+        <figcaption class="cap">An illustration of a typical job, not a client&rsquo;s.</figcaption>
+      </figure>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================= 2. THE RUN === -->
+<section class="sec s--field" id="run" aria-labelledby="run-h">
+  <div class="wrap">
+
+    <div class="sec__head">
+      <p class="eyebrow">One job, start to finish</p>
+      <h2 class="d2" id="run-h">Eight steps. Only one of them is the work.</h2>
+      <p class="lead">The tiles are the steps. The links between them are the handoffs, and the handoffs are where your evening goes.</p>
+    </div>
+
+    <div id="stage">
+    <div class="run__bar">
+      <div class="toggle" role="group" aria-label="Show the run before or after" hidden>
+        <button type="button" class="toggle__b" data-run="now" aria-pressed="true">How it runs now</button>
+        <button type="button" class="toggle__b" data-run="after" aria-pressed="false">After</button>
+      </div>
+      <p class="run__count sw">
+        <span class="sw__now"><b class="sw__k">Now</b>Eight steps, and all eight are yours. Three handoffs stall, and the same job gets written down three times.</span>
+        <span class="sw__aft"><b class="sw__k">After</b>Six steps run themselves. One stops existing. One is still yours, and it is the work.</span>
+      </p>
+    </div>
+
+      <ol class="relay">
+
+        <li class="station station--auto reveal">
+          <div class="hop"><span class="hop__st">A call comes in</span></div>
+          <div class="tile">
+            <p class="tile__k"><span class="tile__n">01</span> Inquiry</p>
+            <div class="sw">
+              <div class="sw__now">
+                <b class="sw__k">Now</b>
+                <p class="tile__t">The call comes in after five. Nobody picks up.</p>
+                <p class="badge badge--you">You</p>
+              </div>
+              <div class="sw__aft">
+                <b class="sw__k">After</b>
+                <p class="tile__t">Answered or texted back right away.</p>
+                <p class="badge badge--auto">Automatic</p>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="station station--gone reveal">
+          <div class="hop hop--gap">
+            <span class="sw">
+              <span class="sw__now"><b class="sw__k">Now</b>Waits until morning</span>
+              <span class="sw__aft"><b class="sw__k">After</b>Handed over</span>
+            </span>
+          </div>
+          <div class="tile">
+            <p class="tile__k"><span class="tile__n">02</span> Response</p>
+            <div class="sw">
+              <div class="sw__now">
+                <b class="sw__k">Now</b>
+                <p class="tile__t">Voicemail waits until morning. You call back between jobs.</p>
+                <p class="badge badge--you">You</p>
+              </div>
+              <div class="sw__aft">
+                <b class="sw__k">After</b>
+                <p class="tile__t">Folded into the first answer. This step stops existing.</p>
+                <p class="badge badge--gone">Gone</p>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="station station--auto reveal">
+          <div class="hop">
+            <span class="sw">
+              <span class="sw__now"><b class="sw__k">Now</b>You carry it across</span>
+              <span class="sw__aft"><b class="sw__k">After</b>Handed over</span>
+            </span>
+          </div>
+          <div class="tile">
+            <p class="tile__k"><span class="tile__n">03</span> Qualification</p>
+            <div class="sw">
+              <div class="sw__now">
+                <b class="sw__k">Now</b>
+                <p class="tile__t">You ask the same questions every time. Details go on a notepad.</p>
+                <p class="badge badge--you">You</p>
+              </div>
+              <div class="sw__aft">
+                <b class="sw__k">After</b>
+                <p class="tile__t">Asked once, on the way in.</p>
+                <p class="badge badge--auto">Automatic</p>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="station station--auto reveal">
+          <div class="hop">
+            <span class="sw">
+              <span class="sw__now"><b class="sw__k">Now</b>You carry it across</span>
+              <span class="sw__aft"><b class="sw__k">After</b>Handed over</span>
+            </span>
+          </div>
+          <div class="tile">
+            <p class="tile__k"><span class="tile__n">04</span> Booking</p>
+            <div class="sw">
+              <div class="sw__now">
+                <b class="sw__k">Now</b>
+                <p class="tile__t">Retyped into the calendar. You text the customer the time.</p>
+                <p class="badge badge--you">You</p>
+              </div>
+              <div class="sw__aft">
+                <b class="sw__k">After</b>
+                <p class="tile__t">Booked once. It shows up everywhere.</p>
+                <p class="badge badge--auto">Automatic</p>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="station station--auto reveal">
+          <div class="hop hop--gap">
+            <span class="sw">
+              <span class="sw__now"><b class="sw__k">Now</b>Nothing triggers it</span>
+              <span class="sw__aft"><b class="sw__k">After</b>Handed over</span>
+            </span>
+          </div>
+          <div class="tile">
+            <p class="tile__k"><span class="tile__n">05</span> Reminder</p>
+            <div class="sw">
+              <div class="sw__now">
+                <b class="sw__k">Now</b>
+                <p class="tile__t">Runs on memory. Nobody texted them.</p>
+                <p class="badge badge--you">You</p>
+              </div>
+              <div class="sw__aft">
+                <b class="sw__k">After</b>
+                <p class="tile__t">Sends itself the day before.</p>
+                <p class="badge badge--auto">Automatic</p>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="station station--you reveal">
+          <div class="hop">
+            <span class="sw">
+              <span class="sw__now"><b class="sw__k">Now</b>You carry it across</span>
+              <span class="sw__aft"><b class="sw__k">After</b>Handed over</span>
+            </span>
+          </div>
+          <div class="tile">
+            <p class="tile__k"><span class="tile__n">06</span> Work</p>
+            <div class="sw">
+              <div class="sw__now">
+                <b class="sw__k">Now</b>
+                <p class="tile__t">You drive over and do the job.</p>
+                <p class="badge badge--you">You</p>
+              </div>
+              <div class="sw__aft">
+                <b class="sw__k">After</b>
+                <p class="tile__t">You drive over and do the job.</p>
+                <p class="badge badge--you">Still you</p>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="station station--auto reveal">
+          <div class="hop">
+            <span class="sw">
+              <span class="sw__now"><b class="sw__k">Now</b>You carry it across</span>
+              <span class="sw__aft"><b class="sw__k">After</b>Handed over</span>
+            </span>
+          </div>
+          <div class="tile">
+            <p class="tile__k"><span class="tile__n">07</span> Invoice</p>
+            <div class="sw">
+              <div class="sw__now">
+                <b class="sw__k">Now</b>
+                <p class="tile__t">Retyped into the invoice that evening. Payment chased by hand.</p>
+                <p class="badge badge--you">You</p>
+              </div>
+              <div class="sw__aft">
+                <b class="sw__k">After</b>
+                <p class="tile__t">Goes out when the job closes.</p>
+                <p class="badge badge--auto">Automatic</p>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="station station--auto reveal">
+          <div class="hop hop--gap">
+            <span class="sw">
+              <span class="sw__now"><b class="sw__k">Now</b>Runs on memory</span>
+              <span class="sw__aft"><b class="sw__k">After</b>Handed over</span>
+            </span>
+          </div>
+          <div class="tile">
+            <p class="tile__k"><span class="tile__n">08</span> Follow-up</p>
+            <div class="sw">
+              <div class="sw__now">
+                <b class="sw__k">Now</b>
+                <p class="tile__t">You mean to check back. Usually it does not happen.</p>
+                <p class="badge badge--you">You</p>
+              </div>
+              <div class="sw__aft">
+                <b class="sw__k">After</b>
+                <p class="tile__t">Sends itself.</p>
+                <p class="badge badge--auto">Automatic</p>
+              </div>
+            </div>
+          </div>
+        </li>
+
+      </ol>
+
+      <div class="rec reveal">
+        <p class="rec__k kicker">Where the job gets written down</p>
+        <div class="rec__row">
+          <div class="rec__cell rec__cell--a">
+            <span class="sw">
+              <span class="sw__now"><b class="sw__k">Now</b><span class="rec__n">First</span><span class="rec__t">Notepad</span></span>
+              <span class="sw__aft"><b class="sw__k">After</b><span class="rec__n">Once</span><span class="rec__t">One record</span><span class="rec__d">The booking, the reminder, the invoice and the follow-up all read from it.</span></span>
+            </span>
+          </div>
+          <div class="rec__cell rec__cell--b">
+            <span class="sw">
+              <span class="sw__now"><b class="sw__k">Now</b><span class="rec__n">Second</span><span class="rec__t">Calendar</span></span>
+            </span>
+          </div>
+          <div class="rec__cell rec__cell--c">
+            <span class="sw">
+              <span class="sw__now"><b class="sw__k">Now</b><span class="rec__n">Third</span><span class="rec__t">Invoice</span></span>
+            </span>
+          </div>
+        </div>
+        <p class="rec__sum sw">
+          <span class="sw__now"><b class="sw__k">Now</b>The same job, written down three times.</span>
+          <span class="sw__aft"><b class="sw__k">After</b>Written down once.</span>
+        </p>
       </div>
     </div>
-  </section>
 
-  <!-- 07 NOT FOR YOU -->
-  <section class="wrap tight" aria-labelledby="nf-h">
-    <div class="refuse">
-      <div class="junction"><span class="mono name" id="nf-h">Not for you if</span><span class="mono idx">06</span></div>
-      <ul>
+  </div>
+</section>
+
+<!-- ======================================================== 3. SYMPTOMS === -->
+<section class="sec s--ground" id="week" aria-labelledby="week-h">
+  <div class="wrap">
+    <div class="sec__head">
+      <p class="eyebrow">Recognise your week</p>
+      <h2 class="d2" id="week-h">You have seen every one of these.</h2>
+      <p class="lead">Six symptoms. If more than one of them was true this week, the problem is the system, not the people.</p>
+    </div>
+
+    <ul class="symp">
+      <li class="reveal"><span class="symp__n" aria-hidden="true">1</span><p class="symp__t">Missed calls after five.</p></li>
+      <li class="reveal"><span class="symp__n" aria-hidden="true">2</span><p class="symp__t">The same job typed into three systems.</p></li>
+      <li class="reveal"><span class="symp__n" aria-hidden="true">3</span><p class="symp__t">Quotes sitting with no nudge behind them.</p></li>
+      <li class="reveal"><span class="symp__n" aria-hidden="true">4</span><p class="symp__t">No-shows nobody texted.</p></li>
+      <li class="reveal"><span class="symp__n" aria-hidden="true">5</span><p class="symp__t">Invoices that wait for the evening.</p></li>
+      <li class="reveal"><span class="symp__n" aria-hidden="true">6</span><p class="symp__t">Follow-up that runs on memory.</p></li>
+    </ul>
+
+    <p class="chip chip--brand symp__close">Not people problems. Missing-system problems.</p>
+  </div>
+</section>
+
+<!-- ==================================================== 4. WHAT HAPPENS === -->
+<section class="sec s--field" id="what" aria-labelledby="what-h">
+  <div class="wrap">
+    <div class="sec__head">
+      <p class="eyebrow">What happens</p>
+      <h2 class="d2" id="what-h">Three steps, and you only prepare for one.</h2>
+      <p class="lead">Not a workshop. Not a questionnaire. One job you actually ran.</p>
+    </div>
+
+    <ol class="steps">
+      <li class="step reveal">
+        <span class="step__n" aria-hidden="true">01</span>
+        <h3 class="step__t">We get on a call.</h3>
+        <p class="step__d">Pick a time. Nothing is booked until I reply to confirm.</p>
+        <p class="step__bring">You bring: nothing</p>
+      </li>
+      <li class="step reveal">
+        <span class="step__n" aria-hidden="true">02</span>
+        <h3 class="step__t">We follow one real job, end to end.</h3>
+        <p class="step__d">The call, the booking, the work, the invoice, the follow-up. I ask where it sticks.</p>
+        <p class="step__bring">You bring: one recent job</p>
+      </li>
+      <li class="step step--last reveal">
+        <span class="step__n" aria-hidden="true">03</span>
+        <h3 class="step__t">You get the map.</h3>
+        <p class="step__d">Where it leaks, what I would fix first, what I would leave alone.</p>
+        <p class="step__bring">You bring: nothing</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- =========================================================== 5. PROOF === -->
+<section class="sec s--deep" id="proof" aria-labelledby="proof-h">
+  <div class="wrap">
+    <div class="sec__head">
+      <p class="eyebrow">Where this comes from</p>
+      <h2 class="d2" id="proof-h">I have been the one taking the calls.</h2>
+      <p class="lead">Two businesses I own. One of them is the exact business described on this page.</p>
+    </div>
+
+    <article class="ev reveal">
+      <div class="ev__frame">
+        <img src="/assets/img/ev-gelatotech-1200.webp" srcset="/assets/img/ev-gelatotech-1200.webp 1200w, /assets/img/ev-gelatotech.webp 2100w" sizes="(min-width:1080px) 1100px, (min-width:760px) 92vw, 100vw" width="1200" height="514" loading="lazy" decoding="async" alt="The GelatoTech website, listing the San Francisco neighbourhoods its on-site repair service covers.">
+      </div>
+      <div class="ev__body">
+        <h3 class="ev__n">GelatoTech</h3>
+        <p class="ev__r">Owner-operator</p>
+        <p class="ev__d">Mobile iPhone repair in San Francisco. I took the calls, booked the visits, did the repairs and sent the invoices. Site, SEO, Google and Facebook ads, dispatch, repairs.</p>
+        <p class="ev__meta">gelatotech.com &middot; captured July 2026</p>
+      </div>
+    </article>
+
+    <article class="ev ev--alt reveal">
+      <div class="ev__frame">
+        <img src="/assets/img/ev-fastfix-1200.webp" srcset="/assets/img/ev-fastfix-1200.webp 1200w, /assets/img/ev-fastfix.webp 1640w" sizes="(min-width:1080px) 1100px, (min-width:760px) 92vw, 100vw" width="1200" height="514" loading="lazy" decoding="async" alt="The FastFix website, explaining that the platform takes the admin work off a home-service business.">
+      </div>
+      <div class="ev__body">
+        <h3 class="ev__n">FastFix</h3>
+        <p class="ev__r">Owner</p>
+        <p class="ev__d">A product for home-service businesses. Website, marketing, product, growth, automation. Every important decision was mine, and it is not what I am selling you here.</p>
+        <p class="ev__meta">fastfix.ai &middot; captured July 2026</p>
+      </div>
+    </article>
+
+    <p class="proof__more"><a class="linkish" href="/work/"><span>See the work in full</span>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+    </a></p>
+  </div>
+</section>
+
+<!-- ======================================================== 6. OPERATOR === -->
+<section class="sec s--brand" id="operator" aria-labelledby="op-h">
+  <div class="wrap">
+    <div class="op">
+      <figure class="op__shot reveal">
+        <img src="/assets/img/jm-portrait-45.webp" width="585" height="732" loading="lazy" decoding="async" alt="John Montejano.">
+      </figure>
+      <div>
+        <p class="eyebrow">Who you are dealing with</p>
+        <h2 class="op__claim" id="op-h">I did the repairs myself before I built the platform they run on.</h2>
+        <ul class="op__list">
+          <li>You talk to me directly.</li>
+          <li>Owner, FastFix. Owner-operator, GelatoTech.</li>
+        </ul>
+        <p class="op__sig">John Montejano. San Francisco.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================== 7. HOW I WORK ==== -->
+<section class="sec s--ground" id="how" aria-labelledby="how-h">
+  <div class="wrap">
+    <div class="sec__head">
+      <p class="eyebrow">How I work</p>
+      <h2 class="d2" id="how-h">Delete first. Automate second.</h2>
+      <p class="lead">Four rules. Together they are the whole method.</p>
+    </div>
+
+    <ol class="rules">
+      <li class="rule reveal">
+        <span class="rule__n">One</span>
+        <h3 class="rule__t">I start with the job, not the tools.</h3>
+        <p class="rule__d">Not a workshop. Not a questionnaire. One job you actually ran.</p>
+      </li>
+      <li class="rule reveal">
+        <span class="rule__n">Two</span>
+        <h3 class="rule__t">I delete steps before automating them.</h3>
+        <p class="rule__d">Automating a step that should not exist just makes it permanent.</p>
+      </li>
+      <li class="rule reveal">
+        <span class="rule__n">Three</span>
+        <h3 class="rule__t">I automate what is left.</h3>
+        <p class="rule__d">I look at what you already use before I propose anything new.</p>
+      </li>
+      <li class="rule reveal">
+        <span class="rule__n">Four</span>
+        <h3 class="rule__t">I watch it run, then fix what breaks.</h3>
+        <p class="rule__d">A system nobody checks is just a slower way to lose the job.</p>
+      </li>
+    </ol>
+
+    <div class="notfor reveal">
+      <p class="kicker">Not for you if</p>
+      <h3 class="notfor__t">Three good reasons to close this tab.</h3>
+      <ul class="marks marks--coral">
         <li>You want someone to run your ads.</li>
         <li>You want software sold to you.</li>
         <li>You already know the tool and just need hands.</li>
       </ul>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- 08 CLOSE -->
-  <section class="close wrap" aria-labelledby="cl-h">
-    <h2 class="display" id="cl-h" data-close-title>
-      <span class="ln" style="--wd:84">Show me where</span>
-      <span class="ln" style="--wd:96">it leaks.</span>
-    </h2>
-    <a class="cta" href="/book/" data-magnet><span>Book the job trace</span></a>
-    <p class="cta-note">One conversation. No pitch. If automation isn't your problem, I'll say so.</p>
-    <span class="sig">John Montejano</span>
-    <div id="terminal" aria-hidden="true"></div>
-  </section>
+<!-- =================================================== 8. BEFORE YOU BOOK = -->
+<section class="sec s--field" id="before" aria-labelledby="before-h">
+  <div class="wrap">
+    <div class="sec__head">
+      <p class="eyebrow">Before you book</p>
+      <h2 class="d2" id="before-h">What you are actually agreeing to.</h2>
+    </div>
+
+    <ul class="pre">
+      <li class="reveal"><p class="pre__t">One conversation. No pitch.</p></li>
+      <li class="reveal"><p class="pre__t">If automation is not your problem, I will say so and we are done.</p></li>
+      <li class="reveal"><p class="pre__t">Nothing is booked until I reply to confirm.</p></li>
+    </ul>
+
+    <p class="pre__note note">Bring one recent job. That is the whole preparation.</p>
+  </div>
+</section>
+
+<!-- =========================================================== 9. CLOSE === -->
+<section class="sec sec--tall s--deep" id="book" aria-labelledby="close-h">
+  <div class="wrap">
+    <div class="close__box">
+      <div>
+        <p class="eyebrow">One next step</p>
+        <h2 class="d2" id="close-h">Bring one recent job.<br>I will show you where it leaks.</h2>
+        <p class="lead">We follow it end to end, and you get the map. Where it leaks, what I would fix first, what I would leave alone.</p>
+      </div>
+      <div class="close__cta">
+        <a class="btn btn--light btn--wide" href="/book/">
+          Show me where it leaks
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+        </a>
+        <p class="note">Bring one recent job. That is the whole preparation.</p>
+        <p class="note">Nothing is booked until I reply to confirm.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
 </main>
 
-<footer class="wrap">
-  <div class="foot">
-    <div class="col">
-      <span class="mono">John Montejano</span>
-      <span class="mono-cap">Workflow automation for service businesses.</span>
-    </div>
-    <div class="col">
-      <a class="mono" href="/work/fastfix/">FastFix</a>
-      <a class="mono" href="/work/gelatotech/">GelatoTech</a>
-      <a class="mono" href="/work/lisa/">LISA</a>
-    </div>
-    <div class="col">
-      <a class="mono" href="/work/">Work</a>
-      <a class="mono" href="/about/">About</a>
-      <a class="mono" href="/book/">Book</a>
-    </div>
-    <div class="col">
-      <a class="mono" href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a>
-      <a class="mono" href="https://www.linkedin.com/in/johnmontejano/" target="_blank" rel="noopener">LinkedIn</a>
-      <span class="mono">&copy; 2026</span>
+<!-- ========================================================== 10. FOOTER == -->
+
+<!-- Mobile action bar. The primary action stays reachable through the whole
+     page on a phone, where the header collapses its nav behind a disclosure.
+     Hidden until JS decides the hero CTA has scrolled away, and hidden again
+     over the closing CTA so the two never stack. -->
+<div class="actbar" id="actbar" hidden>
+  <a class="btn btn--brand btn--wide" href="/book/">Show me where it leaks</a>
+</div>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__in">
+      <nav class="foot__l" aria-label="Footer">
+        <a href="/work/">Work</a>
+        <a href="/services/workflow-automation/">Workflow automation</a>
+        <a href="/about/">About</a>
+        <a href="/book/">Show me where it leaks</a>
+      </nav>
+      <div class="foot__c">
+        <a href="mailto:johnmontejano2@gmail.com"><span>johnmontejano2@gmail.com</span></a>
+        <a href="https://www.linkedin.com/in/johnmontejano/" rel="me noopener"><span>LinkedIn</span></a>
+      </div>
+      <div class="foot__b">
+        <p>John Montejano. San Francisco.</p>
+        <p>You talk to me directly.</p>
+      </div>
     </div>
   </div>
 </footer>
-
-<script src="/vendor/gsap.min.js" defer></script>
-<script src="/vendor/ScrollTrigger.min.js" defer></script>
-<script src="/vendor/SplitText.min.js" defer></script>
 <script src="/js/main.js" defer></script>
 </body>
 </html>

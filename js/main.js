@@ -1,331 +1,465 @@
-/* ============================================================
-   THE THROUGH-LINE — motion
-   One rail, drawn by scroll, driving everything derived from it.
-   Content renders visible; JS hides only what it will animate, and
-   only when animation is actually going to run.
-   ============================================================ */
+/* =============================================================================
+   JOHN MONTEJANO . SITEWIDE BEHAVIOUR
+   Enhancement only. Everything on the page is already correct and readable
+   before this file runs, and stays correct if it never runs.
+
+   1. header disclosure   . real button, aria-expanded, no focus trap
+   2. the run toggle      . flips a CSS class. The visual change is CSS
+                            transitions, never a tween, so the end state is
+                            right even if no frame ever paints.
+   3. scroll reveals      . transform only, never opacity. Opted in by adding
+                            .reveal-ready to <html> from here, so a script that
+                            fails to load can never leave content displaced.
+   4. booking             . composes a mailto and never destroys the form.
+   The hero entrance is pure CSS. No animation library is loaded anywhere.
+   ============================================================================= */
 (function () {
-  "use strict";
+  'use strict';
 
-  var doc = document.documentElement;
-  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var hasGsap = typeof window.gsap !== "undefined";
-  var animate = hasGsap && !reduce;
-  var fine = window.matchMedia("(hover:hover) and (pointer:fine)").matches;
+  var root = document.documentElement;
+  var reduce = false;
+  try {
+    reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch (e) { /* very old browser: treat as no preference */ }
 
-  /* ---------------------------------------------------------
-     Width-axis justification.
-     Each display line carries its own wdth so every line ends
-     flush at the same right edge. Hand-set values ship in the
-     HTML; this only refines them once the real font is ready.
-     --------------------------------------------------------- */
-  function justify(scope) {
-    var lines = (scope || document).querySelectorAll(".ln");
-    if (!lines.length) return;
-    lines.forEach(function (ln) {
-      var parent = ln.parentElement;
-      var target = parent.getBoundingClientRect().width;
-      if (!target) return;
-      var lo = 62, hi = 125, best = parseFloat(ln.style.getPropertyValue("--wd")) || 100;
-      /* binary search the width axis until the line fills its column */
-      for (var i = 0; i < 12; i++) {
-        var mid = (lo + hi) / 2;
-        ln.style.setProperty("--wd", mid.toFixed(2));
-        var w = ln.scrollWidth;
-        if (Math.abs(w - target) < 0.5) { best = mid; break; }
-        if (w > target) { hi = mid; } else { lo = mid; best = mid; }
-      }
-      ln.style.setProperty("--wd", best.toFixed(2));
+  /* --------------------------------------------------------- 1. HEADER --- */
+  (function header() {
+    var bar = document.querySelector('.hdr__in');
+    if (!bar) return;
+    var btn = bar.querySelector('.hdr__toggle');
+    var nav = bar.querySelector('.nav');
+    if (!btn || !nav) return;
+
+    /* the button ships with [hidden] so no-JS visitors never meet a dead
+       control. Only reveal it once we can actually operate it. */
+    btn.removeAttribute('hidden');
+
+    function setOpen(open) {
+      bar.classList.toggle('is-open', open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    setOpen(false);
+
+    btn.addEventListener('click', function () {
+      setOpen(btn.getAttribute('aria-expanded') !== 'true');
     });
-  }
-  var justifyAll = function () { justify(document); };
 
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(justifyAll);
-  } else {
-    window.addEventListener("load", justifyAll);
-  }
-  var rt;
-  window.addEventListener("resize", function () {
-    clearTimeout(rt);
-    rt = setTimeout(function () {
-      justifyAll();
-      if (animate && window.ScrollTrigger) ScrollTrigger.refresh();
-    }, 150);
-  });
+    nav.addEventListener('click', function (ev) {
+      if (ev.target.closest('a')) setOpen(false);
+    });
 
-  /* ---------------------------------------------------------
-     Header repaint over the paper band.
-     --------------------------------------------------------- */
-  var head = document.getElementById("head");
-  var paper = document.querySelector(".paper");
-  if (head && paper && "IntersectionObserver" in window) {
-    new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { head.classList.toggle("on-paper", e.isIntersecting); });
-    }, { rootMargin: "-64px 0px -100% 0px", threshold: 0 }).observe(paper);
-  }
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key !== 'Escape') return;
+      if (btn.getAttribute('aria-expanded') !== 'true') return;
+      setOpen(false);
+      btn.focus();
+    });
 
-  /* ---------------------------------------------------------
-     Booking pickers + email compose. Runs with or without GSAP.
-     --------------------------------------------------------- */
+    document.addEventListener('click', function (ev) {
+      if (btn.getAttribute('aria-expanded') !== 'true') return;
+      if (bar.contains(ev.target)) return;
+      setOpen(false);
+    });
+
+    /* above the disclosure breakpoint the nav is a plain row again, so the
+       expanded state must not linger in the accessibility tree */
+    var wide = window.matchMedia('(min-width: 760px)');
+    var onWide = function (m) { if (m.matches) setOpen(false); };
+    if (wide.addEventListener) wide.addEventListener('change', onWide);
+    else if (wide.addListener) wide.addListener(onWide);
+  }());
+
+  /* ------------------------------------------------------ 2. RUN TOGGLE -- */
+  (function run() {
+    var stage = document.getElementById('stage');
+    if (!stage) return;
+    var group = document.querySelector('.toggle');
+    if (!group) return;
+    var buttons = group.querySelectorAll('.toggle__b');
+    if (!buttons.length) return;
+
+    group.removeAttribute('hidden');
+
+    function apply(state) {
+      stage.classList.toggle('is-after', state === 'after');
+      for (var i = 0; i < buttons.length; i++) {
+        var on = buttons[i].getAttribute('data-run') === state;
+        buttons[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
+    }
+    apply('now');
+
+    group.addEventListener('click', function (ev) {
+      var b = ev.target.closest('.toggle__b');
+      if (!b) return;
+      apply(b.getAttribute('data-run'));
+    });
+  }());
+
+  /* --------------------------------------------------------- 3. REVEALS -- */
+  (function reveals() {
+    var items = document.querySelectorAll('.reveal');
+    if (!items.length) return;
+
+    if (reduce || !('IntersectionObserver' in window)) return; /* stay static */
+
+    root.classList.add('reveal-ready');
+
+    var io = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        if (!entries[i].isIntersecting) continue;
+        entries[i].target.classList.add('is-in');
+        io.unobserve(entries[i].target);
+      }
+    }, { rootMargin: '0px 0px -6% 0px', threshold: 0.06 });
+
+    for (var i = 0; i < items.length; i++) io.observe(items[i]);
+
+    /* belt and braces: anything still untouched after load settles is shown */
+    window.addEventListener('load', function () {
+      setTimeout(function () {
+        var left = document.querySelectorAll('.reveal:not(.is-in)');
+        for (var j = 0; j < left.length; j++) {
+          var r = left[j].getBoundingClientRect();
+          if (r.top < window.innerHeight) left[j].classList.add('is-in');
+        }
+      }, 200);
+    });
+  }());
+
+
+  /* ---------------------------------------------------- 5. ACTION BAR --- */
+  /* Phone only. Reveal the persistent CTA once the hero's own CTA has left the
+     screen, and retract it over the closing CTA so two identical buttons never
+     sit on top of each other. Ships [hidden]; only JS can show it, so a no-JS
+     visitor never meets a bar that cannot retract. */
+  (function actbar() {
+    var bar = document.getElementById('actbar');
+    if (!bar) return;
+    if (!('IntersectionObserver' in window)) return;
+    if (!window.matchMedia('(max-width: 759px)').matches) return;
+
+    var top = document.querySelector('.hero .btn, main .btn');
+    var end = document.querySelector('.close__box .btn, .sec:last-of-type .btn');
+    if (!top) return;
+
+    bar.removeAttribute('hidden');
+    var pastTop = false, atEnd = false;
+    var paint = function () { bar.classList.toggle('is-up', pastTop && !atEnd); };
+
+    new IntersectionObserver(function (e) {
+      pastTop = !e[0].isIntersecting; paint();
+    }, { rootMargin: '-8px 0px 0px 0px' }).observe(top);
+
+    if (end) {
+      new IntersectionObserver(function (e) {
+        atEnd = e[0].isIntersecting; paint();
+      }, { rootMargin: '0px 0px -20% 0px' }).observe(end);
+    }
+  }());
+
+  /* --------------------------------------------------------- 6. BOOKING -- */
+  /* /book/ only. There is no backend and GitHub Pages cannot receive a post,
+     so the form composes a mailto: and opens it.
+
+     Three rules this module must never break:
+       a. the form is NEVER removed, replaced or cleared. If the device has no
+          mail handler the visitor still has every word they typed, editable.
+       b. the confirmation panel is inserted ABOVE the surviving form and
+          carries the slot, the same mailto again, the plain address, and the
+          whole message in a readonly field with a copy button.
+       c. the submit control is always operable; the handler names what is missing,
+          so it stays reachable by keyboard, and the submit handler is what
+          actually reports an incomplete request.
+
+     With no JavaScript none of this runs: the form is a plain
+     <form action="mailto:..." method="post" enctype="text/plain">, the day and
+     time buttons stay hidden, and the free text field carries the request. */
   (function booking() {
-    var root = document.querySelector("[data-cal]");
-    if (!root) return;
-    var form = root.querySelector("form");
-    var daysEl = root.querySelector("[data-days]");
-    var slotsEl = root.querySelector("[data-slots]");
-    var submit = root.querySelector("[data-submit]");
-    var slotField = root.querySelector("[data-slot-field]");
-    var tzField = root.querySelector("[data-tz-field]");
-    if (!form || !daysEl || !slotsEl || !submit) return;
+    var form = document.getElementById('bk-form');
+    if (!form) return;
 
-    var TO = "johnmontejano2@gmail.com";
-    var DW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    var DL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    var ML = ["January", "February", "March", "April", "May", "June", "July",
-              "August", "September", "October", "November", "December"];
-    var SLOTS = ["9:00 AM", "10:30 AM", "12:00 PM", "2:00 PM", "3:30 PM", "5:00 PM"];
-    var picked = { day: null, slot: null };
+    var TO = 'johnmontejano2@gmail.com';
+    var pick = document.getElementById('bk-pick');
+    var dayBox = document.getElementById('bk-days');
+    var timeBox = document.getElementById('bk-times');
+    var chosen = document.getElementById('bk-chosen');
+    var alertBox = document.getElementById('bk-alert');
+    var restamp = document.getElementById('bk-restamp');
+    var panel = document.getElementById('bk-done');
+    var submit = document.getElementById('bk-submit');
+    var again = document.getElementById('bk-again');
+    var slotOut = document.getElementById('bk-slot');
+    var msgOut = document.getElementById('bk-msg');
+    var copyBtn = document.getElementById('bk-copy');
+    var copyStatus = document.getElementById('bk-copy-status');
 
-    try { if (tzField) tzField.value = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) {}
+    /* our own validation from here on, so the picker case is handled in the
+       same place as everything else. The required attributes stay in the HTML
+       for the no-JS floor. */
+    form.setAttribute('novalidate', 'novalidate');
 
-    var days = [], d = new Date();
-    d.setDate(d.getDate() + 1);
-    while (days.length < 10) {
-      if (d.getDay() !== 0 && d.getDay() !== 6) days.push(new Date(d));
-      d.setDate(d.getDate() + 1);
-    }
+    /* ---- the offer. Ten upcoming weekdays, a broad working day of times ---- */
+    var DAY_L = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var DAY_S = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var MON_L = ['January', 'February', 'March', 'April', 'May', 'June',
+                 'July', 'August', 'September', 'October', 'November', 'December'];
+    var MON_S = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var TIMES = ['8:00 AM', '9:30 AM', '11:00 AM', '12:30 PM',
+                 '2:00 PM', '3:30 PM', '5:00 PM', '6:00 PM'];
 
-    function label(day, slot) {
-      return DL[day.getDay()] + ", " + ML[day.getMonth()] + " " + day.getDate() +
-             ", " + day.getFullYear() + " at " + slot + " Pacific";
-    }
-    function update() {
-      var ready = !!(picked.day && picked.slot);
-      submit.disabled = !ready;
-      if (slotField) slotField.value = ready ? label(picked.day, picked.slot) : "";
-      submit.textContent = ready ? "Send request" : (picked.day ? "Pick a time" : "Pick a day and time");
-    }
-    function press(container, sel, el) {
-      container.querySelectorAll(sel).forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
-      el.setAttribute("aria-pressed", "true");
-    }
-
-    days.forEach(function (day) {
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "day"; b.setAttribute("aria-pressed", "false");
-      b.innerHTML = '<span class="dw">' + DW[day.getDay()] + '</span><span class="dn">' + day.getDate() + "</span>";
-      b.setAttribute("aria-label", DL[day.getDay()] + " " + ML[day.getMonth()] + " " + day.getDate());
-      b.addEventListener("click", function () { picked.day = day; press(daysEl, ".day", b); update(); });
-      daysEl.appendChild(b);
-    });
-    SLOTS.forEach(function (slot) {
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "slot"; b.setAttribute("aria-pressed", "false");
-      b.textContent = slot;
-      b.addEventListener("click", function () { picked.slot = slot; press(slotsEl, ".slot", b); update(); });
-      slotsEl.appendChild(b);
-    });
-    update();
-
-    form.addEventListener("submit", function (e) {
-      if (!picked.day || !picked.slot) { e.preventDefault(); daysEl.scrollIntoView({ block: "center" }); return; }
-      if (!form.checkValidity()) return;
-      e.preventDefault();
-      var fd = new FormData(form);
-      var v = function (k) { return (fd.get(k) || "").toString().trim(); };
-      var slotText = label(picked.day, picked.slot);
-      var lines = ["Requested time: " + slotText, "Name: " + v("name"), "Email: " + v("email")];
-      if (v("business")) lines.push("Business: " + v("business"));
-      if (v("context")) lines.push("", "Where the time goes:", v("context"));
-      if (v("timezone")) lines.push("", "(Visitor timezone: " + v("timezone") + ")");
-      var href = "mailto:" + TO + "?subject=" + encodeURIComponent("Job trace request: " + slotText) +
-                 "&body=" + encodeURIComponent(lines.join("\n") + "\n");
-      window.location.href = href;
-
-      var wrap = document.createElement("div");
-      wrap.className = "sent"; wrap.setAttribute("role", "status"); wrap.setAttribute("tabindex", "-1");
-      wrap.innerHTML = "<h2>Your email is ready.</h2>" +
-        "<p>Your mail app should have opened with the details filled in. Send it and it comes straight to me.</p>" +
-        '<p class="mono-cap">' + slotText + "</p>" +
-        '<p>Nothing opened? <a class="link" href="' + href + '">Open it again</a>, or write to ' +
-        '<a class="link" href="mailto:' + TO + '">' + TO + "</a>.</p>";
-      form.parentNode.replaceChild(wrap, form);
-      wrap.focus();
-    });
-  })();
-
-  if (!animate) return;   /* everything below is choreography only */
-
-  gsap.registerPlugin(ScrollTrigger);
-  var hasSplit = typeof window.SplitText !== "undefined";
-  if (hasSplit) gsap.registerPlugin(SplitText);
-
-  /* ---------------------------------------------------------
-     Hero entrance. Every duration in the sequence differs, so
-     nothing reads keyframed together.
-     --------------------------------------------------------- */
-  var heroTitle = document.querySelector("[data-hero-title]");
-  if (heroTitle && document.visibilityState === "visible") {
-    var eyebrow = document.querySelector("[data-hero-eyebrow]");
-    var sub = document.querySelector("[data-hero-sub]");
-    var heroCta = document.querySelector(".hero .cta");
-    var chips = document.querySelectorAll("[data-hero-chips] li");
-    var lns = heroTitle.querySelectorAll(".ln");
-
-    /* mask each line by wrapping it, so the wipe has an edge to hide behind */
-    lns.forEach(function (ln) {
-      var mask = document.createElement("span");
-      mask.style.cssText = "display:block;overflow:hidden;padding-bottom:.10em;margin-bottom:-.10em";
-      ln.parentNode.insertBefore(mask, ln);
-      mask.appendChild(ln);
-    });
-
-    gsap.set(lns, { yPercent: 125 });
-    if (eyebrow) gsap.set(eyebrow, { y: 12 });
-    if (sub) gsap.set(sub, { y: 14 });
-    if (heroCta) gsap.set(heroCta, { opacity: 0, scale: 0.92 });
-    if (chips.length) gsap.set(chips, { y: 14 });
-    gsap.set(head, { yPercent: -120 });
-
-    var start = function () {
-      justifyAll();
-      var onHome = !!document.querySelector("#curtain");
-      var tl = gsap.timeline({ delay: onHome && window.innerWidth > 900 ? 0.75 : 0 });
-      if (eyebrow) tl.to(eyebrow, { y: 0, duration: 0.7, ease: "expo.out" }, 0.10);
-      tl.to(lns, { yPercent: 0, duration: 1.15, ease: "expo.out", stagger: 0.08 }, 0.18);
-      if (sub) tl.to(sub, { y: 0, duration: 0.6, ease: "expo.out" }, 0.62);
-      if (heroCta) tl.to(heroCta, { opacity: 1, scale: 1, duration: 0.9, ease: "expo.out" }, 0.66);
-      if (chips.length) tl.to(chips, { y: 0, duration: 0.75, ease: "expo.out", stagger: 0.05 }, 0.74);
-      tl.to(head, { yPercent: 0, duration: 0.8, ease: "expo.out" }, 0.70);
-    };
-    if (document.fonts && document.fonts.ready) {
-      var fired = false;
-      var go = function () { if (!fired) { fired = true; start(); } };
-      document.fonts.ready.then(go);
-      setTimeout(go, 450);
-    } else { start(); }
-  }
-
-  /* ---------------------------------------------------------
-     THE RAIL. One scrubbed trigger over <main>; every junction
-     derives its progress from it rather than adding triggers.
-     --------------------------------------------------------- */
-  var rail = document.getElementById("rail");
-  var main = document.getElementById("main");
-  if (rail && main) {
-    gsap.set(rail, { scaleY: 0.015 });
-    ScrollTrigger.create({
-      trigger: main,
-      start: "top top",
-      end: "bottom bottom",
-      scrub: window.matchMedia("(max-width:900px)").matches ? 1 : 0.4,
-      invalidateOnRefresh: true,
-      fastScrollEnd: true,
-      onUpdate: function (self) { gsap.set(rail, { scaleY: 0.015 + self.progress * 0.985 }); }
-    });
-  }
-
-  /* junction branches + index reveal.
-     The branch rule is a ::before, which GSAP cannot target, so the draw
-     is a CSS transition switched by a class; the index is tweened. */
-  gsap.utils.toArray(".junction").forEach(function (j) {
-    ScrollTrigger.create({
-      trigger: j, start: "top 85%", once: true,
-      onEnter: function () {
-        j.classList.add("drawn");
-        var idx = j.querySelector(".idx");
-        if (idx) gsap.fromTo(idx, { x: -3, opacity: 0.4 },
-          { x: 0, opacity: 1, duration: 0.4, ease: "expo.out", delay: 0.35 });
+    function upcomingWeekdays(n) {
+      var out = [];
+      var d = new Date();
+      d.setHours(12, 0, 0, 0);
+      d.setDate(d.getDate() + 1);           /* today is already under way */
+      var guard = 0;
+      while (out.length < n && guard < 60) {
+        guard++;
+        var w = d.getDay();
+        if (w !== 0 && w !== 6) {
+          out.push({
+            label: DAY_S[w] + ' ' + MON_S[d.getMonth()] + ' ' + d.getDate(),
+            value: DAY_L[w] + ', ' + MON_L[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear()
+          });
+        }
+        d.setDate(d.getDate() + 1);
       }
-    });
-  });
+      return out;
+    }
 
-  /* ---------------------------------------------------------
-     The job flow: cards arrive in sequence as you reach them, and the
-     two that leak land last so the eye finishes on the problem.
-     --------------------------------------------------------- */
-  var flow = document.querySelector("[data-flow]");
-  if (flow) {
-    var steps = flow.querySelectorAll(".step");
-    gsap.set(steps, { y: 20 });
-    gsap.to(steps, {
-      y: 0, duration: 0.8, ease: "expo.out", stagger: 0.07,
-      scrollTrigger: { trigger: flow, start: "top 82%", once: true }
-    });
-  }
+    function esc(s) {
+      return String(s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
 
-  /* ---------------------------------------------------------
-     Quiet reveals. Fade only, from 0.14 rather than 0, so text
-     is never actually missing for find-in-page or a screen reader.
-     --------------------------------------------------------- */
-  gsap.utils.toArray(".index li, .steps li, .refuse li, .ev, .refusals li, .op-line, .index-close, .maxim, .ev-rail")
-    .forEach(function (el) {
-      /* Movement only, never opacity. Secondary text sits near the contrast
-         floor by design, so any fade-in frame would fail AA and would be
-         genuinely hard to read for anyone landing mid-page. */
-      gsap.fromTo(el, { y: 18 }, {
-        y: 0, duration: 0.9, ease: "expo.out",
-        scrollTrigger: { trigger: el, start: "top 88%", once: true }
-      });
+    function paint(box, name, items) {
+      var html = '';
+      for (var i = 0; i < items.length; i++) {
+        var id = name + '-' + i;
+        html += '<label class="opt" for="' + id + '">'
+              + '<input type="radio" id="' + id + '" name="' + name + '" value="' + esc(items[i].value) + '">'
+              + '<span>' + esc(items[i].label) + '</span></label>';
+      }
+      box.innerHTML = html;
+    }
+
+    if (pick && dayBox && timeBox) {
+      var days = upcomingWeekdays(10);
+      var times = [];
+      for (var t = 0; t < TIMES.length; t++) times.push({ label: TIMES[t], value: TIMES[t] });
+      paint(dayBox, 'day', days);
+      paint(timeBox, 'time', times);
+      pick.removeAttribute('hidden');
+    }
+
+    /* ------------------------------------------------------- reading it --- */
+    function radio(name) {
+      var el = form.querySelector('input[name="' + name + '"]:checked');
+      return el ? el.value : '';
+    }
+    function text(id) {
+      var el = document.getElementById(id);
+      return el ? el.value.replace(/\s+$/, '').replace(/^\s+/, '') : '';
+    }
+    function zone() {
+      try {
+        var z = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (z) return z;
+      } catch (e) { /* fall through */ }
+      return 'not detected';
+    }
+
+    /* the requested slot, whichever way the visitor asked for it. Free text on
+       its own is a complete request and becomes the slot. */
+    function slotLine() {
+      var d = radio('day'), t = radio('time'), o = text('bk-when');
+      if (d && t) return d + ' at ' + t + ' Pacific';
+      if (d) return d + ', time still to agree';
+      if (o) return o;
+      return 'To be agreed';
+    }
+
+    function subject() {
+      var s = slotLine();
+      if (s.length > 78) s = s.slice(0, 75) + '...';
+      return 'Call request, ' + s;
+    }
+
+    function bodyText() {
+      var L = [];
+      L.push('Requested slot: ' + slotLine());
+      var other = text('bk-when');
+      if (other && radio('day')) L.push('Also works: ' + other);
+      L.push('');
+      L.push('Name: ' + text('bk-name'));
+      L.push('Email: ' + text('bk-email'));
+      var biz = text('bk-business');
+      if (biz) L.push('Business: ' + biz);
+      L.push('My timezone: ' + zone());
+      var ctx = text('bk-context');
+      if (ctx) {
+        L.push('');
+        L.push('Where the time goes:');
+        L.push(ctx);
+      }
+      L.push('');
+      L.push('Sent from the request form at johnmontejano.github.io/book/');
+      L.push('Nothing is booked until John replies to confirm.');
+      return L.join('\n');
+    }
+
+    function mailtoUrl() {
+      return 'mailto:' + TO
+           + '?subject=' + encodeURIComponent(subject())
+           + '&body=' + encodeURIComponent(bodyText());
+    }
+
+    /* -------------------------------------------------------- what is it -- */
+    function firstRadio(name) {
+      return form.querySelector('input[name="' + name + '"]');
+    }
+
+    function problems() {
+      var out = [];
+      var d = radio('day'), t = radio('time'), o = text('bk-when');
+      if (!o && !(d && t)) {
+        out.push({
+          why: d ? 'Pick a time as well, or tell me when suits you.'
+                 : 'Pick a day and a time, or tell me when suits you.',
+          el: (d ? firstRadio('time') : firstRadio('day')) || document.getElementById('bk-when')
+        });
+      }
+      if (!text('bk-name')) {
+        out.push({ why: 'Add your name.', el: document.getElementById('bk-name') });
+      }
+      var mail = text('bk-email');
+      if (!mail) {
+        out.push({ why: 'Add an email address so I can reply.', el: document.getElementById('bk-email') });
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) {
+        out.push({ why: 'That email address does not look complete.', el: document.getElementById('bk-email') });
+      }
+      return out;
+    }
+
+    function chosenLine() {
+      var d = radio('day'), t = radio('time');
+      if (d && t) return 'Chosen: ' + d + ' at ' + t + ', Pacific.';
+      if (d) return 'Chosen: ' + d + '. Now pick a time, or tell me when suits you.';
+      return 'No day picked yet. If none of these work, tell me when below and that is enough.';
+    }
+
+    /* Keep the confirmation panel honest. Once it is open, any later edit to the
+       day, the time or the fields must flow into the slot line, the "open it
+       again" link and the copyable message, or the visitor sends the previous
+       choice without noticing. */
+    var syncPanel = function () {
+      if (!panel || panel.hasAttribute('hidden')) return;
+      var url = mailtoUrl();
+      if (slotOut) slotOut.textContent = slotLine();
+      if (again) again.href = url;
+      if (msgOut) msgOut.value = 'To: ' + TO + '\nSubject: ' + subject() + '\n\n' + bodyText();
+      if (copyStatus) copyStatus.textContent = '';
+      if (restamp) restamp.removeAttribute('hidden');
+    };
+
+    /* chosenLine() depends only on the day and time radios, so it is written on
+       change alone. Announcing it on every keystroke in the name field made the
+       live region shout over the visitor. */
+    function refresh() {
+      if (chosen) chosen.textContent = chosenLine();
+    }
+
+    form.addEventListener('change', function () { refresh(); syncPanel(); });
+    form.addEventListener('input', syncPanel);
+    refresh();
+
+    /* ----------------------------------------------------------- submit --- */
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+
+      var bad = problems();
+      if (bad.length) {
+        if (alertBox) {
+          var lines = [];
+          for (var i = 0; i < bad.length; i++) lines.push(bad[i].why);
+          alertBox.textContent = 'Almost. ' + lines.join(' ');
+          alertBox.removeAttribute('hidden');
+        }
+        /* Show the message where the visitor is looking, then put the caret in
+           the field that needs them, without yanking the page away from the
+           message they have to read. */
+        if (alertBox && alertBox.scrollIntoView) {
+          alertBox.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' });
+        }
+        if (bad[0].el && bad[0].el.focus) {
+          try { bad[0].el.focus({ preventScroll: true }); } catch (e) { bad[0].el.focus(); }
+        }
+        refresh();
+        return;
+      }
+      if (alertBox) {
+        alertBox.setAttribute('hidden', 'hidden');
+        alertBox.textContent = '';
+      }
+
+      var url = mailtoUrl();
+
+      /* Fill the panel BEFORE handing off, so the visitor lands back on a page
+         that already has everything, whatever the mail handler does. The form
+         below is not touched. */
+      if (panel) {
+        if (slotOut) slotOut.textContent = slotLine();
+        if (again) again.href = url;
+        if (msgOut) {
+          msgOut.value = 'To: ' + TO + '\nSubject: ' + subject() + '\n\n' + bodyText();
+        }
+        if (copyStatus) copyStatus.textContent = '';
+        if (restamp) restamp.setAttribute('hidden', 'hidden');
+        panel.removeAttribute('hidden');
+        /* only measurable once the panel is laid out. Grow the readonly field
+           to the message so no line is left half cut off. */
+        if (msgOut) {
+          try {
+            msgOut.style.height = 'auto';
+            msgOut.style.height = Math.min(msgOut.scrollHeight + 2, 620) + 'px';
+          } catch (e) { /* keep the CSS floor */ }
+        }
+        try { panel.focus(); } catch (e) { /* older browsers */ }
+        if (panel.scrollIntoView) {
+          panel.scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' });
+        }
+      }
+
+      try { window.location.href = url; } catch (e) { /* no mail handler */ }
     });
 
-  /* the evidence media wipes open, the picture inside counter-scales */
-  gsap.utils.toArray(".shot").forEach(function (shot) {
-    var img = shot.querySelector("img");
-    gsap.fromTo(shot, { clipPath: "inset(0 0 100% 0)" }, {
-      clipPath: "inset(0 0 0% 0)", duration: 1.25, ease: "power4.inOut",
-      scrollTrigger: { trigger: shot, start: "top 85%", once: true }
-    });
-    if (img) {
-      gsap.fromTo(img, { scale: 1.18 }, {
-        scale: 1, duration: 1.45, ease: "power3.out",
-        scrollTrigger: { trigger: shot, start: "top 85%", once: true }
+    /* ------------------------------------------------------------- copy --- */
+    if (copyBtn && msgOut) {
+      copyBtn.addEventListener('click', function () {
+        function said(ok) {
+          if (copyStatus) {
+            copyStatus.textContent = ok
+              ? 'Copied. Paste it into any email to ' + TO + '.'
+              : 'Could not copy for you. Select the text above and copy it.';
+          }
+        }
+        function manual() {
+          try {
+            msgOut.focus();
+            msgOut.select();
+            if (msgOut.setSelectionRange) msgOut.setSelectionRange(0, msgOut.value.length);
+            said(document.execCommand('copy'));
+          } catch (e) { said(false); }
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(msgOut.value).then(function () { said(true); }, manual);
+        } else {
+          manual();
+        }
       });
     }
-  });
-
-  /* the closing headline, then the terminal rule: the page lands */
-  var closeTitle = document.querySelector("[data-close-title]");
-  var terminal = document.getElementById("terminal");
-  if (closeTitle) {
-    var clns = closeTitle.querySelectorAll(".ln");
-    clns.forEach(function (ln) {
-      var mask = document.createElement("span");
-      mask.style.cssText = "display:block;overflow:hidden;padding-bottom:.10em;margin-bottom:-.10em";
-      ln.parentNode.insertBefore(mask, ln);
-      mask.appendChild(ln);
-    });
-    var ctl = gsap.timeline({ scrollTrigger: { trigger: closeTitle, start: "top 75%", once: true } });
-    ctl.fromTo(clns, { yPercent: 125 }, { yPercent: 0, duration: 1.0, ease: "expo.out", stagger: 0.07 }, 0);
-    if (terminal) {
-      gsap.set(terminal, { scaleX: 0 });
-      ctl.to(terminal, { scaleX: 1, duration: 1.4, ease: "power4.inOut" }, 0.6);
-    }
-  }
-
-  /* ---------------------------------------------------------
-     Magnetic CTA. Applied to the inner span so the hit area and
-     keyboard target never move.
-     --------------------------------------------------------- */
-  if (fine) {
-    document.querySelectorAll("[data-magnet]").forEach(function (el) {
-      var inner = el.querySelector("span");
-      if (!inner) return;
-      var xTo = gsap.quickTo(inner, "x", { duration: 0.5, ease: "power3.out" });
-      var yTo = gsap.quickTo(inner, "y", { duration: 0.5, ease: "power3.out" });
-      el.addEventListener("pointermove", function (e) {
-        var r = el.getBoundingClientRect();
-        xTo((e.clientX - (r.left + r.width / 2)) * 0.28);
-        yTo((e.clientY - (r.top + r.height / 2)) * 0.28);
-      });
-      el.addEventListener("pointerleave", function () {
-        gsap.to(inner, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1,0.45)" });
-      });
-    });
-  }
-
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
-  }
-})();
+  }());
+}());

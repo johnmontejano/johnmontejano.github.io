@@ -2,144 +2,248 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Job Trace — John Montejano</title>
-<meta name="description" content="One conversation. I trace one real job end to end through your service business and show you where it leaks.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>John Montejano · Workflow automation, one job followed end to end</title>
+<meta name="description" content="I follow one real job through your service business, from the first call to paid, and show you where it leaks, what I would fix first and what I would leave alone.">
 <link rel="canonical" href="https://johnmontejano.github.io/services/workflow-automation/">
-<meta name="theme-color" content="#0C0B0A">
+<meta name="theme-color" content="#E7EAFF">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="John Montejano">
 <meta property="og:url" content="https://johnmontejano.github.io/services/workflow-automation/">
-<meta property="og:title" content="The Job Trace">
-<meta property="og:description" content="One conversation. I trace one real job end to end through your service business and show you where it leaks.">
+<meta property="og:title" content="One job. Followed end to end.">
+<meta property="og:description" content="I follow one real job through your service business, from the first call to paid, and show you where it leaks.">
 <meta property="og:image" content="https://johnmontejano.github.io/assets/img/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The Job Trace">
-<meta name="twitter:description" content="One conversation. I trace one real job end to end through your service business and show you where it leaks.">
+<meta name="twitter:title" content="One job. Followed end to end.">
+<meta name="twitter:description" content="I follow one real job through your service business, from the first call to paid, and show you where it leaks.">
 <meta name="twitter:image" content="https://johnmontejano.github.io/assets/img/og-card.png">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preload" href="/assets/fonts2/archivo-2.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/assets/fonts2/switzer-0.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/type/bricolage-1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/type/manrope-1.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/styles.css">
 <script>document.documentElement.className+=" js";</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+ {"@type":"Service","@id":"https://johnmontejano.github.io/services/workflow-automation/#service","name":"Workflow automation for service businesses","serviceType":"Workflow automation","url":"https://johnmontejano.github.io/services/workflow-automation/","description":"One real job followed end to end, from the first call to paid. Steps that should not exist are deleted, what is left is automated, and the map says where it leaks, what to fix first and what to leave alone.","audience":{"@type":"Audience","audienceType":"Home services, repair and appointment businesses"},"provider":{"@type":"Person","@id":"https://johnmontejano.github.io/#john","name":"John Montejano","url":"https://johnmontejano.github.io/about/"}},
+ {"@type":"BreadcrumbList","itemListElement":[
+  {"@type":"ListItem","position":1,"name":"Home","item":"https://johnmontejano.github.io/"},
+  {"@type":"ListItem","position":2,"name":"Workflow automation","item":"https://johnmontejano.github.io/services/workflow-automation/"}]}]}
+</script>
 </head>
 <body>
+
 <a class="skip" href="#main">Skip to content</a>
 
-<header id="head">
-  <a class="brand" href="/" aria-label="John Montejano, home">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path class="stroke" d="M8,4 V19 H2.5 V16" fill="none" stroke-width="2" stroke-linecap="square"/>
-      <path class="stroke" d="M12.5,4 V20 M21.5,4 V20" fill="none" stroke-width="2" stroke-linecap="square"/>
-      <path class="stroke" d="M12.5,4 L17,9.6 L21.5,4" fill="none" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"/>
-      <rect class="cross" x="0" y="11.5" width="6.4" height="1"/>
-      <rect class="cross" x="9.6" y="11.5" width="1.3" height="1"/>
-      <rect class="cross" x="14.1" y="11.5" width="5.8" height="1"/>
-      <rect class="cross" x="23.1" y="11.5" width="0.9" height="1"/>
-    </svg>
-    <span class="brand-name">John Montejano</span>
-  </a>
-  <nav class="nav" aria-label="Primary">
-    <a class="nav-full" href="/work/">Work</a>
-    <a class="nav-full" href="/about/">About</a>
-    <a href="/book/">Book the job trace</a>
-  </nav>
+<header class="hdr">
+  <div class="hdr__in">
+    <a class="wordmark" href="/">John Montejano<i></i></a>
+    <button class="hdr__toggle" type="button" aria-expanded="false" aria-controls="nav" hidden>
+      <span class="bars" aria-hidden="true"></span>Menu
+    </button>
+    <nav class="nav" id="nav" aria-label="Primary">
+      <a href="/work/">Work</a>
+      <a href="/about/">About</a>
+      <a class="btn btn--brand btn--sm" href="/book/">Show me where it leaks</a>
+    </nav>
+  </div>
 </header>
-
-<div id="rail" aria-hidden="true"></div>
 
 <main id="main">
 
-  <section class="page-head wrap">
-    <p class="mono" style="margin-bottom:var(--s4)">The offer</p>
-    <h1 class="display" data-hero-title>
-      <span class="ln" style="--wd:86">One job.</span>
-      <span class="ln" style="--wd:62">Traced end to end.</span>
-    </h1>
-    <p class="sub body-lg" style="margin-top:var(--s5)">We follow one real job from first call to paid, and mark every place it stalls.</p>
-  </section>
+<!-- ============================================================ 1. HERO === -->
+<section class="sec s--ground svc-top" aria-labelledby="svc-h">
+  <div class="wrap">
+    <div class="svc-hero">
 
-  <section class="wrap" aria-labelledby="look-h">
-    <div class="junction"><span class="mono idx">01</span><span class="mono name" id="look-h">What I look at</span></div>
-    <ul class="index">
-      <li><div class="row"><span class="n">001</span><span class="t">How work arrives.</span></div></li>
-      <li><div class="row"><span class="n">002</span><span class="t">How a job gets a time, a place, a person.</span></div></li>
-      <li><div class="row"><span class="n">003</span><span class="t">Where the details live, and how often they are retyped.</span></div></li>
-      <li><div class="row"><span class="n">004</span><span class="t">Quote to invoice to paid.</span></div></li>
-      <li><div class="row"><span class="n">005</span><span class="t">Everything that runs on memory today.</span></div></li>
-      <li><div class="row"><span class="n">006</span><span class="t">What only you can do, versus what you have always done.</span></div></li>
+      <div class="svc-hero__copy">
+        <p class="eyebrow eyebrow--wide">For home services, repair and appointment businesses.</p>
+
+        <h1 class="d1" id="svc-h">
+          <span class="d1__l">One job.</span>
+          <span class="d1__l">Followed <br class="brk-s"><span class="hl">end to end.</span></span>
+        </h1>
+
+        <p class="lead svc-hero__sub">I take one job you actually ran, follow it from the first call to paid, and mark every place it stalls.</p>
+
+        <div class="actions svc-hero__cta">
+          <a class="btn btn--brand" href="/book/">
+            Show me where it leaks
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="linkish" href="#look"><span>What I look at</span></a>
+        </div>
+
+        <div class="creds svc-hero__creds">
+          <img src="/assets/img/jm-portrait-45.webp" width="585" height="732" loading="lazy" decoding="async" alt="John Montejano">
+          <div>
+            <p class="creds__t">Owner, FastFix. Owner-operator, GelatoTech.</p>
+            <p class="creds__d">San Francisco. I did the repairs myself before I built the platform they run on.</p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="card card--deep card--pad-lg svc-map reveal" data-reveal="pop" aria-labelledby="map-h">
+        <p class="kicker">What you leave with</p>
+        <h2 class="d3" id="map-h">The map.</h2>
+        <ul class="marks marks--lime svc-map__list">
+          <li>Where it leaks.</li>
+          <li>What I would fix first.</li>
+          <li>What I would leave alone.</li>
+        </ul>
+        <p class="note svc-map__note">You leave knowing what to fix first, with me or without me.</p>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==================================================== 2. WHAT I LOOK AT = -->
+<section class="sec s--field" id="look" aria-labelledby="look-h">
+  <div class="wrap">
+
+    <div class="sec__head">
+      <p class="eyebrow">What I look at</p>
+      <h2 class="d2" id="look-h">Six things, and you already know all six.</h2>
+      <p class="lead">Not a workshop. Not a questionnaire. One job you actually ran, from the first call to paid.</p>
+    </div>
+
+    <ul class="svc-look">
+      <li class="card card--wash card--pad-lg reveal">
+        <p class="kicker">01</p>
+        <h3 class="d4 svc-look__t">How work arrives.</h3>
+      </li>
+      <li class="card card--wash card--pad-lg reveal">
+        <p class="kicker">02</p>
+        <h3 class="d4 svc-look__t">How a job gets a time, a place and a person.</h3>
+      </li>
+      <li class="card card--wash card--pad-lg reveal">
+        <p class="kicker">03</p>
+        <h3 class="d4 svc-look__t">Where the details live, and how often they are retyped.</h3>
+      </li>
+      <li class="card card--wash card--pad-lg reveal">
+        <p class="kicker">04</p>
+        <h3 class="d4 svc-look__t">Quote to invoice to paid.</h3>
+      </li>
+      <li class="card card--wash card--pad-lg reveal">
+        <p class="kicker">05</p>
+        <h3 class="d4 svc-look__t">Everything that runs on memory today.</h3>
+      </li>
+      <li class="card card--wash card--pad-lg reveal">
+        <p class="kicker">06</p>
+        <h3 class="d4 svc-look__t">What only you can do, versus what you have always done.</h3>
+      </li>
     </ul>
-    <p class="index-close">You leave knowing what to fix first, with me or without me.</p>
-  </section>
 
-  <section class="wrap tight" aria-labelledby="me-h">
-    <div class="junction"><span class="mono idx">02</span><span class="mono name" id="me-h">Method</span></div>
-    <div class="method-grid">
-      <ul class="steps">
-        <li><span class="sn">01</span><span><span class="v">Trace.</span><span class="d">Follow one real job, end to end.</span></span></li>
-        <li><span class="sn">02</span><span><span class="v">Cut.</span><span class="d">Delete steps before automating them.</span></span></li>
-        <li><span class="sn">03</span><span><span class="v">Wire.</span><span class="d">Automate what's left, with tools you already pay for.</span></span></li>
-        <li><span class="sn">04</span><span><span class="v">Watch.</span><span class="d">See it run. Fix what breaks.</span></span></li>
-      </ul>
-      <div class="maxim"><h2 class="h1" style="--wd:82">Cut before you wire.</h2></div>
+    <p class="chip chip--brand svc-look__close">You leave knowing what to fix first.</p>
+  </div>
+</section>
+
+<!-- ========================================================= 3. METHOD ==== -->
+<section class="sec s--ground" id="method" aria-labelledby="method-h">
+  <div class="wrap">
+    <div class="sec__head">
+      <p class="eyebrow">The method</p>
+      <h2 class="d2" id="method-h">Start with the job. Delete before you automate.</h2>
+      <p class="lead">Four rules. Together they are the whole method.</p>
     </div>
-  </section>
 
-  <section class="wrap tight" aria-labelledby="nf-h">
-    <div class="refuse">
-      <div class="junction"><span class="mono name" id="nf-h">Not for you if</span><span class="mono idx">03</span></div>
-      <ul>
-        <li>You want someone to run your ads.</li>
-        <li>You want software sold to you.</li>
-        <li>You already know the tool and just need hands.</li>
-      </ul>
+    <ol class="rules">
+      <li class="rule reveal">
+        <span class="rule__n">One</span>
+        <h3 class="rule__t">I start with the job, not the tools.</h3>
+        <p class="rule__d">Not a workshop. Not a questionnaire. One job you actually ran.</p>
+      </li>
+      <li class="rule reveal">
+        <span class="rule__n">Two</span>
+        <h3 class="rule__t">I delete steps before automating them.</h3>
+        <p class="rule__d">Automating a step that should not exist just makes it permanent.</p>
+      </li>
+      <li class="rule reveal">
+        <span class="rule__n">Three</span>
+        <h3 class="rule__t">I automate what is left.</h3>
+        <p class="rule__d">I look at what you already use before I propose anything new.</p>
+      </li>
+      <li class="rule reveal">
+        <span class="rule__n">Four</span>
+        <h3 class="rule__t">I watch it run, then fix what breaks.</h3>
+        <p class="rule__d">A system nobody checks is just a slower way to lose the job.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ==================================================== 4. NOT FOR YOU ==== -->
+<section class="sec s--brand" id="notfor" aria-labelledby="notfor-h">
+  <div class="wrap wrap--narrow">
+    <div class="sec__head">
+      <p class="eyebrow">Not for you if</p>
+      <h2 class="d2" id="notfor-h">Three good reasons to close this tab.</h2>
     </div>
-  </section>
+    <ul class="marks marks--coral svc-notfor">
+      <li>You want someone to run your ads.</li>
+      <li>You want software sold to you.</li>
+      <li>You already know the tool and just need hands.</li>
+    </ul>
+  </div>
+</section>
 
-  <section class="close wrap" aria-labelledby="cl-h">
-    <h2 class="display" id="cl-h" data-close-title>
-      <span class="ln" style="--wd:84">Show me where</span>
-      <span class="ln" style="--wd:96">it leaks.</span>
-    </h2>
-    <a class="cta" href="/book/" data-magnet><span>Book the job trace</span></a>
-    <p class="cta-note">One conversation. No pitch. If automation isn't your problem, I'll say so.</p>
-    <span class="sig">John Montejano</span>
-    <div id="terminal" aria-hidden="true"></div>
-  </section>
+<!-- =========================================================== 5. CLOSE === -->
+<section class="sec sec--tall s--deep" id="book" aria-labelledby="close-h">
+  <div class="wrap">
+    <div class="close__box">
+      <div>
+        <p class="eyebrow">One next step</p>
+        <h2 class="d2" id="close-h">Bring one recent job.<br>I will show you where it leaks.</h2>
+        <p class="lead">We follow it end to end, and you get the map. Where it leaks, what I would fix first, what I would leave alone.</p>
+      </div>
+      <div class="close__cta">
+        <a class="btn btn--light btn--wide" href="/book/">
+          Show me where it leaks
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+        </a>
+        <p class="note">Bring one recent job. That is the whole preparation.</p>
+        <p class="note">Nothing is booked until I reply to confirm.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
 </main>
 
-<footer class="wrap">
-  <div class="foot">
-    <div class="col">
-      <span class="mono">John Montejano</span>
-      <span class="mono-cap">Workflow automation for service businesses.</span>
-    </div>
-    <div class="col">
-      <a class="mono" href="/work/fastfix/">FastFix</a>
-      <a class="mono" href="/work/gelatotech/">GelatoTech</a>
-      <a class="mono" href="/work/lisa/">LISA</a>
-    </div>
-    <div class="col">
-      <a class="mono" href="/work/">Work</a>
-      <a class="mono" href="/about/">About</a>
-      <a class="mono" href="/book/">Book</a>
-    </div>
-    <div class="col">
-      <a class="mono" href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a>
-      <a class="mono" href="https://www.linkedin.com/in/johnmontejano/" target="_blank" rel="noopener">LinkedIn</a>
-      <span class="mono">&copy; 2026</span>
+<!-- ========================================================== 6. FOOTER === -->
+
+<!-- Mobile action bar. The primary action stays reachable through the whole
+     page on a phone, where the header collapses its nav behind a disclosure.
+     Hidden until JS decides the hero CTA has scrolled away, and hidden again
+     over the closing CTA so the two never stack. -->
+<div class="actbar" id="actbar" hidden>
+  <a class="btn btn--brand btn--wide" href="/book/">Show me where it leaks</a>
+</div>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__in">
+      <nav class="foot__l" aria-label="Footer">
+        <a href="/work/">Work</a>
+        <a href="/services/workflow-automation/" aria-current="page">Workflow automation</a>
+        <a href="/about/">About</a>
+        <a href="/book/">Show me where it leaks</a>
+      </nav>
+      <div class="foot__c">
+        <a href="mailto:johnmontejano2@gmail.com"><span>johnmontejano2@gmail.com</span></a>
+        <a href="https://www.linkedin.com/in/johnmontejano/" rel="me noopener"><span>LinkedIn</span></a>
+      </div>
+      <div class="foot__b">
+        <p>John Montejano. San Francisco.</p>
+        <p>You talk to me directly.</p>
+      </div>
     </div>
   </div>
 </footer>
-
-<script src="/vendor/gsap.min.js" defer></script>
-<script src="/vendor/ScrollTrigger.min.js" defer></script>
-<script src="/vendor/SplitText.min.js" defer></script>
 <script src="/js/main.js" defer></script>
 </body>
 </html>
