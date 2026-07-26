@@ -186,18 +186,56 @@
     io.observe(sec);
   }
 
-  /* ── GSAP move 2: the featured card lifts as you arrive ── */
+  /* ── featured: 3D entrance, then the system map runs ────── */
 
   function featured() {
     if (!hasGSAP || reduced) return;
     var card = document.querySelector('.feat__card');
     if (!card) return;
     gsap.fromTo(card,
-      { scale: 0.965 },
+      { scale: 0.96, rotateX: 7, y: 30, transformOrigin: '50% 100%' },
       {
-        scale: 1, ease: 'none',
-        scrollTrigger: { trigger: card, start: 'top 92%', end: 'top 55%', scrub: 0.6, invalidateOnRefresh: true }
+        scale: 1, rotateX: 0, y: 0, ease: 'none',
+        scrollTrigger: { trigger: card, start: 'top 96%', end: 'top 55%', scrub: 0.6, invalidateOnRefresh: true }
       });
+  }
+
+  /* the connectors draw in as you scroll; then job-dots run the lines
+     forever. This is the product doing its job, as motion. */
+
+  function sysmap() {
+    var lines = document.querySelectorAll('.sm__line');
+    if (!lines.length || !hasGSAP || reduced) return;
+
+    gsap.set(lines, { strokeDashoffset: 1, strokeDasharray: '1 1' });
+    gsap.to(lines, {
+      strokeDashoffset: 0,
+      stagger: 0.12,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.feat__card', start: 'top 92%', end: 'top 38%',
+        scrub: 0.6, invalidateOnRefresh: true
+      },
+      onComplete: function () {
+        /* restore the dashed texture once drawn */
+        gsap.set(lines, { strokeDasharray: '.012 .014', strokeDashoffset: 0 });
+      }
+    });
+
+    document.querySelectorAll('.sm__dot').forEach(function (dot, i) {
+      var path = lines[i];
+      if (!path) return;
+      var len = path.getTotalLength();
+      var state = { p: 0 };
+      gsap.to(state, {
+        p: 1, duration: 3.6, ease: 'none', repeat: -1, delay: i * 0.9,
+        onUpdate: function () {
+          var pt = path.getPointAtLength(state.p * len);
+          dot.setAttribute('cx', pt.x);
+          dot.setAttribute('cy', pt.y);
+        }
+      });
+    });
   }
 
   /* ── booking form composes a real email ────────────────── */
@@ -224,6 +262,7 @@
     fitWordmark();
     ghost();
     featured();
+    sysmap();
     bookform();
   }
 
