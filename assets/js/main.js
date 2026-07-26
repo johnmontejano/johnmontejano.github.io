@@ -58,6 +58,10 @@
   function reveals() {
     if (reduced || !('IntersectionObserver' in window)) return;
 
+    /* when the showcase is not pinned (mobile / no GSAP), its scenes join the
+       normal reveal flow so the frames still wipe in */
+    var pinning = hasGSAP && !reduced && window.innerWidth >= 881;
+
     var groups = [
       '.proof__line', '.proof__card',
       '.diag__head', '.diag__row',
@@ -68,6 +72,7 @@
       '.book__h', '.book__sub', '.bform__row', '.bform__actions', '.book__rail',
       '.faq > .h2', '.faq__row'
     ];
+    if (!pinning) groups.push('.showcase__scene');
     var els = document.querySelectorAll(groups.join(', '));
 
     els.forEach(function (el) {
@@ -177,6 +182,17 @@
     var track = document.querySelector('.foot__track');
     if (!track) return;
     gsap.to(track, { xPercent: -50, repeat: -1, duration: 26, ease: 'none' });
+
+    /* scroll velocity leans the name over, then it settles */
+    var skew = gsap.quickTo(track, 'skewX', { duration: 0.4, ease: 'power3.out' });
+    ScrollTrigger.create({
+      trigger: document.body,
+      start: 0,
+      end: 'max',
+      onUpdate: function (self) {
+        skew(gsap.utils.clamp(-3, 3, self.getVelocity() / -400));
+      }
+    });
   }
 
   /* ── glow drift: the light feels volumetric ──────────────── */

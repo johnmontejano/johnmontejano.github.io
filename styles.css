@@ -204,6 +204,44 @@ p { text-wrap: pretty; }
   color: var(--mono);
 }
 
+/* mobile dock: glass action bar at the thumb */
+.dock { display: none; }
+@media (max-width: 880px) {
+  .dock {
+    position: fixed;
+    left: 50%; bottom: max(14px, env(safe-area-inset-bottom));
+    translate: -50% 0;
+    z-index: 70;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px;
+    border-radius: 999px;
+    background: rgba(12,14,19,0.78);
+    border: 1px solid var(--glass-line);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 18px 44px rgba(0,0,0,0.55);
+  }
+  .dock a {
+    text-decoration: none;
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: var(--text-2);
+    padding: 9px 14px;
+    border-radius: 999px;
+  }
+  .dock a:active { background: rgba(255,255,255,0.07); }
+  .dock__cta {
+    background: var(--amber);
+    color: var(--bg) !important;
+    font-weight: 600;
+    box-shadow: 0 0 18px var(--amber-glow);
+  }
+  /* keep the last section clear of the dock */
+  .foot { padding-bottom: 84px; }
+}
+
 .nav__links { display: flex; gap: 24px; }
 .nav__links a {
   text-decoration: none;
@@ -956,6 +994,19 @@ html:not(.showcase-pin) .showcase__prog { display: none; }
 
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out); }
 .reveal.is-in { opacity: 1; transform: none; }
+
+/* browser frames get a cinematic wipe: clip opens, image settles */
+.reveal .frame, .reveal.frame {
+  clip-path: inset(12% 6% 12% 6% round 10px);
+  transition: clip-path 900ms var(--ease-out);
+}
+.reveal .frame img, .reveal.frame img { transform: scale(1.1); transition: transform 1100ms var(--ease-out); }
+.reveal.is-in .frame, .reveal.is-in.frame { clip-path: inset(0 0 0 0 round 10px); }
+.reveal.is-in .frame img, .reveal.is-in.frame img { transform: scale(1); }
+
+/* diagnostic tags ping alight as their row lands */
+.diag__row .diag__tag { opacity: 0; transform: scale(0.9); transition: opacity 400ms var(--ease-out) 350ms, transform 400ms var(--ease-out) 350ms; }
+.diag__row.is-in .diag__tag { opacity: 1; transform: none; }
 
 /* ── reduced motion ───────────────────────────────────────── */
 
