@@ -29,7 +29,7 @@
 <script>document.documentElement.className+=" js";</script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
- {"@type":"WebPage","name":"Page not found","url":"https://johnmontejano.github.io/404.html","description":"That link is old or mistyped. Three ways back: the home page, the work, or a time to show me where your job leaks.","isPartOf":{"@type":"WebSite","name":"John Montejano","url":"https://johnmontejano.github.io/"}}]}
+ {"@type":"WebPage","name":"Page not found","url":"https://johnmontejano.github.io/404.html","description":"That link is old or mistyped. Go to the home page, the work, or pick a time and I will show you where your job leaks.","isPartOf":{"@type":"WebSite","name":"John Montejano","url":"https://johnmontejano.github.io/"}}]}
 </script>
 </head>
 <body>
@@ -69,7 +69,7 @@
       </div>
 
       <nav class="card card--pad-lg e404__card reveal" data-reveal="pop" aria-label="Where to go next">
-        <p class="kicker">Three ways back</p>
+        <p class="kicker">Where to go next</p>
 
         <ul class="stack e404__ways">
           <li>
@@ -100,6 +100,15 @@
 </main>
 
 <!-- ============================================================= FOOTER === -->
+
+<!-- Mobile action bar. The primary action stays reachable through the whole
+     page on a phone, where the header collapses its nav behind a disclosure.
+     Hidden until JS decides the hero CTA has scrolled away, and hidden again
+     over the closing CTA so the two never stack. -->
+<div class="actbar" id="actbar" hidden>
+  <a class="btn btn--brand btn--wide" href="/book/">Show me where it leaks</a>
+</div>
+
 <footer class="foot">
   <div class="wrap">
     <div class="foot__in">

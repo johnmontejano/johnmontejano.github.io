@@ -70,7 +70,7 @@
         <p class="lead bk__lead">We get on a call, we follow one real job end to end, and you get the map. Where it leaks, what I would fix first, what I would leave alone.</p>
 
         <div class="creds bk__creds">
-          <img src="/assets/img/jm-portrait-45.webp" width="585" height="732" loading="lazy" decoding="async" alt="John Montejano, photographed in three-quarter view.">
+          <img src="/assets/img/jm-portrait-45.webp" width="585" height="732" loading="lazy" decoding="async" alt="John Montejano.">
           <div>
             <p class="creds__t">Owner, FastFix. Owner-operator, GelatoTech.</p>
             <p class="creds__d">San Francisco. You talk to me directly.</p>
@@ -106,6 +106,10 @@
         <p class="bk__done-d">Your mail app should have opened with this message in it. If it did not, use one of these. Your answers are still in the form below, exactly as you left them.</p>
 
         <p class="bk__slot"><span class="bk__slot-k">Requested slot</span><span class="bk__slot-v" id="bk-slot"></span></p>
+
+        <!-- Shown by /js/main.js if the visitor edits anything after the panel
+             opens, so a changed slot can never be sent silently. -->
+        <p class="bk__restamp" id="bk-restamp" role="status" hidden>You changed something. This message and the link above have been updated, so open it again before you send.</p>
 
         <div class="actions bk__done-go">
           <a class="btn btn--light" id="bk-again" href="mailto:johnmontejano2@gmail.com">Open it again</a>
@@ -252,6 +256,15 @@
 </main>
 
 <!-- ========================================================== 4. FOOTER == -->
+
+<!-- Mobile action bar. The primary action stays reachable through the whole
+     page on a phone, where the header collapses its nav behind a disclosure.
+     Hidden until JS decides the hero CTA has scrolled away, and hidden again
+     over the closing CTA so the two never stack. -->
+<div class="actbar" id="actbar" hidden>
+  <a class="btn btn--brand btn--wide" href="/book/">Show me where it leaks</a>
+</div>
+
 <footer class="foot">
   <div class="wrap">
     <div class="foot__in">

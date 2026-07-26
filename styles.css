@@ -143,7 +143,10 @@
 
 /* ------------------------------------------------------------- RESET ----- */
 *,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;overflow-x:hidden}
+/* overflow-x:clip, never hidden. `hidden` turns the root into a scroll
+   container and silently kills position:sticky on the header. `clip` gives the
+   same protection against a stray bleed without that side effect. */
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;overflow-x:clip}
 body{
   margin:0;
   background:var(--ground);
@@ -152,7 +155,7 @@ body{
   font-size:17px;
   line-height:1.55;
   font-weight:500;
-  overflow-x:hidden;
+  overflow-x:clip;
   -webkit-font-smoothing:antialiased;
 }
 img,svg,video{max-width:100%}
@@ -1210,9 +1213,9 @@ section[id],div[id]{scroll-margin-top:96px}
 .bk__go{margin-top:28px;border-top:1.5px solid var(--brand-tint)}
 
 /* the submit control is never disabled and never leaves the tab order. When
-   the request is incomplete it carries aria-disabled and flattens, and the
+   the request is incomplete the submit handler names what is missing, and the
    submit handler says what is missing. Contrast is never reduced. */
-.bk__form .btn[aria-disabled="true"]{box-shadow:0 3px 0 var(--brand-deep)}
+
 .bk__alert{
   margin-top:20px;background:var(--ink);color:#fff;border-radius:var(--r-md);
   padding:13px 16px;font-weight:700;font-size:.94rem;line-height:1.42;
@@ -1412,4 +1415,94 @@ section[id],div[id]{scroll-margin-top:96px}
   @keyframes slipIn3{from{transform:translate3d(0,26px,0) scale(.965) rotate(-.9deg)} to{transform:rotate(-.9deg)}}
   @keyframes slipIn4{from{transform:translate3d(0,26px,0) scale(.965) rotate(1.3deg)} to{transform:rotate(1.3deg)}}
   @keyframes solvedIn{from{transform:translate3d(0,40px,0) scale(.94) rotate(-1deg)}  to{transform:rotate(-1deg)}}
+}
+
+/* The inbound message is not a re-write, so its tag is neutral, not a leak. */
+.slip__stamp--in{
+  color:var(--ink-mute);background:var(--brand-wash);
+  border-color:var(--brand-tint);transform:rotate(-1.2deg);
+}
+
+/* --- booking corrections ------------------------------------------------- */
+/* The panel restamp: shown only when an edit lands after the panel opened. */
+.bk__restamp{
+  margin-top:14px;padding:12px 16px;border-radius:var(--r-sm);
+  background:rgba(214,255,75,.14);border:1.5px solid rgba(214,255,75,.5);
+  color:#EEF6D2;font-size:.95rem;font-weight:600;line-height:1.45;
+}
+/* Placeholders were set in a token the system documents as decorative only,
+   which measured 3.66:1. Use the body ink so they clear AA. */
+.bk__input::placeholder,.bk__area::placeholder{color:var(--ink-2);opacity:1;font-weight:500}
+
+/* The right column used to be revealed by a :has() rule that only became true
+   once deferred JS had populated the picker, which moved the grid 590px after
+   first paint. Reserve the two-column shape from first paint instead. */
+@media (min-width:1080px){
+  .bk__form-grid:has(#bk-pick[hidden]){grid-template-columns:minmax(0,1fr)}
+  .bk__form-grid{min-height:1px}
+}
+
+/* ------------------------------------------------------- MOBILE ACTION --- */
+/* Below the disclosure breakpoint the header hides Work, About and the CTA
+   behind a Menu button, so the primary action would be off screen for most of
+   the page. This puts it back, without a second header. */
+.actbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:70;
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(231,234,255,.86);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-top:1.5px solid var(--brand-tint);
+  transform:translate3d(0,110%,0);
+  transition:transform .32s cubic-bezier(.22,1,.36,1);
+}
+.actbar.is-up{transform:none}
+.actbar .btn{width:100%}
+@media (min-width:760px){ .actbar{display:none} }
+@media (prefers-reduced-motion:reduce){ .actbar{transition:none} }
+
+/* --- run toggle: colour changes land together ---------------------------- */
+/* The tile's ink is carried by custom properties, which cannot transition, so
+   transitioning the background meant white text sat on the pale "now" surface
+   for about 200ms on every toggle, below AA the whole way. Surface and ink now
+   switch on the same frame; the movement still reads through transform, the
+   shadow, the connectors and the merging record row. */
+.tile{transition:box-shadow .45s ease,transform .45s cubic-bezier(.2,.8,.3,1)}
+/* Same reasoning for the record cells: their ink is fixed, so only the geometry
+   animates and the colour lands at once. */
+.rec__cell{transition:flex-grow .5s cubic-bezier(.2,.8,.3,1),padding .5s cubic-bezier(.2,.8,.3,1)}
+
+/* --- evidence: let the capture actually be seen on a phone --------------- */
+/* The claim card was floated up over the capture, which reads as a deliberate
+   overlap on a wide screen but swallowed almost the whole image at 390px.
+   Below the two-column breakpoint the card now sits under the capture, and the
+   frame is taller so the crop is legible rather than a 150px strip. */
+@media (max-width:759px){
+  /* These captures are wide, centred headlines: any taller crop cuts words off
+     the ends. So keep the native ratio and instead give the frame the whole
+     screen width, edge to edge, which is the largest it can honestly be. The
+     claim card then sits under it rather than over it. */
+  .ev__frame{width:100vw;margin-inline:calc(50% - 50vw);border-radius:0;border-left:0;border-right:0}
+  .ev__body{margin:16px 0 0;padding:22px 22px 24px}
+}
+@media (min-width:760px) and (max-width:1079px){
+  .ev__body{margin:-34px 24px 0}
+}
+
+/* --- keep lime and coral semantic --------------------------------------- */
+/* Lime means "this no longer costs you anything" and coral means "this is
+   where your time goes". Both were leaking into decoration: a lime dot sat in
+   every eyebrow pill on every route, and coral marked the disqualifier list,
+   which is not a time leak. Neutral marks there restore the signal, so when
+   lime finally appears on an AUTOMATIC badge it still means something. */
+.eyebrow::before{background:var(--brand)}
+.s--brand .eyebrow::before{background:#fff}
+.s--deep .eyebrow::before{background:var(--brand-tint)}
+.notfor .marks--coral li::before{background:var(--fg-3)}
+
+/* The claim card used to ride 104px up into the capture, which landed on live
+   type. The shipped crops carry deliberate whitespace at their lower edge, so
+   a shallower overlap sits in that empty band instead of on the content. */
+@media (min-width:1080px){
+  .ev__body{margin:-48px 0 0 48px}
+  .ev--alt .ev__body{margin:-48px 48px 0 auto}
 }

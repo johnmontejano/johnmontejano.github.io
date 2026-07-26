@@ -127,7 +127,38 @@
     });
   }());
 
-  /* --------------------------------------------------------- 5. BOOKING -- */
+
+  /* ---------------------------------------------------- 5. ACTION BAR --- */
+  /* Phone only. Reveal the persistent CTA once the hero's own CTA has left the
+     screen, and retract it over the closing CTA so two identical buttons never
+     sit on top of each other. Ships [hidden]; only JS can show it, so a no-JS
+     visitor never meets a bar that cannot retract. */
+  (function actbar() {
+    var bar = document.getElementById('actbar');
+    if (!bar) return;
+    if (!('IntersectionObserver' in window)) return;
+    if (!window.matchMedia('(max-width: 759px)').matches) return;
+
+    var top = document.querySelector('.hero .btn, main .btn');
+    var end = document.querySelector('.close__box .btn, .sec:last-of-type .btn');
+    if (!top) return;
+
+    bar.removeAttribute('hidden');
+    var pastTop = false, atEnd = false;
+    var paint = function () { bar.classList.toggle('is-up', pastTop && !atEnd); };
+
+    new IntersectionObserver(function (e) {
+      pastTop = !e[0].isIntersecting; paint();
+    }, { rootMargin: '-8px 0px 0px 0px' }).observe(top);
+
+    if (end) {
+      new IntersectionObserver(function (e) {
+        atEnd = e[0].isIntersecting; paint();
+      }, { rootMargin: '0px 0px -20% 0px' }).observe(end);
+    }
+  }());
+
+  /* --------------------------------------------------------- 6. BOOKING -- */
   /* /book/ only. There is no backend and GitHub Pages cannot receive a post,
      so the form composes a mailto: and opens it.
 
@@ -137,7 +168,7 @@
        b. the confirmation panel is inserted ABOVE the surviving form and
           carries the slot, the same mailto again, the plain address, and the
           whole message in a readonly field with a copy button.
-       c. the submit control uses aria-disabled, never the disabled attribute,
+       c. the submit control is always operable; the handler names what is missing,
           so it stays reachable by keyboard, and the submit handler is what
           actually reports an incomplete request.
 
@@ -154,6 +185,7 @@
     var timeBox = document.getElementById('bk-times');
     var chosen = document.getElementById('bk-chosen');
     var alertBox = document.getElementById('bk-alert');
+    var restamp = document.getElementById('bk-restamp');
     var panel = document.getElementById('bk-done');
     var submit = document.getElementById('bk-submit');
     var again = document.getElementById('bk-again');
@@ -319,13 +351,29 @@
       return 'No day picked yet. If none of these work, tell me when below and that is enough.';
     }
 
+    /* Keep the confirmation panel honest. Once it is open, any later edit to the
+       day, the time or the fields must flow into the slot line, the "open it
+       again" link and the copyable message, or the visitor sends the previous
+       choice without noticing. */
+    var syncPanel = function () {
+      if (!panel || panel.hasAttribute('hidden')) return;
+      var url = mailtoUrl();
+      if (slotOut) slotOut.textContent = slotLine();
+      if (again) again.href = url;
+      if (msgOut) msgOut.value = 'To: ' + TO + '\nSubject: ' + subject() + '\n\n' + bodyText();
+      if (copyStatus) copyStatus.textContent = '';
+      if (restamp) restamp.removeAttribute('hidden');
+    };
+
+    /* chosenLine() depends only on the day and time radios, so it is written on
+       change alone. Announcing it on every keystroke in the name field made the
+       live region shout over the visitor. */
     function refresh() {
       if (chosen) chosen.textContent = chosenLine();
-      if (submit) submit.setAttribute('aria-disabled', problems().length ? 'true' : 'false');
     }
 
-    form.addEventListener('input', refresh);
-    form.addEventListener('change', refresh);
+    form.addEventListener('change', function () { refresh(); syncPanel(); });
+    form.addEventListener('input', syncPanel);
     refresh();
 
     /* ----------------------------------------------------------- submit --- */
@@ -340,7 +388,15 @@
           alertBox.textContent = 'Almost. ' + lines.join(' ');
           alertBox.removeAttribute('hidden');
         }
-        if (bad[0].el && bad[0].el.focus) bad[0].el.focus();
+        /* Show the message where the visitor is looking, then put the caret in
+           the field that needs them, without yanking the page away from the
+           message they have to read. */
+        if (alertBox && alertBox.scrollIntoView) {
+          alertBox.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' });
+        }
+        if (bad[0].el && bad[0].el.focus) {
+          try { bad[0].el.focus({ preventScroll: true }); } catch (e) { bad[0].el.focus(); }
+        }
         refresh();
         return;
       }
@@ -361,6 +417,7 @@
           msgOut.value = 'To: ' + TO + '\nSubject: ' + subject() + '\n\n' + bodyText();
         }
         if (copyStatus) copyStatus.textContent = '';
+        if (restamp) restamp.setAttribute('hidden', 'hidden');
         panel.removeAttribute('hidden');
         /* only measurable once the panel is laid out. Grow the readonly field
            to the message so no line is left half cut off. */

@@ -158,12 +158,12 @@
 
         <div class="pile">
           <div class="slip slip--1">
-            <div class="slip__top"><span class="slip__k">Message</span></div>
+            <div class="slip__top"><span class="slip__k">Message</span><span class="slip__stamp slip__stamp--in">It arrives</span></div>
             <p class="slip__a">Cracked screen, iPhone</p>
             <p class="slip__b">Mission, San Francisco. Thursday 2:00 PM</p>
           </div>
           <div class="slip slip--2">
-            <div class="slip__top"><span class="slip__k">Notepad</span><span class="slip__stamp">Written again</span></div>
+            <div class="slip__top"><span class="slip__k">Notepad</span><span class="slip__stamp">Written down</span></div>
             <p class="slip__a">Cracked screen, iPhone</p>
             <p class="slip__b">Mission, San Francisco. Thursday 2:00 PM</p>
           </div>
@@ -173,13 +173,13 @@
             <p class="slip__b">Mission, San Francisco. Thursday 2:00 PM</p>
           </div>
           <div class="slip slip--4">
-            <div class="slip__top"><span class="slip__k">Invoice</span><span class="slip__stamp">Written again</span></div>
+            <div class="slip__top"><span class="slip__k">Invoice</span><span class="slip__stamp">And again</span></div>
             <p class="slip__a">Cracked screen, iPhone</p>
             <p class="slip__b">Mission, San Francisco. Thursday 2:00 PM</p>
           </div>
         </div>
 
-        <p class="chip chip--coral scene__count">Same job. Written down four times.</p>
+        <p class="chip chip--coral scene__count">The same job, written down three times.</p>
 
         <div class="scene__drop" aria-hidden="true">
           <svg width="30" height="46" viewBox="0 0 30 46" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3v36"/><path d="M5 30l10 11 10-11"/></svg>
@@ -509,7 +509,7 @@
 
     <article class="ev reveal">
       <div class="ev__frame">
-        <img src="/assets/img/ev-gelatotech-1200.webp" srcset="/assets/img/ev-gelatotech-1200.webp 1200w, /assets/img/ev-gelatotech.webp 2100w" sizes="(min-width:1080px) 1100px, (min-width:760px) 92vw, 100vw" width="1200" height="514" loading="lazy" decoding="async" alt="The GelatoTech website, a mobile iPhone repair service in San Francisco.">
+        <img src="/assets/img/ev-gelatotech-1200.webp" srcset="/assets/img/ev-gelatotech-1200.webp 1200w, /assets/img/ev-gelatotech.webp 2100w" sizes="(min-width:1080px) 1100px, (min-width:760px) 92vw, 100vw" width="1200" height="514" loading="lazy" decoding="async" alt="The GelatoTech website, listing the San Francisco neighbourhoods its on-site repair service covers.">
       </div>
       <div class="ev__body">
         <h3 class="ev__n">GelatoTech</h3>
@@ -521,7 +521,7 @@
 
     <article class="ev ev--alt reveal">
       <div class="ev__frame">
-        <img src="/assets/img/ev-fastfix-1200.webp" srcset="/assets/img/ev-fastfix-1200.webp 1200w, /assets/img/ev-fastfix.webp 2100w" sizes="(min-width:1080px) 1100px, (min-width:760px) 92vw, 100vw" width="1200" height="514" loading="lazy" decoding="async" alt="The FastFix website, a platform built for home-service businesses.">
+        <img src="/assets/img/ev-fastfix-1200.webp" srcset="/assets/img/ev-fastfix-1200.webp 1200w, /assets/img/ev-fastfix.webp 1640w" sizes="(min-width:1080px) 1100px, (min-width:760px) 92vw, 100vw" width="1200" height="514" loading="lazy" decoding="async" alt="The FastFix website, explaining that the platform takes the admin work off a home-service business.">
       </div>
       <div class="ev__body">
         <h3 class="ev__n">FastFix</h3>
@@ -542,7 +542,7 @@
   <div class="wrap">
     <div class="op">
       <figure class="op__shot reveal">
-        <img src="/assets/img/jm-portrait-45.webp" width="585" height="732" loading="lazy" decoding="async" alt="John Montejano, photographed in three-quarter view.">
+        <img src="/assets/img/jm-portrait-45.webp" width="585" height="732" loading="lazy" decoding="async" alt="John Montejano.">
       </figure>
       <div>
         <p class="eyebrow">Who you are dealing with</p>
@@ -643,6 +643,15 @@
 </main>
 
 <!-- ========================================================== 10. FOOTER == -->
+
+<!-- Mobile action bar. The primary action stays reachable through the whole
+     page on a phone, where the header collapses its nav behind a disclosure.
+     Hidden until JS decides the hero CTA has scrolled away, and hidden again
+     over the closing CTA so the two never stack. -->
+<div class="actbar" id="actbar" hidden>
+  <a class="btn btn--brand btn--wide" href="/book/">Show me where it leaks</a>
+</div>
+
 <footer class="foot">
   <div class="wrap">
     <div class="foot__in">

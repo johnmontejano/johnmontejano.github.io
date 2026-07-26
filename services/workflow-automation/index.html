@@ -215,6 +215,15 @@
 </main>
 
 <!-- ========================================================== 6. FOOTER === -->
+
+<!-- Mobile action bar. The primary action stays reachable through the whole
+     page on a phone, where the header collapses its nav behind a disclosure.
+     Hidden until JS decides the hero CTA has scrolled away, and hidden again
+     over the closing CTA so the two never stack. -->
+<div class="actbar" id="actbar" hidden>
+  <a class="btn btn--brand btn--wide" href="/book/">Show me where it leaks</a>
+</div>
+
 <footer class="foot">
   <div class="wrap">
     <div class="foot__in">

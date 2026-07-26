@@ -190,7 +190,7 @@
 
     <a class="cs-next" href="/work/fastfix/">
       <span class="cs-next__frame">
-        <img src="/assets/img/ev-fastfix-1200.webp" srcset="/assets/img/ev-fastfix-1200.webp 1200w, /assets/img/ev-fastfix.webp 2100w" sizes="(min-width:1080px) 1100px, (min-width:760px) 92vw, 100vw" width="1200" height="514" loading="lazy" decoding="async" alt="A page from the FastFix website.">
+        <img src="/assets/img/ev-fastfix-1200.webp" srcset="/assets/img/ev-fastfix-1200.webp 1200w, /assets/img/ev-fastfix.webp 1640w" sizes="(min-width:1080px) 1100px, (min-width:760px) 92vw, 100vw" width="1200" height="514" loading="lazy" decoding="async" alt="The FastFix website, explaining that the platform takes the admin work off a home-service business.">
       </span>
       <span class="cs-next__body">
         <span class="cs-next__n">FastFix</span>
@@ -225,6 +225,15 @@
 </section>
 
 </main>
+
+
+<!-- Mobile action bar. The primary action stays reachable through the whole
+     page on a phone, where the header collapses its nav behind a disclosure.
+     Hidden until JS decides the hero CTA has scrolled away, and hidden again
+     over the closing CTA so the two never stack. -->
+<div class="actbar" id="actbar" hidden>
+  <a class="btn btn--brand btn--wide" href="/book/">Show me where it leaks</a>
+</div>
 
 <footer class="foot">
   <div class="wrap">
