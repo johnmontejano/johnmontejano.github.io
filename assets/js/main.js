@@ -1,278 +1,396 @@
-/* ═══════════════════════════════════════════════════════════
-   Motion. instrument.com itself ships zero animation libraries
-   (verified: no gsap/Lenis/Locomotive, no scroll-timeline CSS,
-   0 canvas, 0 video, 3 sticky elements). So the spine here is
-   CSS transitions + IntersectionObserver, and GSAP is spent
-   only on the two genuinely scrubbed moves.
-
-   html.js gates every initial hidden state, so with JS off the
-   page renders complete.
-   ═══════════════════════════════════════════════════════════ */
-
+/* ══════════════════════════════════════════════════════════
+   John Montejano — site behaviour
+   Progressive enhancement: everything below is additive.
+   The page is complete and readable with this file blocked.
+   ══════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
-  var doc = document.documentElement;
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var hasIO = 'IntersectionObserver' in window;
-  var hasGSAP = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $  = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
-  if (hasIO) doc.classList.add('js');
-  if (hasGSAP) gsap.registerPlugin(ScrollTrigger);
-
-  /* ── SF clock ─────────────────────────────────────────── */
-
-  function clock() {
-    var el = document.getElementById('sf-clock');
+  /* ─────────────────────────────────────────────
+     1. NAV — stuck state + mobile drawer
+     ───────────────────────────────────────────── */
+  (function nav() {
+    var el = $('#nav');
     if (!el) return;
-    var fmt = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit'
+    var sentinel = document.createElement('div');
+    sentinel.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:60px;pointer-events:none';
+    document.body.appendChild(sentinel);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (e) {
+        el.classList.toggle('is-stuck', !e[0].isIntersecting);
+      }).observe(sentinel);
+    }
+
+    var burger = $('#burger'), drawer = $('#drawer');
+    if (!burger || !drawer) return;
+    function setOpen(open) {
+      burger.setAttribute('aria-expanded', String(open));
+      drawer.hidden = !open;
+      burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    }
+    burger.addEventListener('click', function () {
+      setOpen(burger.getAttribute('aria-expanded') !== 'true');
     });
-    var tick = function () { el.textContent = fmt.format(new Date()); };
-    tick();
-    window.setInterval(tick, 30000);
-  }
+    drawer.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A') setOpen(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !drawer.hidden) { setOpen(false); burger.focus(); }
+    });
+  })();
 
-  /* ── rail hairline once you leave the top ─────────────── */
+  /* ─────────────────────────────────────────────
+     2. TYPER — the Claude-style type / hold / erase slot
+     ───────────────────────────────────────────── */
+  (function typer() {
+    var out = $('#typer-out');
+    if (!out) return;
 
-  function rail() {
-    var el = document.getElementById('rail');
-    if (!el || !hasIO) { if (el) el.classList.add('is-on'); return; }
-    var s = document.createElement('div');
-    s.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none';
-    document.body.prepend(s);
-    new IntersectionObserver(function (e) {
-      el.classList.toggle('is-on', !e[0].isIntersecting);
-    }).observe(s);
-
-    /* hide on downward scroll, return on upward, and reveal on mouse proximity */
-    var last = window.scrollY, h = el.offsetHeight;
-    window.addEventListener('scroll', function () {
-      var y = window.scrollY, d = y - last;
-      if (y <= h) el.classList.remove('is-hidden');
-      else if (d > 0) el.classList.add('is-hidden');
-      else if (d < -15) el.classList.remove('is-hidden');
-      last = y;
-    }, { passive: true });
-    window.addEventListener('mousemove', function (ev) {
-      if (ev.clientY < h + 8) el.classList.remove('is-hidden');
-    }, { passive: true });
-  }
-
-  /* ── reveals ──────────────────────────────────────────── */
-
-  function reveals() {
-    if (!hasIO) return;
-
-    /* the wordmark and the statement animate themselves via their own
-       .is-in classes; everything else gets the generic .rv treatment */
-    var targets = [
-      '.feat__card', '.work__head', '.card', '.acid__in', '.make__copy', '.make__media',
-      '.leaks__head', '.leak', '.proc__head', '.step', '.case__head', '.case__list',
-      '.case__media', '.proj__head', '.pcard', '.about__fig', '.about__copy',
-      '.faq__head', '.faq__row', '.book__head', '.bf__row', '.bf__act', '.book__rail',
-      '.foot__cols'
+    var lines = [
+      'the 7:04pm call nobody answered',
+      'quote follow-ups that never get sent',
+      'the same address typed into three apps',
+      'invoices that go out three weeks late',
+      'review requests after every finished job',
+      'the schedule that double-booked a truck'
     ];
-    var els = document.querySelectorAll(targets.join(', '));
 
-    els.forEach(function (el) {
-      el.classList.add('rv');
-      /* stagger within a run of same-class siblings */
-      var i = 0, sib = el;
-      while ((sib = sib.previousElementSibling) && sib.className.indexOf(el.tagName) !== -2) {
-        if (sib.classList && sib.classList.contains('rv') &&
-            sib.className.replace(' rv', '') === el.className.replace(' rv', '')) i++;
-        else break;
+    if (reduce) { out.textContent = lines[0] + '.'; return; }
+
+    var TYPE = 42, ERASE = 18, HOLD = 1750, GAP = 320;
+    var i = 0, c = 0, erasing = false;
+
+    function tick() {
+      var line = lines[i];
+      if (!erasing) {
+        c++;
+        out.textContent = line.slice(0, c);
+        if (c === line.length) { erasing = true; return setTimeout(tick, HOLD); }
+        return setTimeout(tick, TYPE + Math.random() * 34);
       }
-      if (i) el.style.transitionDelay = Math.min(i * 80, 400) + 'ms';
-    });
+      c--;
+      out.textContent = line.slice(0, c);
+      if (c === 0) { erasing = false; i = (i + 1) % lines.length; return setTimeout(tick, GAP); }
+      setTimeout(tick, ERASE);
+    }
+    setTimeout(tick, 700);
+  })();
 
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        e.target.classList.add('is-in');
-        io.unobserve(e.target);
+  /* ─────────────────────────────────────────────
+     3. THE MACHINE — replays one job, end to end
+     ───────────────────────────────────────────── */
+  (function machine() {
+    var feed = $('#feed');
+    if (!feed) return;
+    var evs = $$('.ev', feed);
+    if (!evs.length) return;
+
+    if (reduce) { evs.forEach(function (e) { e.classList.add('is-in'); }); return; }
+
+    var STEP = 1150, RESET = 3600;
+    var timers = [], running = false;
+
+    function clear() { timers.forEach(clearTimeout); timers = []; }
+
+    function play() {
+      clear();
+      evs.forEach(function (e) { e.classList.remove('is-in'); });
+      feed.scrollTop = 0;
+      evs.forEach(function (e, n) {
+        timers.push(setTimeout(function () {
+          e.classList.add('is-in');
+          // keep the newest row in view as the list outgrows the panel
+          var over = feed.scrollHeight - feed.clientHeight;
+          if (over > 0) {
+            var y = Math.min(over, e.offsetTop - feed.clientHeight + e.offsetHeight + 24);
+            feed.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+          }
+        }, 420 + n * STEP));
       });
-    }, { rootMargin: '0px 0px -15% 0px', threshold: 0 });
+      timers.push(setTimeout(play, 420 + evs.length * STEP + RESET));
+    }
 
-    els.forEach(function (el) { io.observe(el); });
-
-    /* the two self-animating blocks */
-    var solo = document.querySelectorAll('.mark, .stmt');
-    var io2 = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        e.target.classList.add('is-in');
-        io2.unobserve(e.target);
-      });
-    }, { threshold: 0.15 });
-    solo.forEach(function (el) { io2.observe(el); });
-
-    /* failsafe: nothing visible stays hidden */
-    window.setTimeout(function () {
-      document.querySelectorAll('.rv:not(.is-in), .mark:not(.is-in), .stmt:not(.is-in)')
-        .forEach(function (el) {
-          if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('is-in');
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting && !running) { running = true; play(); }
+          else if (!en.isIntersecting && running) { running = false; clear(); }
         });
-    }, 3000);
-  }
+      }, { threshold: 0.18 }).observe(feed);
+    } else { play(); }
+  })();
 
-  /* ── the wordmark fills the viewport exactly ───────────
-     flex space-between guarantees edge-to-edge, but the letters
-     should nearly fill it on their own so the gaps stay optical
-     rather than gappy. Measure and correct once per resize.    */
+  /* ─────────────────────────────────────────────
+     4. LEAK SCENES — each vignette plays itself in view
+     ───────────────────────────────────────────── */
+  (function scenes() {
+    var cards = $$('.leak');
+    if (!cards.length || reduce) {
+      cards.forEach(function (c) { c.classList.add('is-play'); });
+      return;
+    }
 
-  function fitWordmark() {
-    var word = document.querySelector('.mark__word');
-    if (!word) return;
-    var letters = word.querySelectorAll('.mark__l');
-    if (!letters.length) return;
+    var loops = {};
 
-    /* Solve for the font-size that makes the glyphs themselves span the line,
-       instead of guessing a vw value and hoping. Measure at a reference size,
-       then scale. letter-spacing stays 0 so the letters sit on their natural
-       sidebearings, and flex space-between absorbs the sub-pixel remainder. */
-    var fit = function () {
-      var avail = word.clientWidth;
-      if (!avail) return;
-      word.style.letterSpacing = '0px';
-      word.style.fontSize = '100px';
-      var ref = 0;
-      letters.forEach(function (l) { ref += l.getBoundingClientRect().width; });
-      if (!ref) { word.style.fontSize = ''; return; }
-      word.style.fontSize = (100 * (avail / ref) * 0.998).toFixed(2) + 'px';
-    };
+    function ringCounter(card) {
+      var el = $('.js-rings', card); if (!el) return;
+      var n = 1;
+      loops.call = setInterval(function () {
+        n = n >= 6 ? 1 : n + 1;
+        el.textContent = n;
+      }, 900);
+    }
 
-    fit();
-    var t;
-    window.addEventListener('resize', function () {
-      window.clearTimeout(t);
-      t = window.setTimeout(function () { fit(); if (hasGSAP) ScrollTrigger.refresh(); }, 150);
-    });
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
-  }
+    function dayCounter(card) {
+      var el = $('.js-days', card); if (!el) return;
+      var days = [2, 3, 5, 8, 11, 14], n = 0;
+      loops.quote = setInterval(function () {
+        el.textContent = days[n];
+        n = (n + 1) % days.length;
+      }, 620);
+    }
 
-  /* ── the giant type reveals per character ─────────────────
-     Measured on the reference: y 20 -> 0 + opacity, 1s, expo.out,
-     0.05s stagger, fired once. Deliberately NO parallax: the
-     reference's wrapper top is constant at every scroll position. */
-
-  function ghost() {
-    var sec = document.querySelector('.ghost');
-    if (!sec || !hasIO) return;
-
-    var n = 0;
-    sec.querySelectorAll('.ghost__l').forEach(function (line) {
-      var text = line.textContent;
-      line.textContent = '';
-      for (var i = 0; i < text.length; i++) {
-        var c = document.createElement('span');
-        c.className = 'ghost__c';
-        c.textContent = text[i];
-        c.setAttribute('aria-hidden', 'true');
-        if (!reduced) c.style.transitionDelay = (n * 50) + 'ms';
-        line.appendChild(c);
-        n++;
+    function doubleType(card) {
+      var a = $('.js-typeA', card), b = $('.js-typeB', card);
+      if (!a || !b) return;
+      var text = 'M. Delgado · 2118 Elm St';
+      var t = [];
+      function wipe() { t.forEach(clearTimeout); t = []; }
+      function run() {
+        wipe();
+        a.textContent = ''; b.textContent = '';
+        for (var i = 1; i <= text.length; i++) {
+          (function (i) { t.push(setTimeout(function () { a.textContent = text.slice(0, i); }, i * 46)); })(i);
+        }
+        var off = text.length * 46 + 620;
+        for (var j = 1; j <= text.length; j++) {
+          (function (j) { t.push(setTimeout(function () { b.textContent = text.slice(0, j); }, off + j * 46)); })(j);
+        }
+        t.push(setTimeout(run, off + text.length * 46 + 2100));
       }
+      run();
+      loops.typeStop = wipe;
+    }
+
+    cards.forEach(function (card) {
+      var kind = card.getAttribute('data-leak');
+      var started = false;
+      if (!('IntersectionObserver' in window)) { card.classList.add('is-play'); return; }
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          card.classList.add('is-play');
+          if (started) return;
+          started = true;
+          if (kind === 'call')  ringCounter(card);
+          if (kind === 'quote') dayCounter(card);
+          if (kind === 'type')  doubleType(card);
+        });
+      }, { threshold: 0.32 }).observe(card);
+    });
+  })();
+
+  /* ─────────────────────────────────────────────
+     5. BOOKING — real dates, real windows, one click
+     ───────────────────────────────────────────── */
+  (function booking() {
+    var dayWrap = $('#slot-days'), timeWrap = $('#slot-times');
+    if (!dayWrap || !timeWrap) return;
+
+    var EMAIL = 'johnmontejano2@gmail.com';
+    var WINDOWS = ['9:00 AM', '10:30 AM', '1:00 PM', '2:30 PM', '4:00 PM'];
+    var DAYN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var MONN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    // next 8 weekdays, starting tomorrow
+    var days = [], d = new Date();
+    d.setDate(d.getDate() + 1);
+    while (days.length < 8) {
+      if (d.getDay() !== 0 && d.getDay() !== 6) days.push(new Date(d));
+      d.setDate(d.getDate() + 1);
+    }
+
+    var picked = { day: null, time: null };
+    var sel = $('#book-sel'), form = $('#bf'), go = $('#bf-go');
+    if (go) go.disabled = true;
+
+    function label() {
+      if (!picked.day) return 'No time picked yet';
+      var s = DAYN[picked.day.getDay()] + ' ' + MONN[picked.day.getMonth()] + ' ' + picked.day.getDate();
+      return picked.time ? s + ' at ' + picked.time + ' PT' : s + ' — pick a time';
+    }
+    function sync() {
+      if (sel) {
+        sel.textContent = label();
+        sel.classList.toggle('is-set', !!(picked.day && picked.time));
+      }
+      if (go) go.disabled = !(picked.day && picked.time);
+    }
+
+    function renderTimes() {
+      timeWrap.innerHTML = '';
+      if (!picked.day) {
+        var p = document.createElement('p');
+        p.className = 'slot--none';
+        p.textContent = 'Pick a day to see times.';
+        timeWrap.appendChild(p);
+        return;
+      }
+      WINDOWS.forEach(function (t) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'slot';
+        b.setAttribute('role', 'tab');
+        b.setAttribute('aria-selected', String(picked.time === t));
+        b.textContent = t;
+        b.addEventListener('click', function () {
+          picked.time = t;
+          $$('.slot', timeWrap).forEach(function (o) { o.setAttribute('aria-selected', String(o === b)); });
+          sync();
+        });
+        timeWrap.appendChild(b);
+      });
+    }
+
+    var dayBtns = [];
+    days.forEach(function (dt, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'day';
+      b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', 'false');
+      b.innerHTML = '<b>' + dt.getDate() + '</b><span>' + DAYN[dt.getDay()] + '</span>';
+      b.setAttribute('aria-label', DAYN[dt.getDay()] + ' ' + MONN[dt.getMonth()] + ' ' + dt.getDate());
+      b.addEventListener('click', function () {
+        picked.day = dt; picked.time = null;
+        $$('.day', dayWrap).forEach(function (o) { o.setAttribute('aria-selected', String(o === b)); });
+        renderTimes(); sync();
+      });
+      dayWrap.appendChild(b);
+      dayBtns.push(b);
+      if (i === 0) setTimeout(function () { b.click(); }, 0);
+    });
+
+    renderTimes(); sync();
+
+    /* ─── the "next openings" strip mirrors the same three real slots ─── */
+    (function openings() {
+      var wrap = $('#open-slots');
+      if (!wrap || !days.length) return;
+      var picks = [
+        { d: 0, t: WINDOWS[0] },
+        { d: 0, t: WINDOWS[3] },
+        { d: 1, t: WINDOWS[1] }
+      ];
+      wrap.innerHTML = '';
+      picks.forEach(function (p) {
+        var dt = days[p.d];
+        if (!dt) return;
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'openslot';
+        b.innerHTML = '<b>' + DAYN[dt.getDay()] + ' ' + MONN[dt.getMonth()] + ' ' + dt.getDate() +
+                      '</b><span>' + p.t + '</span>';
+        b.addEventListener('click', function () {
+          dayBtns[p.d].click();
+          var match = $$('.slot', timeWrap).filter(function (s) { return s.textContent === p.t; })[0];
+          if (match) match.click();
+          var book = document.getElementById('book');
+          if (book) book.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+        });
+        wrap.appendChild(b);
+      });
+    })();
+
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!picked.day || !picked.time) return;
+        var name = ($('#bf-name') || {}).value || '';
+        var biz  = ($('#bf-biz')  || {}).value || '';
+        var when = DAYN[picked.day.getDay()] + ' ' + MONN[picked.day.getMonth()] + ' ' +
+                   picked.day.getDate() + ' at ' + picked.time + ' Pacific';
+        var subj = '30-min call — ' + when + (biz ? ' — ' + biz : '');
+        var body = 'Hi John,\n\n' +
+          'I would like the ' + when + ' slot.\n\n' +
+          'Name: ' + (name || '(add your name)') + '\n' +
+          'Business + trade: ' + (biz || '(add your business)') + '\n\n' +
+          'What eats the most time right now:\n\n';
+        window.location.href = 'mailto:' + EMAIL +
+          '?subject=' + encodeURIComponent(subj) +
+          '&body=' + encodeURIComponent(body);
+      });
+    }
+  })();
+
+  /* ─────────────────────────────────────────────
+     6. SF CLOCK
+     ───────────────────────────────────────────── */
+  (function clock() {
+    var el = $('#sf-clock');
+    if (!el) return;
+    function paint() {
+      try {
+        el.textContent = new Intl.DateTimeFormat('en-US', {
+          hour: 'numeric', minute: '2-digit', timeZone: 'America/Los_Angeles'
+        }).format(new Date());
+      } catch (e) { el.textContent = ''; }
+    }
+    paint();
+    setInterval(paint, 20000);
+  })();
+
+  /* ─────────────────────────────────────────────
+     7. SCROLL REVEALS
+     ───────────────────────────────────────────── */
+  (function reveals() {
+    if (reduce || !('IntersectionObserver' in window)) return;
+
+    var groups = [
+      ['.hero__copy > *', 0],
+      ['.sec__head > *', 0],
+      ['.leak', 1],
+      ['.cap', 1],
+      ['.trades', 0],
+      ['.proj', 0],
+      ['.stepc', 1],
+      ['.about__fig', 0],
+      ['.about__copy > *', 1],
+      ['.book__head > *', 0],
+      ['.slots', 0],
+      ['.book__side', 1],
+      ['.faq__row', 1],
+      ['.foot__top > *', 0]
+    ];
+
+    var seen = [];
+    groups.forEach(function (g) {
+      $$(g[0]).forEach(function (el, i) {
+        if (seen.indexOf(el) > -1) return;
+        seen.push(el);
+        el.classList.add('rv');
+        if (g[1]) el.classList.add('rv-d' + Math.min(4, i % 4 + 1));
+      });
     });
 
     var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        sec.classList.add('is-in');
-        io.unobserve(e.target);
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        en.target.classList.add('is-in');
+        io.unobserve(en.target);
       });
-    }, { rootMargin: '0px 0px -15% 0px', threshold: 0 });
-    io.observe(sec);
-  }
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
 
-  /* ── featured: 3D entrance, then the system map runs ────── */
+    seen.forEach(function (el) { io.observe(el); });
 
-  function featured() {
-    if (!hasGSAP || reduced) return;
-    var card = document.querySelector('.feat__card');
-    if (!card) return;
-    gsap.fromTo(card,
-      { scale: 0.96, rotateX: 7, y: 30, transformOrigin: '50% 100%' },
-      {
-        scale: 1, rotateX: 0, y: 0, ease: 'none',
-        scrollTrigger: { trigger: card, start: 'top 96%', end: 'top 55%', scrub: 0.6, invalidateOnRefresh: true }
-      });
-  }
+    // failsafe: never leave content hidden
+    setTimeout(function () {
+      seen.forEach(function (el) { el.classList.add('is-in'); });
+    }, 3500);
+  })();
 
-  /* the connectors draw in as you scroll; then job-dots run the lines
-     forever. This is the product doing its job, as motion. */
-
-  function sysmap() {
-    var lines = document.querySelectorAll('.sm__line');
-    if (!lines.length || !hasGSAP || reduced) return;
-
-    gsap.set(lines, { strokeDashoffset: 1, strokeDasharray: '1 1' });
-    gsap.to(lines, {
-      strokeDashoffset: 0,
-      stagger: 0.12,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: '.feat__card', start: 'top 92%', end: 'top 38%',
-        scrub: 0.6, invalidateOnRefresh: true
-      },
-      onComplete: function () {
-        /* restore the dashed texture once drawn */
-        gsap.set(lines, { strokeDasharray: '.012 .014', strokeDashoffset: 0 });
-      }
-    });
-
-    document.querySelectorAll('.sm__dot').forEach(function (dot, i) {
-      var path = lines[i];
-      if (!path) return;
-      var len = path.getTotalLength();
-      var state = { p: 0 };
-      gsap.to(state, {
-        p: 1, duration: 3.6, ease: 'none', repeat: -1, delay: i * 0.9,
-        onUpdate: function () {
-          var pt = path.getPointAtLength(state.p * len);
-          dot.setAttribute('cx', pt.x);
-          dot.setAttribute('cy', pt.y);
-        }
-      });
-    });
-  }
-
-  /* ── booking form composes a real email ────────────────── */
-
-  function bookform() {
-    var form = document.getElementById('bf');
-    if (!form) return;
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var v = function (id) { var el = form.querySelector(id); return el ? el.value : ''; };
-      var name = v('#bf-name'), biz = v('#bf-biz'), job = v('#bf-job');
-      var subject = 'Walkthrough request' + (name ? ' from ' + name : '');
-      var body = 'Name: ' + name + '\nBusiness: ' + biz +
-        '\n\nOne recent job:\n' + job + '\n\nTimes that could work for me:\n- ';
-      window.location.href = 'mailto:johnmontejano2@gmail.com?subject=' +
-        encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-    });
-  }
-
-  function init() {
-    clock();
-    rail();
-    reveals();
-    fitWordmark();
-    ghost();
-    featured();
-    sysmap();
-    bookform();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-
-  window.addEventListener('load', function () {
-    if (hasGSAP) ScrollTrigger.refresh();
-  });
 })();
