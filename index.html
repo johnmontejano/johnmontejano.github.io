@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>John Montejano — I automate the admin work of service businesses</title>
-<meta name="description" content="I build the system that answers your phone, books the job, chases the quote and sends the invoice. Automation for plumbing, HVAC, repair, clinics, salons and any appointment business. San Francisco.">
+<meta name="description" content="I build the system that answers your phone, books the appointment, chases the follow-up and sends the invoice. Automation for plumbing, HVAC, repair, clinics, salons and any appointment business. San Francisco.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta property="og:title" content="John Montejano — the boring half of your business, automated">
@@ -40,6 +40,42 @@
       "founder": { "@id": "#john" },
       "email": "mailto:johnmontejano2@gmail.com",
       "areaServed": { "@type": "Place", "name": "San Francisco Bay Area and remote" }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Will this replace my people?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. It takes the retyping and the chasing off their plate so they can do the work you actually hired them for." }
+        },
+        {
+          "@type": "Question",
+          "name": "I'm not technical. Is that a problem?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not at all — you run the business, I build and run the automation. Plain English the whole way, and it lives in accounts you own." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is this only for construction and trades?",
+          "acceptedAnswer": { "@type": "Answer", "text": "FastFix.ai is my home-services software, but the automation work fits any business where a customer books a time and someone has to show up — clinics, salons, med spas, repair shops, cleaners, property managers." }
+        },
+        {
+          "@type": "Question",
+          "name": "What does it cost?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The 30-minute call and the map that follows it are free. What a build costs depends entirely on what the map finds, and I'll tell you the number before anything starts." }
+        },
+        {
+          "@type": "Question",
+          "name": "Have you actually run one of these businesses?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes — and I build the software for them. FastFix.ai is mine: booking, quotes and invoices for home-service companies, built end to end. Before that I ran GelatoTech here in San Francisco, where I answered the phone, drove out, did the repair and sent the invoice. Every service business has the same short list of work nobody wants to do — the phone, the chasing, the retyping. That is exactly what I take off you." }
+        },
+        {
+          "@type": "Question",
+          "name": "What if nothing is worth automating?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Then I'll say so on the call and you keep the map anyway. I would rather lose an hour than build something you don't need." }
+        }
+      ]
     }
   ]
 }
@@ -110,28 +146,33 @@
         <span>See my times</span>
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg>
       </a>
+      <!-- span-then-svg, same as .btn--go above: both hero buttons share one
+           geometry contract (equal min-height, same padding, label on the left,
+           glyph on the right). Only the path differs — → books, ↓ scrolls. -->
       <a class="btn btn--ghost" href="#leaks">
-        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v11M4 9l4 4 4-4"/></svg>
         <span>Show me the problem</span>
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v11M4 9l4 4 4-4"/></svg>
       </a>
     </div>
 
     <ul class="hero__proof">
       <li><b>FastFix.ai</b><span>Founder</span></li>
       <li><b>GelatoTech</b><span>Owner, SF</span></li>
-      <li><b>LISA</b><span>Stanford GSB LEAD alumni accelerator</span></li>
+      <li><b>LISA</b><span>Built their site</span></li>
     </ul>
   </div>
 
   <!-- ─── the machine ─── -->
   <div class="hero__machine">
-    <figure class="machine" id="machine" aria-label="A live simulation of one plumbing job running itself from the first phone call to a paid invoice, with zero minutes of the owner's time.">
-      <figcaption class="vh">Live simulation: a job runs itself from first call to paid invoice.</figcaption>
+    <figure class="machine" id="machine" aria-label="A simulated example: one job running itself from the first phone call to a paid invoice, with none of the owner's time. Not a real customer.">
+      <figcaption class="vh">Simulated example: a job runs itself from first call to paid invoice. Not a real customer.</figcaption>
 
-      <div class="machine__bar" aria-hidden="true">
-        <span class="machine__live"><i></i>LIVE</span>
-        <span class="machine__name">Delgado Plumbing · Oakland</span>
-        <span class="machine__sig">
+      <div class="machine__bar">
+        <span class="machine__live"><i aria-hidden="true"></i>DEMO</span>
+        <!-- .machine__k, not .machine__name: styles.css:702 hides .machine__name
+             below 400px, and this label must never disappear. -->
+        <span class="machine__k">Simulated · not a real customer</span>
+        <span class="machine__sig" aria-hidden="true">
           <i></i><i></i><i></i><i></i>
         </span>
       </div>
@@ -140,7 +181,7 @@
         <li class="ev" data-ev="1">
           <span class="ev__t">7:04<small>pm</small></span>
           <span class="ev__body">
-            <b class="ev__h"><span class="ev__ic ev__ic--call"></span>Call — (510) 555‑0148</b>
+            <b class="ev__h"><span class="ev__ic ev__ic--call"></span>Call — new customer</b>
             <q class="ev__q">"Water heater's leaking, there's water everywhere."</q>
             <span class="ev__meta">Answered on ring 1 · transcribed · urgency flagged</span>
           </span>
@@ -149,28 +190,28 @@
           <span class="ev__t">7:05<small>pm</small></span>
           <span class="ev__body">
             <b class="ev__h"><span class="ev__ic ev__ic--job"></span>Job created</b>
-            <span class="ev__meta">2118 Elm St · water heater · emergency tier</span>
+            <span class="ev__meta">Water heater · emergency tier</span>
           </span>
         </li>
         <li class="ev" data-ev="3">
           <span class="ev__t">7:06<small>pm</small></span>
           <span class="ev__body">
             <b class="ev__h"><span class="ev__ic ev__ic--quote"></span>Quote sent — $1,240</b>
-            <span class="ev__meta">Text + email · from your price book</span>
+            <span class="ev__meta">Text + email · at your own prices</span>
           </span>
         </li>
         <li class="ev" data-ev="4">
           <span class="ev__t">Thu<small>9am</small></span>
           <span class="ev__body">
             <b class="ev__h"><span class="ev__ic ev__ic--chase"></span>No reply in 48h — nudge sent</b>
-            <span class="ev__meta">Follow‑up 1 of 3 · you were on a roof</span>
+            <span class="ev__meta">Follow‑up 1 of 3 · you were with a customer</span>
           </span>
         </li>
         <li class="ev" data-ev="5">
           <span class="ev__t">Thu<small>9:12</small></span>
           <span class="ev__body">
             <b class="ev__h ev__h--win"><span class="ev__ic ev__ic--book"></span>Booked — Tue 8:00am</b>
-            <span class="ev__meta">On the calendar · Truck 2 · customer texted</span>
+            <span class="ev__meta">On the calendar · assigned · customer confirmed</span>
           </span>
         </li>
         <li class="ev" data-ev="6">
@@ -187,7 +228,7 @@
         <span class="machine__v"><b id="mins">0</b> min</span>
       </div>
     </figure>
-    <p class="machine__note">This is the shape of what I build.</p>
+    <p class="machine__note">A made-up example, not a real customer. This is the shape of what I build.</p>
   </div>
 </section>
 
@@ -204,7 +245,7 @@
 <section class="leaks" id="leaks">
   <header class="sec__head">
     <span class="tag">Where the week goes</span>
-    <h2 class="sec__h">Four things quietly cost you jobs.<br>Every one of them is fixable.</h2>
+    <h2 class="sec__h">Four things quietly cost you customers.<br>Every one of them is fixable.</h2>
   </header>
 
   <div class="leaks__grid">
@@ -215,17 +256,17 @@
           <div class="phone">
             <span class="phone__wave"></span><span class="phone__wave phone__wave--2"></span>
             <div class="phone__body">
-              <span class="phone__from">Unknown · (510) 555‑0148</span>
+              <span class="phone__from">Unknown number</span>
               <span class="phone__ring">Ringing<i>.</i><i>.</i><i>.</i></span>
               <span class="phone__count"><b class="js-rings">1</b> rings</span>
             </div>
           </div>
           <span class="stamp stamp--miss">MISSED</span>
-          <p class="scene__out">They called the next guy.</p>
+          <p class="scene__out">They called the next place on the list.</p>
         </div>
       </div>
       <h3 class="leak__t">The 7pm call nobody caught</h3>
-      <p class="leak__p">You were under a sink. No voicemail, no callback, no job. It never even showed up as a loss.</p>
+      <p class="leak__p">You were with someone else, or you were closed. No voicemail, no callback, no booking. It never even showed up as a loss.</p>
     </article>
 
     <article class="leak" data-leak="type">
@@ -240,11 +281,11 @@
             <span class="win__field js-typeB"></span>
           </div>
           <span class="scene__x">×2</span>
-          <p class="scene__out">Same customer. Twice. Every job.</p>
+          <p class="scene__out">Same customer. Twice. Every time.</p>
         </div>
       </div>
       <h3 class="leak__t">Typed here, typed again there</h3>
-      <p class="leak__p">The name, the address, the phone number. Two apps that never learned to talk. Nine minutes a job, forever.</p>
+      <p class="leak__p">The name, the address, the phone number. Two apps that never learned to talk. Every customer, every time, forever.</p>
     </article>
 
     <article class="leak" data-leak="quote">
@@ -260,25 +301,25 @@
           <p class="scene__out">It didn't get rejected. It got forgotten.</p>
         </div>
       </div>
-      <h3 class="leak__t">The quote that died quietly</h3>
-      <p class="leak__p">The second message is the one that wins the job. It usually never gets sent.</p>
+      <h3 class="leak__t">The follow-up that never got sent</h3>
+      <p class="leak__p">The quote, the estimate, the treatment plan, whatever you call it: the second message is the one that wins the work. It almost never goes out.</p>
     </article>
 
-    <article class="leak" data-leak="double">
+    <article class="leak" data-leak="noshow">
       <div class="leak__stage">
         <div class="scene scene--cal" aria-hidden="true">
           <div class="cal">
             <span class="cal__h">Tuesday</span>
-            <div class="cal__row"><span class="cal__time">8a</span><span class="cal__cell"><i class="chip chip--a">Truck 1 · Elm St</i><i class="chip chip--b">Truck 2 · Elm St</i></span></div>
-            <div class="cal__row"><span class="cal__time">10a</span><span class="cal__cell"></span></div>
             <div class="cal__row"><span class="cal__time">12p</span><span class="cal__cell"></span></div>
+            <div class="cal__row"><span class="cal__time">2p</span><span class="cal__cell"><i class="chip chip--a">Booked three weeks ago</i></span></div>
+            <div class="cal__row"><span class="cal__time">4p</span><span class="cal__cell"></span></div>
           </div>
-          <span class="stamp stamp--clash">CLASH</span>
-          <p class="scene__out">The wall calendar said yes to both.</p>
+          <span class="stamp stamp--miss">NO-SHOW</span>
+          <p class="scene__out">Nobody reminded them. Nobody filled it.</p>
         </div>
       </div>
-      <h3 class="leak__t">Two trucks, one address</h3>
-      <p class="leak__p">Two hours of drive time, one apology, one customer who now knows how you run things.</p>
+      <h3 class="leak__t">The 2pm that never showed up</h3>
+      <p class="leak__p">You held the slot. You turned away the person who would have taken it. Nobody paid for that hour, and it will happen again on Thursday.</p>
     </article>
 
   </div>
@@ -296,46 +337,48 @@
     <li class="cap">
       <span class="cap__ic" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M6 9c0 10 7 17 17 17l3-4-5-3-3 3c-3-2-5-4-7-7l3-3-3-5z"/><path class="ping" d="M20 6a8 8 0 0 1 6 6"/></svg></span>
       <b>Calls answered, day or night</b>
-      <span>Picks up, understands the job, books it or escalates to you.</span>
+      <span>Picks up, works out what the caller needs, and either books them in or gets you on the phone.</span>
     </li>
     <li class="cap">
       <span class="cap__ic" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="4" y="7" width="24" height="21" rx="3"/><path d="M4 13h24M11 4v5M21 4v5"/><rect class="fill" x="8" y="17" width="8" height="5" rx="1.5"/></svg></span>
-      <b>One calendar for every job</b>
-      <span>Techs, trucks and travel time in one place. No double booking.</span>
+      <b>One calendar for everything</b>
+      <span>Everyone's day in one place. No double bookings, no gaps.</span>
     </li>
     <li class="cap">
       <span class="cap__ic" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M8 4h12l6 6v18H8z"/><path d="M20 4v6h6"/><path d="M13 17h9M13 22h6"/><path class="ping" d="M12 12h4"/></svg></span>
       <b>Quotes that chase themselves</b>
-      <span>Sent from your price book, then followed up until you get an answer.</span>
+      <span>Sent from your own pricing, then followed up until you get an answer.</span>
     </li>
     <li class="cap">
       <span class="cap__ic" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 4v24M11 9h8a4 4 0 0 1 0 8h-6a4 4 0 0 0 0 8h8"/></svg></span>
-      <b>Invoices sent the day the job ends</b>
-      <span>Straight off the job record. Reminders until it clears.</span>
+      <b>Invoices sent the day the work is done</b>
+      <span>Straight off the record you already filled in. Reminders until it clears.</span>
     </li>
     <li class="cap">
       <span class="cap__ic" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M6 10h12M6 16h9M6 22h12"/><path class="ping" d="M23 12l4 4-4 4"/></svg></span>
       <b>No retyping between apps</b>
-      <span>Your booking tool, your CRM, your accounting. Typed once.</span>
+      <span>Your booking tool, your customer list, your accounting. Typed once.</span>
     </li>
     <li class="cap">
       <span class="cap__ic" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 5l3.2 6.6 7.3 1-5.3 5.1 1.3 7.2L16 21.5 9.5 24.9l1.3-7.2L5.5 12.6l7.3-1z"/></svg></span>
       <b>Reviews asked for every time</b>
-      <span>The message goes out while they still remember you fixed it.</span>
+      <span>The message goes out while they still remember how it went.</span>
     </li>
   </ul>
 
   <div class="trades">
     <span class="trades__k">Built for</span>
+    <!-- The inclusive sentence reads BEFORE the marquee on purpose: the marquee is
+         aria-hidden and loops slowly, so a phone reader is past it in seconds. -->
+    <p class="trades__note">If a customer books a time and somebody has to show up, this is for you.</p>
     <div class="trades__track" aria-hidden="true">
       <div class="trades__row">
-        <span>Plumbing</span><span>HVAC</span><span>Electrical</span><span>Roofing</span><span>Cleaning</span><span>Landscaping</span><span>Pest control</span><span>Auto repair</span><span>Dental</span><span>Med spa</span><span>Salons</span><span>Moving</span><span>Locksmiths</span><span>Appliance repair</span><span>Property management</span><span>Photography</span>
+        <span>Plumbing</span><span>Dental</span><span>HVAC</span><span>Salons</span><span>Electrical</span><span>Cleaning</span><span>Med spa</span><span>Auto repair</span><span>Roofing</span><span>Property management</span><span>Landscaping</span><span>Moving</span><span>Pest control</span><span>Photography</span><span>Locksmiths</span><span>Appliance repair</span>
       </div>
       <div class="trades__row">
-        <span>Plumbing</span><span>HVAC</span><span>Electrical</span><span>Roofing</span><span>Cleaning</span><span>Landscaping</span><span>Pest control</span><span>Auto repair</span><span>Dental</span><span>Med spa</span><span>Salons</span><span>Moving</span><span>Locksmiths</span><span>Appliance repair</span><span>Property management</span><span>Photography</span>
+        <span>Plumbing</span><span>Dental</span><span>HVAC</span><span>Salons</span><span>Electrical</span><span>Cleaning</span><span>Med spa</span><span>Auto repair</span><span>Roofing</span><span>Property management</span><span>Landscaping</span><span>Moving</span><span>Pest control</span><span>Photography</span><span>Locksmiths</span><span>Appliance repair</span>
       </div>
     </div>
-    <p class="trades__note">Any business where a customer books a time and somebody has to show up.</p>
   </div>
 </section>
 
@@ -343,8 +386,8 @@
 <section class="work" id="work">
   <header class="sec__head">
     <span class="tag">Work</span>
-    <h2 class="sec__h">Three real sites. All of them live.</h2>
-    <p class="sec__p">Click any of them. They open in a new tab, exactly as they are today.</p>
+    <h2 class="sec__h">I built these. Go look at them.</h2>
+    <p class="sec__p">Click any one. It opens in a new tab, exactly as it is right now.</p>
   </header>
 
   <div class="work__list">
@@ -356,14 +399,14 @@
           <span class="frame__url"><svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2.5" y="5" width="7" height="5.5" rx="1.2"/><path d="M4.2 5V3.6a1.8 1.8 0 0 1 3.6 0V5"/></svg>fastfix.ai</span>
           <span class="frame__open">Open <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4 8l4-4M4.5 4H8v3.5"/></svg></span>
         </span>
-        <img src="assets/img/work-fastfix.webp" alt="The FastFix.ai homepage: a field-service platform for home-service businesses" width="1600" height="1000" loading="lazy" decoding="async">
+        <img src="assets/img/work-fastfix.webp" alt="The FastFix.ai homepage: my software for home-service companies" width="1600" height="1000" loading="lazy" decoding="async">
       </div>
       <div class="proj__meta">
         <div class="proj__lead">
           <h3 class="proj__t">FastFix.ai</h3>
           <span class="role">Founder — I built all of it</span>
         </div>
-        <p class="proj__p">The field-service platform home-service businesses run on: leads, scheduling, dispatch, proposals and invoicing in one place, synced to every tech's calendar. Product, website, marketing and automation were all mine.</p>
+        <p class="proj__p">My own product: software for home-service companies. Leads, scheduling, quotes and invoices in one place, with every visit on the right person's calendar. I built the product, the site, the marketing and the automation.</p>
         <ul class="proj__facts">
           <li>Full platform</li><li>SEO + paid</li><li>Live product</li>
         </ul>
@@ -385,7 +428,7 @@
           <h3 class="proj__t">GelatoTech</h3>
           <span class="role">Owner-operator — this is where I learned it</span>
         </div>
-        <p class="proj__p">On-demand device repair across San Francisco. I took the calls, booked the visits, drove out, did the repairs and sent the invoices. Every leak on this page is one I paid for myself first.</p>
+        <p class="proj__p">On-demand device repair across San Francisco. I took the calls, booked the visits, drove out, did the repairs and sent the invoices. Most of the leaks on this page are ones I paid for myself first.</p>
         <ul class="proj__facts">
           <li>Ran the business</li><li>Site + SEO</li><li>Every call</li>
         </ul>
@@ -407,9 +450,9 @@
           <h3 class="proj__t">LISA</h3>
           <span class="role">Built the site for the accelerator</span>
         </div>
-        <p class="proj__p">The LEAD Incubator &amp; Startup Accelerator, created and run by alumni of the Stanford Graduate School of Business LEAD program. A 12-week, equity-free program for early-stage founders.</p>
+        <p class="proj__p">The LEAD Incubator &amp; Startup Accelerator, created and run by alumni of the Stanford Graduate School of Business LEAD program. A 12-week, equity-free program for early-stage founders. The program reports 220+ startups across 42 countries and 200+ mentors.</p>
         <ul class="proj__facts">
-          <li>220+ startups</li><li>42 countries</li><li>200+ mentors</li>
+          <li>Site design</li><li>Build</li><li>Copy</li>
         </ul>
         <span class="proj__go">Visit gsb-lead-lisa.com <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M4 10l6-6M4.5 4H10v5.5"/></svg></span>
       </div>
@@ -423,7 +466,8 @@
 <section class="how" id="how">
   <header class="sec__head">
     <span class="tag">How it works</span>
-    <h2 class="sec__h">Three steps. The first one is free.</h2>
+    <h2 class="sec__h">It starts with half an hour of your time.</h2>
+    <p class="sec__p">The first two steps are free. You only pay if you decide to build something.</p>
   </header>
 
   <div class="how__grid">
@@ -439,7 +483,7 @@
       <span class="stepc__n">01</span>
       <h3 class="stepc__t">We talk for 30 minutes.</h3>
       <p class="stepc__p">You walk me through a normal week. Who answers the phone, what gets typed where, what falls through. I ask a lot of questions.</p>
-      <span class="stepc__k">Free, and I don’t pitch.</span>
+      <span class="stepc__k">Free, and I don't pitch.</span>
     </article>
 
     <article class="stepc">
@@ -454,7 +498,7 @@
       <span class="stepc__n">02</span>
       <h3 class="stepc__t">I send you the map.</h3>
       <p class="stepc__p">Written down: where your hours actually go, what I would automate first, what is not worth touching. Yours either way.</p>
-      <span class="stepc__k">Usually within 2 days.</span>
+      <span class="stepc__k">Also free. You get it within 2 days.</span>
     </article>
 
     <article class="stepc">
@@ -473,6 +517,19 @@
   </div>
 </section>
 
+<!-- ══════════════════ WHAT THIS REPLACES ══════════════════ -->
+<!-- Shell classes are borrowed (.work = padding + max-width + centred column,
+     .sec__head/.sec__h/.sec__p = the standard section header stack) so this band
+     ships without touching styles.css. A dedicated .worth class is a later job. -->
+<section class="work" id="worth">
+  <header class="sec__head">
+    <span class="tag">What this replaces</span>
+    <h2 class="sec__h">I'm not another salary. I'm the reason you don't need the next one.</h2>
+    <p class="sec__p">The admin was never the hard part. Finding somebody reliable to do it was, and keeping them. You train someone for a month, they're good for a while, then they call out on your busiest morning — or they leave in March and you start the whole search again.</p>
+    <p class="sec__p">One person, one project, one invoice. No payroll tax, no turnover, no training month. What I build doesn't call out sick, and it never has to be taught twice.</p>
+  </header>
+</section>
+
 <!-- ══════════════════ ABOUT ══════════════════ -->
 <section class="about" id="about">
   <figure class="about__fig">
@@ -482,8 +539,8 @@
   <div class="about__copy">
     <span class="tag">Who you actually get</span>
     <h2 class="sec__h">Me. That's the whole company.</h2>
-    <p class="about__p">No account manager, no handoff, no junior doing the build. You talk to the person writing it.</p>
-    <p class="about__p">I ran a service business before I automated them. I know what a Tuesday looks like when three customers call while you're already under somebody's sink, and I know which shortcuts break the second you get busy.</p>
+    <p class="about__p">There's no account manager, and nobody hands you to a junior once you've said yes. You talk to the person writing it.</p>
+    <p class="about__p">I ran a service business before I automated them. I know what a Tuesday looks like when three customers call while your hands are already inside somebody's phone, and I know which shortcuts break the second you get busy.</p>
     <div class="about__acts">
       <a class="btn btn--go" href="#book"><span>See my times</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
       <a class="tlink" href="https://www.linkedin.com/in/johnmontejano/" rel="me noopener" target="_blank">LinkedIn <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M4 10l6-6M4.5 4H10v5.5"/></svg></a>
@@ -495,18 +552,21 @@
 <section class="book" id="book">
   <div class="book__head">
     <span class="tag tag--inv">Book</span>
-    <h2 class="book__h">Pick a time. <em>That's it.</em></h2>
+    <h2 class="book__h">Pick a time <em>that suits you.</em></h2>
     <p class="book__p">30 minutes, free, no pitch. All times Pacific.</p>
   </div>
 
   <div class="book__panel">
     <div class="slots" id="slots">
       <div class="slots__days" id="slot-days" role="tablist" aria-label="Choose a day"></div>
-      <div class="slots__times" id="slot-times" role="tabpanel" aria-label="Choose a time"></div>
+      <!-- role="tablist", not "tabpanel": main.js gives every time button
+           role="tab", and a tab whose parent is a tabpanel is the
+           aria-required-parent failure. Both strips are now valid tablists. -->
+      <div class="slots__times" id="slot-times" role="tablist" aria-label="Choose a time"></div>
 
       <ul class="agenda">
-        <li><span class="agenda__n">00–10</span><span class="agenda__b"><b>You talk.</b> A normal week: who answers the phone, what gets typed where, what slips.</span></li>
-        <li><span class="agenda__n">10–25</span><span class="agenda__b"><b>I dig.</b> We follow one recent job all the way from the first call to the money landing.</span></li>
+        <li><span class="agenda__n">00–10</span><span class="agenda__b"><b>You talk.</b> A normal week — start me at Monday morning and don't tidy it up.</span></li>
+        <li><span class="agenda__n">10–25</span><span class="agenda__b"><b>I dig.</b> We follow one recent customer all the way from the first call to the money landing.</span></li>
         <li><span class="agenda__n">25–30</span><span class="agenda__b"><b>I tell you.</b> What I would automate first, what I would leave alone, and roughly what it costs.</span></li>
       </ul>
       <p class="agenda__foot">If there is nothing worth building, I will tell you on the call and you keep the map anyway.</p>
@@ -519,14 +579,14 @@
       </div>
       <form class="bf" id="bf" novalidate>
         <label class="bf__l" for="bf-name">Name</label>
-        <input class="bf__i" id="bf-name" name="name" type="text" autocomplete="name" placeholder="Maria Delgado">
-        <label class="bf__l" for="bf-biz">Business + trade</label>
+        <input class="bf__i" id="bf-name" name="name" type="text" autocomplete="name" placeholder="Miguel Delgado">
+        <label class="bf__l" for="bf-biz">Business + what you do</label>
         <input class="bf__i" id="bf-biz" name="biz" type="text" autocomplete="organization" placeholder="Delgado Plumbing, Oakland">
         <button class="btn btn--go btn--wide" id="bf-go" type="submit">
           <span>Confirm this time</span>
           <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg>
         </button>
-        <p class="bf__note">Opens an email to me with the time filled in. I reply with a calendar invite, usually same day.</p>
+        <p class="bf__note">Opens an email to me with the time filled in. I reply with a calendar invite.</p>
       </form>
       <div class="book__alt">
         <a href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a>
@@ -549,11 +609,11 @@
     </details>
     <details class="faq__row">
       <summary><span>I'm not technical. Is that a problem?</span><i class="faq__m" aria-hidden="true"></i></summary>
-      <div class="faq__a"><p>No. You run the business, I build and run the automation. Plain English the whole way, and it lives in accounts you own.</p></div>
+      <div class="faq__a"><p>Not at all — you run the business, I build and run the automation. Plain English the whole way, and it lives in accounts you own.</p></div>
     </details>
     <details class="faq__row">
       <summary><span>Is this only for construction and trades?</span><i class="faq__m" aria-hidden="true"></i></summary>
-      <div class="faq__a"><p>No. FastFix.ai is my home-services platform, but the automation work is for any business where a customer books a time and someone has to show up — clinics, salons, med spas, repair shops, cleaners, property managers.</p></div>
+      <div class="faq__a"><p>FastFix.ai is my home-services software, but the automation work fits any business where a customer books a time and someone has to show up — clinics, salons, med spas, repair shops, cleaners, property managers.</p></div>
     </details>
     <details class="faq__row">
       <summary><span>What does it cost?</span><i class="faq__m" aria-hidden="true"></i></summary>
@@ -561,7 +621,7 @@
     </details>
     <details class="faq__row">
       <summary><span>Have you actually run one of these businesses?</span><i class="faq__m" aria-hidden="true"></i></summary>
-      <div class="faq__a"><p>Yes. GelatoTech, on-demand device repair in San Francisco. I took the calls, drove out, did the repairs and sent the invoices.</p></div>
+      <div class="faq__a"><p>Yes — and I build the software for them. FastFix.ai is mine: booking, quotes and invoices for home-service companies, built end to end. Before that I ran GelatoTech here in San Francisco, where I answered the phone, drove out, did the repair and sent the invoice. Every service business has the same short list of work nobody wants to do — the phone, the chasing, the retyping. That is exactly what I take off you.</p></div>
     </details>
     <details class="faq__row">
       <summary><span>What if nothing is worth automating?</span><i class="faq__m" aria-hidden="true"></i></summary>

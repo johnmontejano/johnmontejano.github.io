@@ -263,8 +263,16 @@
       b.className = 'day';
       b.setAttribute('role', 'tab');
       b.setAttribute('aria-selected', 'false');
-      b.innerHTML = '<b>' + dt.getDate() + '</b><span>' + DAYN[dt.getDay()] + '</span>';
-      b.setAttribute('aria-label', DAYN[dt.getDay()] + ' ' + MONN[dt.getMonth()] + ' ' + dt.getDate());
+      // NOTE the space between </b> and <span>: it makes the tile's visible text
+      // read "28 Tue" rather than "28Tue", so the aria-label below can contain
+      // it verbatim. .day is a grid container, and a whitespace-only text node
+      // is never rendered as a grid item, so this costs nothing in layout.
+      b.innerHTML = '<b>' + dt.getDate() + '</b> <span>' + DAYN[dt.getDay()] + '</span>';
+      // The accessible name must CONTAIN the visible text ("28 Tue"), or the
+      // button trips WCAG 2.5.3 Label in Name. Date first, weekday second,
+      // month and year appended — same order the tile reads on screen.
+      b.setAttribute('aria-label', dt.getDate() + ' ' + DAYN[dt.getDay()] + ', ' +
+                                   MONN[dt.getMonth()] + ' ' + dt.getFullYear());
       b.addEventListener('click', function () {
         picked.day = dt; picked.time = null;
         $$('.day', dayWrap).forEach(function (o) { o.setAttribute('aria-selected', String(o === b)); });
