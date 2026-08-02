@@ -344,28 +344,35 @@ html.js .ev.is-in{opacity:1;transform:none}
 /* ─────────────────────────────────────────────
    LEAKS — pinned horizontal shelf on desktop
    ───────────────────────────────────────────── */
-.leaks{padding:clamp(84px,12vh,150px) 0;border-top:1px solid var(--line-2)}
-.leaks .sec__head{padding:0 var(--pad);max-width:1360px;margin:0 auto 46px}
-.leaks__viewport{overflow:clip}
+/* A responsive grid, not a pinned horizontal shelf. The pin was the single
+   most fragile thing on the page: it scroll-jacked, it gave desktop and
+   tablet two different layouts, and any stale measurement (mid-load scroll,
+   resize, zoom, bfcache restore) could fix the section to the viewport while
+   the hero was still on screen, painting the two on top of each other. */
+.leaks{padding:clamp(84px,12vh,150px) var(--pad);border-top:1px solid var(--line-2)}
+.leaks .sec__head{max-width:1360px;margin:0 auto 46px}
 .leaks__track{
-  display:flex;gap:clamp(16px,2vw,28px);
-  padding:0 var(--pad);will-change:transform;
+  max-width:1360px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(16px,2vw,26px);align-items:start;
 }
 .leak{
-  flex:0 0 min(86vw,470px);
   background:var(--panel);border:1px solid var(--line-2);border-radius:20px;
   padding:22px 22px 28px;display:flex;flex-direction:column;gap:16px;min-width:0;
 }
 .leak__n{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--sig-b)}
-.leak__stage{background:var(--bg-2);border:1px solid var(--line-2);border-radius:14px;aspect-ratio:4/3;position:relative;overflow:hidden}
+.leak__stage{background:var(--bg-2);border:1px solid var(--line-2);border-radius:14px;aspect-ratio:4/3;max-height:252px;position:relative;overflow:hidden}
 .leak__t{font-size:clamp(20px,1.8vw,25px);font-weight:600;letter-spacing:-.02em;line-height:1.15}
 .leak__p{color:var(--ink-2);font-size:15.5px;line-height:1.55}
 
 /* vignettes */
-.scene{position:absolute;inset:0;padding:22px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+/* The caption sits in normal flow, pushed down by an auto margin, so it can
+   never land on top of the vignette. It used to be absolutely positioned at
+   bottom:14px against centered content, which collided in narrow columns. */
+.scene{position:absolute;inset:0;padding:18px 20px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
 .scene__out{
-  position:absolute;left:18px;right:18px;bottom:14px;text-align:center;
-  font-family:var(--mono);font-size:11px;letter-spacing:.03em;color:var(--ink-3);
+  margin-top:auto;padding-top:8px;text-align:center;flex:none;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.03em;color:var(--ink-3);line-height:1.4;
 }
 .stamp{
   position:absolute;top:16px;right:16px;
@@ -376,7 +383,7 @@ html.js .ev.is-in{opacity:1;transform:none}
 .is-play .stamp{animation:slam .45s var(--e) 1.4s forwards}
 @keyframes slam{from{opacity:0;transform:rotate(-6deg) scale(1.6)}to{opacity:1;transform:rotate(-6deg) scale(1)}}
 /* call */
-.phone{position:relative;display:flex;align-items:center;justify-content:center}
+.phone{position:relative;display:flex;align-items:center;justify-content:center;flex:0 1 auto;min-height:0}
 .phone__body{
   position:relative;z-index:2;background:var(--panel-2);border:1px solid var(--line);
   border-radius:14px;padding:16px 22px;display:flex;flex-direction:column;gap:3px;align-items:center;
@@ -553,17 +560,34 @@ html.js .ev.is-in{opacity:1;transform:none}
 .artcall__me img{width:100%;height:100%;object-fit:cover}
 .artcall__you{width:52px;height:52px;border-radius:50%;background:var(--panel-2);border:1.5px dashed var(--line-ctl);flex:none}
 .artcall__wave{display:flex;align-items:center;gap:3px;height:26px}
-.artcall__wave i{width:2.5px;height:100%;border-radius:3px;background:var(--sig);opacity:.8;transform:scaleY(.14);transform-origin:center}
+.artcall__wave i{width:2.5px;height:100%;border-radius:3px;background:var(--sig);opacity:.8;transform-origin:center}
+/* a real waveform at rest, not a flat dotted line */
+.artcall__wave i:nth-child(1){transform:scaleY(.30)}
+.artcall__wave i:nth-child(2){transform:scaleY(.62)}
+.artcall__wave i:nth-child(3){transform:scaleY(.94)}
+.artcall__wave i:nth-child(4){transform:scaleY(.48)}
+.artcall__wave i:nth-child(5){transform:scaleY(.78)}
+.artcall__wave i:nth-child(6){transform:scaleY(.36)}
+.artcall__wave i:nth-child(7){transform:scaleY(.86)}
+.artcall__wave i:nth-child(8){transform:scaleY(.54)}
+.artcall__wave i:nth-child(9){transform:scaleY(.70)}
+.artcall__wave i:nth-child(10){transform:scaleY(.40)}
+.artcall__wave i:nth-child(11){transform:scaleY(.82)}
+.artcall__wave i:nth-child(12){transform:scaleY(.32)}
 .is-play .artcall__wave i{animation:talk 1.3s ease-in-out infinite}
 .artcall__wave i:nth-child(2n){animation-delay:.15s}.artcall__wave i:nth-child(3n){animation-delay:.3s}.artcall__wave i:nth-child(4n){animation-delay:.45s}
 .artcall__clock{position:absolute;bottom:12px;right:14px;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
 .artmap{position:absolute;inset:0;padding:26px}
 .artmap__line{position:absolute;left:26px;right:26px;top:50%;height:1.5px;background:var(--line-ctl)}
+.artmap__line::before,.artmap__line::after{content:"";position:absolute;top:50%;width:7px;height:7px;border-radius:50%;background:var(--sig);transform:translateY(-50%)}
+.artmap__line::before{left:-3px}
+.artmap__line::after{right:-3px;background:var(--live)}
 .artmap__pin{
-  position:absolute;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;
-  padding:5px 9px;border-radius:5px;border:1px solid;transform:translateY(8px);opacity:0;
+  position:absolute;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+  padding:6px 10px;border-radius:5px;border:1px solid;background:var(--panel);
 }
-.is-play .artmap__pin{animation:pin .5s var(--e) forwards}
+/* visible by default; .is-play replays the entrance */
+.is-play .artmap__pin{animation:pin .5s var(--e) backwards}
 .artmap__pin--1{left:12%;top:26%;color:var(--sig-b);border-color:rgba(226,112,63,.5);animation-delay:.25s}
 .artmap__pin--2{left:44%;top:58%;color:var(--ink-2);border-color:var(--line-ctl);animation-delay:.55s}
 .artmap__pin--3{left:72%;top:30%;color:var(--ink-3);border-color:var(--line-2);animation-delay:.85s}
@@ -571,10 +595,16 @@ html.js .ev.is-in{opacity:1;transform:none}
 .artbuild{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:22px}
 .artbuild__gear{width:52px;height:52px;stroke:var(--ink-3);stroke-width:1.4;fill:none}
 .is-play .artbuild__gear{animation:spin 9s linear infinite}
+.artbuild__gear{opacity:.9}
 @keyframes spin{to{transform:rotate(360deg)}}
 .artbuild__row{display:flex;flex-direction:column;gap:7px}
 .artbuild__row i{width:74px;height:7px;border-radius:4px;background:var(--panel-2);overflow:hidden;position:relative}
-.artbuild__row i::after{content:"";position:absolute;inset:0;background:var(--sig);transform:scaleX(0);transform-origin:left}
+.artbuild__row i::after{content:"";position:absolute;inset:0;background:var(--sig);transform-origin:left}
+/* filled at rest, in descending amounts so it reads as work in progress */
+.artbuild__row i:nth-child(1)::after{transform:scaleX(1)}
+.artbuild__row i:nth-child(2)::after{transform:scaleX(.82)}
+.artbuild__row i:nth-child(3)::after{transform:scaleX(.6)}
+.artbuild__row i:nth-child(4)::after{transform:scaleX(.34)}
 .is-play .artbuild__row i::after{animation:fillbar 2.6s var(--e) var(--d,0s) infinite}
 @keyframes fillbar{0%{transform:scaleX(0)}45%,100%{transform:scaleX(1)}}
 .artbuild__tick svg{width:30px;height:30px;stroke:var(--live);stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
@@ -759,6 +789,10 @@ html.js .ev.is-in{opacity:1;transform:none}
   .agenda{grid-template-columns:1fr}
   .foot__top{grid-template-columns:1fr;gap:40px}
 }
+@media (max-width:1000px){
+  .nav__links,.nav__cta{display:none}
+  .nav__burger{display:block;margin-left:auto}
+}
 @media (max-width:760px){
   body{font-size:16px}
   /* one left edge for the whole page: the worth band and the marquee note were
@@ -779,8 +813,6 @@ html.js .ev.is-in{opacity:1;transform:none}
   .scene__out{font-size:11.5px}
   .hero__proof span{font-size:11.5px}
   .nav{gap:12px}
-  .nav__links,.nav__cta{display:none}
-  .nav__burger{display:block;margin-left:auto}
   .nav__idtext i{display:none}
   .hero{padding-top:96px}
   .hero__h{font-size:clamp(40px,12.4vw,68px)}
@@ -789,8 +821,7 @@ html.js .ev.is-in{opacity:1;transform:none}
   .hero__cue{display:none}
   .hero__bg{top:2%;right:-18%;width:70vw;opacity:.5}
   .hero__proof{gap:16px 26px}
-  .leaks__track{flex-direction:column;padding:0 var(--pad)}
-  .leak{flex:1 1 auto}
+  .leaks__track{grid-template-columns:1fr}
   .open__note{margin-left:0;width:100%}
   .trades__row span{font-size:clamp(26px,7.5vw,40px)}
   .foot__cols{grid-template-columns:1fr}
@@ -807,9 +838,9 @@ html.js .ev.is-in{opacity:1;transform:none}
    ───────────────────────────────────────────── */
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001s !important;animation-iteration-count:1 !important;transition-duration:.001s !important}
-  .stamp,.artmap__pin{opacity:1;transform:rotate(-6deg)}
-  .artmap__pin{transform:none}
-  .artbuild__row i::after{transform:scaleX(1)}
+  .stamp{opacity:1;transform:rotate(-6deg)}
+  .artmap__pin{opacity:1;transform:none;animation:none}
+  .artcall__wave i,.artbuild__row i::after{animation:none}
   .machine__sig i{transform:scaleY(.5)}
   .typer__caret{display:none}
   .how__rail i{transform:none !important}

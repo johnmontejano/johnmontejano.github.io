@@ -222,6 +222,26 @@
   })();
 
   /* ─────────────────────────────────────────────
+     4b. STEP ART — the How-it-works graphics animate on arrival.
+     They are complete without this: every piece is drawn at rest in CSS,
+     and .is-play only replays the entrance. Previously these depended on
+     .is-play to become visible at all, and nothing ever added it here, so
+     step 02's pins and step 03's bars never rendered.
+     ───────────────────────────────────────────── */
+  (function stepArt() {
+    var steps = $$('.stepc');
+    if (!steps.length) return;
+    if (reduce || !('IntersectionObserver' in window)) return; /* already complete */
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add('is-play'); }
+        else { en.target.classList.remove('is-play'); }
+      });
+    }, { threshold: 0.35 });
+    steps.forEach(function (s) { io.observe(s); });
+  })();
+
+  /* ─────────────────────────────────────────────
      5. BOOKING — real dates, one click, nothing destroyed
      ───────────────────────────────────────────── */
   (function booking() {
@@ -532,30 +552,10 @@
     rise($$('.about__copy > *'));
     ['.worth__h', '.worth__p'].forEach(function (s) { rise($$(s)); });
 
-    /* the leak shelf — pinned horizontal scroll on wide screens only */
-    var mm = gsap.matchMedia();
-    mm.add('(min-width: 1024px)', function () {
-      var track = $('#leaks-track');
-      if (!track) return;
-      var dist = function () { return Math.max(0, track.scrollWidth - window.innerWidth); };
-      if (dist() < 40) return;
-      gsap.to(track, {
-        x: function () { return -dist(); },
-        ease: 'none',
-        scrollTrigger: {
-          trigger: '.leaks',
-          start: 'top top',
-          end: function () { return '+=' + (dist() + window.innerHeight * 0.25); },
-          pin: true,
-          scrub: 0.7,
-          anticipatePin: 1,
-          invalidateOnRefresh: true
-        }
-      });
-    });
-    mm.add('(max-width: 1023px)', function () {
-      rise($$('.leak'));
-    });
+    /* The leak cards rise into place. This used to be a pinned horizontal
+       shelf; pinning is removed because a stale measurement could fix the
+       section over the hero, and it scroll-jacked besides. */
+    rise($$('.leak'));
 
     /* work screenshots breathe against their frames */
     $$('.proj__shot img').forEach(function (img) {
