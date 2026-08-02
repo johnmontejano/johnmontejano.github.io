@@ -141,7 +141,10 @@ body::after{
   position:fixed;top:0;left:0;right:0;z-index:150;
   display:flex;align-items:center;gap:26px;
   padding:18px var(--pad);
-  transition:background .3s,padding .3s var(--e);
+  /* padding itself just snaps on state change (it's a one-time toggle, not a
+     continuous animation) so only background/blur — both compositor-only —
+     are transitioned. Avoids animating a layout property. */
+  transition:background .3s;
 }
 .nav.is-stuck{background:rgba(14,14,18,.82);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);padding:12px var(--pad);border-bottom:1px solid var(--line-2)}
 .nav__id{display:flex;align-items:center;gap:12px;min-height:44px}
