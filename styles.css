@@ -253,11 +253,19 @@ body.is-locked{overflow:hidden}
   margin-top:clamp(30px,5vh,56px);position:relative;z-index:2;
 }
 .hero__type{max-width:460px;color:var(--ink-2);font-size:16.5px;line-height:1.55;flex:1 1 320px}
-.hero__sub{display:block;font-size:17px;color:var(--ink-2);margin-bottom:18px;max-width:44ch}
+.hero__sub{display:block;font-size:17px;color:var(--ink-2);margin-bottom:20px;max-width:46ch}
 .hero__type-lead{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
-.typer{font-weight:600;color:var(--ink);min-height:1.55em;display:block}
-.typer__caret{display:inline-block;width:2px;height:1em;background:var(--sig);vertical-align:-2px;margin-left:2px;animation:caret 1.05s steps(1) infinite}
-@keyframes caret{50%{opacity:0}}
+/* rotating workflow examples: three visible, whole sentences, no typewriter —
+   long enough on screen to actually read */
+.flow{display:flex;flex-direction:column;gap:9px}
+.flow li{
+  position:relative;padding-left:20px;
+  font-size:15.5px;line-height:1.5;color:var(--ink);font-weight:500;
+}
+.flow li::before{content:"";position:absolute;left:2px;top:.55em;width:7px;height:7px;border-radius:50%;background:var(--sig)}
+.flow li.is-out{transition:transform .45s var(--e);transform:translateY(-6px)}
+.flow li.is-new{animation:flowin .5s var(--e) both}
+@keyframes flowin{from{transform:translateY(14px)}to{transform:none}}
 .hero__go{display:flex;flex-direction:column;align-items:flex-start}
 .hero__acts{display:flex;flex-wrap:wrap;gap:12px}
 .hero__risk{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--ink-3);margin-top:12px}
@@ -549,13 +557,53 @@ html.js .ev.is-in{opacity:1;transform:none}
 .worth__h em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--sig-b)}
 .worth__p{color:var(--ink-2);max-width:62ch;margin:26px auto 0;font-size:clamp(16px,1.4vw,19px)}
 
+/* worth: the hire-vs-system comparison */
+.vs{
+  display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  gap:clamp(14px,2.4vw,28px);align-items:stretch;
+  max-width:880px;margin:40px auto 0;text-align:left;
+}
+.vs__col{border-radius:18px;padding:22px 24px;border:1px solid var(--line-2)}
+.vs__col--hire{background:var(--panel)}
+.vs__col--sys{background:rgba(79,230,168,.06);border-color:rgba(79,230,168,.28)}
+.vs__k{
+  display:block;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;
+  text-transform:uppercase;margin-bottom:14px;color:var(--ink-3);
+}
+.vs__col--sys .vs__k{color:var(--live)}
+.vs__col li{
+  position:relative;padding:9px 0 9px 26px;font-size:15px;line-height:1.45;color:var(--ink-2);
+  border-top:1px solid var(--line-2);
+}
+.vs__col li:first-of-type{border-top:0}
+.vs__col--hire li::before{content:"";position:absolute;left:2px;top:50%;width:12px;height:1.6px;background:var(--warn);transform:translateY(-50%)}
+.vs__col--sys li{color:var(--ink)}
+.vs__col--sys li::before{
+  content:"";position:absolute;left:0;top:50%;width:14px;height:8px;transform:translateY(-70%) rotate(-45deg);
+  border-left:1.8px solid var(--live);border-bottom:1.8px solid var(--live);
+}
+.vs__mid{
+  align-self:center;font-family:var(--serif);font-style:italic;font-size:22px;color:var(--ink-3);
+}
+
 /* ─────────────────────────────────────────────
-   HOW — three steps on a drawn rail
+   HOW — steps on a drawn rail
    ───────────────────────────────────────────── */
 .how__grid{
   max-width:1360px;margin:52px auto 0;position:relative;
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,3vw,44px);
   padding-top:34px;
+}
+.how__grid--4{grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(16px,2.2vw,32px)}
+.artpick{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;padding:20px}
+.artpick__chip{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;color:var(--ink-2);
+  border:1px solid var(--line-ctl);border-radius:100px;padding:9px 14px;
+}
+.artpick__chip--on{color:var(--sig-b);border-color:var(--sig);background:var(--sig-w);position:relative}
+.artpick__chip--on::after{
+  content:"";position:absolute;right:-4px;top:-4px;width:10px;height:10px;border-radius:50%;
+  background:var(--live);border:2px solid var(--bg-2);
 }
 .how__rail{
   position:absolute;top:0;left:0;width:100%;height:2px;background:var(--line);
@@ -786,6 +834,7 @@ html.js .ev.is-in{opacity:1;transform:none}
    ───────────────────────────────────────────── */
 @media (max-width:1023px){
   .demo__inner{grid-template-columns:1fr;gap:30px}
+  .how__grid--4{grid-template-columns:repeat(2,minmax(0,1fr));padding-left:0;padding-top:34px}
   /* .cap__n is also a <span>, so the bare `span{grid-column:2}` rule was
      catching the number, pushing the TITLE into the 44px number column where
      it wrapped word-by-word under the overlapping description. Scope the
@@ -796,7 +845,7 @@ html.js .ev.is-in{opacity:1;transform:none}
   .cap>span:not(.cap__n){grid-column:2;grid-row:2}
   .proj{grid-template-columns:1fr;gap:24px}
   .proj__frame{order:-1}
-  .how__grid{grid-template-columns:1fr;gap:40px;padding-top:0;padding-left:22px}
+  .how__grid,.how__grid--4{grid-template-columns:1fr;gap:40px;padding-top:0;padding-left:22px}
   .how__rail{top:0;bottom:0;left:0;width:2px;height:auto}
   .how__rail i{transform:scaleY(0);transform-origin:top}
   .about .sec__inner{grid-template-columns:1fr;gap:30px}
@@ -811,6 +860,8 @@ html.js .ev.is-in{opacity:1;transform:none}
 }
 @media (max-width:760px){
   body{font-size:16px}
+  .vs{grid-template-columns:1fr;gap:12px}
+  .vs__mid{justify-self:center}
   /* one left edge for the whole page: the worth band and the marquee note were
      the only centered blocks on mobile and they broke the reading rhythm */
   .worth{text-align:left}
@@ -843,7 +894,8 @@ html.js .ev.is-in{opacity:1;transform:none}
   .foot__cols{grid-template-columns:1fr}
   .foot__c a{min-height:44px}
   .foot__word{font-size:clamp(42px,13.5vw,120px);-webkit-text-stroke-width:1px}
-  .machine__feed{height:min(52vh,400px)}
+  /* the demo must read start-to-finish on a phone, not through a porthole */
+  .machine__feed{height:auto;max-height:none}
 }
 @media (max-width:400px){
   .eyebrow{font-size:11.5px;letter-spacing:.09em}

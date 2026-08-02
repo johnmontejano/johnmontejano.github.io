@@ -46,42 +46,36 @@
   })();
 
   /* ─────────────────────────────────────────────
-     2. TYPER — type / hold / erase. The markup ships with the
-     first line already in place, so no-JS reads a real sentence.
+     2. WORKFLOW ROTATOR — three whole-workflow examples visible at once,
+     rotating one at a time so there is always time to read. The markup
+     ships with three real items, so no-JS and reduced-motion read those.
      ───────────────────────────────────────────── */
-  (function typer() {
-    var out = $('#typer-out');
-    if (!out) return;
+  (function flow() {
+    var list = $('#flow');
+    if (!list || reduce) return;
 
-    var lines = [
-      'the 7:04pm call nobody answered',
-      'quote follow-ups that never get sent',
-      'the same address typed into three apps',
-      'invoices that go out three weeks late',
-      'review requests after every finished job',
-      'the reminder that stops the no-show'
+    var pool = [
+      'Answers a missed call, qualifies the job, and books it into a real opening on your calendar',
+      'Follows up a sent quote until it gets an answer, then books the work the moment they say yes',
+      'Notices a cancellation and fills the empty slot from your waitlist by text',
+      'Turns a voicemail into a transcribed, prioritized job with the callback already scheduled',
+      'Reads an inquiry email, drafts the reply in your voice, and files the lead in your CRM',
+      'Sends the invoice when the job closes, then chases it politely until it clears',
+      'Texts the reminder that stops the no-show, and reschedules the ones who reply',
+      'Asks for the review while the customer is still happy, and routes complaints to you first'
     ];
+    var idx = 3; // markup already shows pool[0..2]
 
-    if (reduce) { out.textContent = lines[0] + '.'; return; }
-
-    var TYPE = 42, ERASE = 18, HOLD = 1750, GAP = 320;
-    // the first line is pre-rendered: start by holding it, then erase
-    var i = 0, c = lines[0].length, erasing = true;
-
-    function tick() {
-      var line = lines[i];
-      if (!erasing) {
-        c++;
-        out.textContent = line.slice(0, c);
-        if (c === line.length) { erasing = true; return setTimeout(tick, HOLD); }
-        return setTimeout(tick, TYPE + Math.random() * 34);
-      }
-      c--;
-      out.textContent = line.slice(0, c);
-      if (c === 0) { erasing = false; i = (i + 1) % lines.length; return setTimeout(tick, GAP); }
-      setTimeout(tick, ERASE);
-    }
-    setTimeout(tick, HOLD + 700);
+    setInterval(function () {
+      var first = list.firstElementChild;
+      if (!first) return;
+      var li = document.createElement('li');
+      li.textContent = pool[idx % pool.length];
+      li.className = 'is-new';
+      idx++;
+      first.remove();
+      list.appendChild(li);
+    }, 4200);
   })();
 
   /* ─────────────────────────────────────────────
