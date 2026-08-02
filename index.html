@@ -88,7 +88,18 @@
 <!-- ══════════════════ NAV ══════════════════ -->
 <header class="nav" id="nav">
   <a class="nav__id" href="#top">
-    <img class="nav__face" src="assets/img/jm-avatar.webp" alt="" width="160" height="160" decoding="async">
+    <!-- THE FALLING COLUMN. Two tasks standing, a third bending over into the
+         line it becomes: the repeating job falling out of existence. The same
+         drawing is favicon.svg and apple-touch-icon.png. The 34px portrait that
+         used to sit here was an unreadable dark blob at that size and made two
+         identities in one lockup; the real photograph does its job at full size
+         in the About figure. -->
+    <svg class="mark nav__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"
+         fill="none" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+      <path class="mark__ink" d="M9 25V8"/>
+      <path class="mark__ink" d="M16 25V8"/>
+      <path class="mark__fall" d="M23 8C23 17.5 21.5 25 18 25H6"/>
+    </svg>
     <span class="nav__idtext">
       <b>John Montejano</b>
       <i><span class="nav__dot" aria-hidden="true"></span>Taking work · San Francisco</i>
@@ -233,12 +244,14 @@
 </section>
 
 <!-- ══════════════════ NEXT OPENINGS ══════════════════ -->
-<section class="open" aria-label="Next available times">
-  <span class="open__k">Next openings</span>
+<section class="open" aria-label="Times John usually has free">
+  <!-- "Next openings" asserted John's calendar. Nothing here reads a calendar,
+       so the strip now offers typical times and says who confirms them. -->
+  <span class="open__k">Times that usually work</span>
   <div class="open__slots" id="open-slots">
     <a class="open__fallback" href="#book">See my times <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7h9M8 4l3 3-3 3"/></svg></a>
   </div>
-  <span class="open__note">30 minutes · free · Pacific</span>
+  <span class="open__note">30 minutes · free · I confirm by email</span>
 </section>
 
 <!-- ══════════════════ THE LEAKS ══════════════════ -->
@@ -471,6 +484,8 @@
   </header>
 
   <div class="how__grid">
+    <!-- the scroll-scrubbed spine: reads the scroll position, never takes it -->
+    <i class="how__rail" aria-hidden="true"></i>
     <article class="stepc">
       <div class="stepc__art" aria-hidden="true">
         <div class="artcall">
@@ -526,7 +541,7 @@
     <span class="tag">What this replaces</span>
     <h2 class="sec__h">I'm not another salary. I'm the reason you don't need the next one.</h2>
     <p class="sec__p">The admin was never the hard part. Finding somebody reliable to do it was, and keeping them. You train someone for a month, they're good for a while, then they call out on your busiest morning — or they leave in March and you start the whole search again.</p>
-    <p class="sec__p">One person, one project, one invoice. No payroll tax, no turnover, no training month. What I build doesn't call out sick, and it never has to be taught twice.</p>
+    <p class="sec__p">You'd get one invoice instead of a payroll line, and nobody to replace when they quit in March. What I build doesn't call out sick, and it never has to be taught twice.</p>
   </header>
 </section>
 
@@ -538,7 +553,7 @@
   </figure>
   <div class="about__copy">
     <span class="tag">Who you actually get</span>
-    <h2 class="sec__h">Me. That's the whole company.</h2>
+    <h2 class="sec__h">You get me, start to finish.</h2>
     <p class="about__p">There's no account manager, and nobody hands you to a junior once you've said yes. You talk to the person writing it.</p>
     <p class="about__p">I ran a service business before I automated them. I know what a Tuesday looks like when three customers call while your hands are already inside somebody's phone, and I know which shortcuts break the second you get busy.</p>
     <div class="about__acts">
@@ -553,7 +568,7 @@
   <div class="book__head">
     <span class="tag tag--inv">Book</span>
     <h2 class="book__h">Pick a time <em>that suits you.</em></h2>
-    <p class="book__p">30 minutes, free, no pitch. All times Pacific.</p>
+    <p class="book__p">30 minutes, free, no pitch. All times Pacific — these are the times I usually keep free, and I confirm your slot by email.</p>
   </div>
 
   <div class="book__panel">
@@ -563,7 +578,59 @@
            role="tab", and a tab whose parent is a tabpanel is the
            aria-required-parent failure. Both strips are now valid tablists. -->
       <div class="slots__times" id="slot-times" role="tablist" aria-label="Choose a time"></div>
+      <p class="slots__note">These are the windows I usually keep free. Pick one and I confirm it by email.</p>
+    </div>
 
+    <aside class="book__side">
+      <div class="book__you" id="book-you">
+        <span class="book__k">Selected</span>
+        <p class="book__sel" id="book-sel">No time picked yet</p>
+        <!-- filled by main.js only for visitors outside Pacific -->
+        <p class="book__tz" id="book-tz" hidden></p>
+      </div>
+      <form class="bf" id="bf" novalidate>
+        <label class="bf__l" for="bf-name">Name</label>
+        <input class="bf__i" id="bf-name" name="name" type="text" autocomplete="name" placeholder="Miguel Delgado">
+        <label class="bf__l" for="bf-biz">Business + what you do</label>
+        <input class="bf__i" id="bf-biz" name="biz" type="text" autocomplete="organization" placeholder="Delgado Plumbing, Oakland">
+        <p class="bf__err" id="bf-err" role="alert"></p>
+        <!-- Never `disabled`: a dead pill gave no reason and no feedback. The
+             waiting state is styled inert and says what it is waiting for. -->
+        <button class="btn btn--go btn--wide is-waiting" id="bf-go" type="submit">
+          <span id="bf-go-t">Pick a day and a time first</span>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg>
+        </button>
+        <p class="bf__note">This sends me your preferred time by email — you still press Send. I confirm by email, usually the same day.</p>
+      </form>
+
+      <!-- Confirmation panel. The form above is never destroyed or replaced:
+           every field stays filled and editable, and everything in here
+           re-syncs whenever the slot or a field changes. -->
+      <div class="bfok" id="bf-done" hidden>
+        <p class="bfok__live" id="bf-live" aria-live="polite"></p>
+        <p class="bfok__h">Your email app should have opened for <b id="bf-when">your slot</b>.</p>
+        <p class="bfok__p"><b>It isn't booked until you press Send.</b> Nothing was submitted to this page.</p>
+        <p class="bfok__acts">
+          <a class="bfok__again" id="bf-again" href="#">Open the email again</a>
+          <a href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a>
+        </p>
+        <label class="bf__l" for="bf-raw">Or copy the message and send it yourself</label>
+        <textarea class="bfok__raw" id="bf-raw" rows="7" readonly></textarea>
+        <button class="bfok__copy" type="button" id="bf-copy">Copy message</button>
+      </div>
+
+      <div class="book__alt">
+        <a href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a>
+        <a href="https://www.linkedin.com/in/johnmontejano/" rel="me noopener" target="_blank">LinkedIn</a>
+        <span class="book__clock">San Francisco · <b id="sf-clock">--:--</b></span>
+      </div>
+    </aside>
+
+    <!-- The agenda used to sit inside .slots, which put 732px of reading
+         between the time a visitor taps and the button that acts on it. It is
+         context, not a control, so it now follows the form: in one column the
+         order reads pick → confirm → what the call actually covers. -->
+    <div class="agenda__box">
       <ul class="agenda">
         <li><span class="agenda__n">00–10</span><span class="agenda__b"><b>You talk.</b> A normal week — start me at Monday morning and don't tidy it up.</span></li>
         <li><span class="agenda__n">10–25</span><span class="agenda__b"><b>I dig.</b> We follow one recent customer all the way from the first call to the money landing.</span></li>
@@ -571,29 +638,6 @@
       </ul>
       <p class="agenda__foot">If there is nothing worth building, I will tell you on the call and you keep the map anyway.</p>
     </div>
-
-    <aside class="book__side">
-      <div class="book__you" id="book-you">
-        <span class="book__k">Selected</span>
-        <p class="book__sel" id="book-sel">No time picked yet</p>
-      </div>
-      <form class="bf" id="bf" novalidate>
-        <label class="bf__l" for="bf-name">Name</label>
-        <input class="bf__i" id="bf-name" name="name" type="text" autocomplete="name" placeholder="Miguel Delgado">
-        <label class="bf__l" for="bf-biz">Business + what you do</label>
-        <input class="bf__i" id="bf-biz" name="biz" type="text" autocomplete="organization" placeholder="Delgado Plumbing, Oakland">
-        <button class="btn btn--go btn--wide" id="bf-go" type="submit">
-          <span>Confirm this time</span>
-          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg>
-        </button>
-        <p class="bf__note">Opens an email to me with the time filled in. I reply with a calendar invite.</p>
-      </form>
-      <div class="book__alt">
-        <a href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a>
-        <a href="https://www.linkedin.com/in/johnmontejano/" rel="me noopener" target="_blank">LinkedIn</a>
-        <span class="book__clock">San Francisco · <b id="sf-clock">--:--</b></span>
-      </div>
-    </aside>
   </div>
 </section>
 
@@ -660,7 +704,15 @@
       </div>
     </div>
   </div>
-  <div class="foot__mark" aria-hidden="true"><span>MONTEJANO</span></div>
+  <div class="foot__mark" aria-hidden="true">
+    <svg class="mark" viewBox="0 0 32 32" fill="none" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+      <path class="mark__ink" d="M9 25V8"/>
+      <path class="mark__ink" d="M16 25V8"/>
+      <path class="mark__fall" d="M23 8C23 17.5 21.5 25 18 25H6"/>
+    </svg>
+    <i class="foot__rule"></i>
+    <span>MONTEJANO</span>
+  </div>
   <p class="foot__line">© 2026 John Montejano · Automation for service businesses · Designed and built by me</p>
 </footer>
 

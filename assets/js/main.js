@@ -92,11 +92,25 @@
     if (reduce) { evs.forEach(function (e) { e.classList.add('is-in'); }); return; }
 
     var STEP = 1150, RESET = 3600;
-    var timers = [], running = false;
+    var timers = [], running = false, first = true;
 
     function clear() { timers.forEach(clearTimeout); timers = []; }
 
+    /* The panel is the largest object on the page. Empty, it read as a panel
+       that had failed to load — 75% dead black for the first four seconds, which
+       is the entire first impression and the window Lighthouse films. So the
+       first thing anyone sees is a FINISHED job: call through to invoice paid,
+       already done. That is also the stronger sales message. The replay is the
+       bonus for whoever stays to watch it. */
+    function fill() {
+      clear();
+      evs.forEach(function (e) { e.classList.add('is-in'); });
+      feed.scrollTop = feed.scrollHeight;
+      timers.push(setTimeout(function () { first = false; play(); }, RESET));
+    }
+
     function play() {
+      if (first) return fill();
       clear();
       evs.forEach(function (e) { e.classList.remove('is-in'); });
       feed.scrollTop = 0;
@@ -176,19 +190,38 @@
       loops.typeStop = wipe;
     }
 
+    /* These loops used to start on entry and then run for the life of the tab:
+       two setIntervals and a recursive setTimeout chain rewriting textContent
+       every 46ms, forever, long after the visitor had scrolled past. Now every
+       one of them has a teardown and it runs on exit. Nothing animates for an
+       audience that isn't there. */
+    function stop(kind) {
+      if (kind === 'call'  && loops.call)  { clearInterval(loops.call);  loops.call = null; }
+      if (kind === 'quote' && loops.quote) { clearInterval(loops.quote); loops.quote = null; }
+      if (kind === 'type'  && loops.typeStop) { loops.typeStop(); }
+    }
+    function start(card, kind) {
+      if (kind === 'call')  ringCounter(card);
+      if (kind === 'quote') dayCounter(card);
+      if (kind === 'type')  doubleType(card);
+    }
+
     cards.forEach(function (card) {
       var kind = card.getAttribute('data-leak');
-      var started = false;
+      var live = false;
       if (!('IntersectionObserver' in window)) { card.classList.add('is-play'); return; }
       new IntersectionObserver(function (entries) {
         entries.forEach(function (en) {
-          if (!en.isIntersecting) return;
-          card.classList.add('is-play');
-          if (started) return;
-          started = true;
-          if (kind === 'call')  ringCounter(card);
-          if (kind === 'quote') dayCounter(card);
-          if (kind === 'type')  doubleType(card);
+          if (en.isIntersecting) {
+            card.classList.add('is-play');
+            if (live) return;
+            live = true;
+            start(card, kind);
+          } else if (live) {
+            live = false;
+            card.classList.remove('is-play');
+            stop(kind);
+          }
         });
       }, { threshold: 0.32 }).observe(card);
     });
@@ -215,20 +248,127 @@
     }
 
     var picked = { day: null, time: null };
-    var sel = $('#book-sel'), form = $('#bf'), go = $('#bf-go');
-    if (go) go.disabled = true;
+    var sel   = $('#book-sel'), form = $('#bf'), go = $('#bf-go');
+    var goT   = $('#bf-go-t'), err = $('#bf-err'), tzLine = $('#book-tz');
+    var done  = $('#bf-done'), live = $('#bf-live'), whenEl = $('#bf-when');
+    var again = $('#bf-again'), raw = $('#bf-raw'), copy = $('#bf-copy');
+
+    var WAITING = 'Pick a day and a time first';
+    var READY   = 'Request this time';
+
+    function ready() { return !!(picked.day && picked.time); }
 
     function label() {
       if (!picked.day) return 'No time picked yet';
       var s = DAYN[picked.day.getDay()] + ' ' + MONN[picked.day.getMonth()] + ' ' + picked.day.getDate();
       return picked.time ? s + ' at ' + picked.time + ' PT' : s + ' — pick a time';
     }
-    function sync() {
+
+    /* ─── timezone: the page already reads the visitor's zone for the SF clock.
+       Build the picked slot as a real instant in Los Angeles, then render it in
+       whatever zone the browser reports. Pacific stays the canonical statement. ─── */
+    var visitorTZ = '';
+    try { visitorTZ = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+    var outsidePT = visitorTZ && visitorTZ.indexOf('Los_Angeles') < 0;
+
+    function laParts(ms) {
+      var p = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Los_Angeles', hour12: false,
+        hour: '2-digit', minute: '2-digit'
+      }).formatToParts(new Date(ms));
+      var o = {};
+      p.forEach(function (x) { if (x.type === 'hour' || x.type === 'minute') o[x.type] = +x.value; });
+      return o;
+    }
+    // instant whose Los Angeles wall clock is day @ timeStr
+    function ptInstant(day, timeStr) {
+      var m = /(\d+):(\d+)\s*(AM|PM)/i.exec(timeStr || '');
+      if (!m) return null;
+      var h = +m[1] % 12 + (/pm/i.test(m[3]) ? 12 : 0), mi = +m[2];
+      var ms = Date.UTC(day.getFullYear(), day.getMonth(), day.getDate(), h + 8, mi);
+      for (var i = 0; i < 3; i++) {
+        var got = laParts(ms);
+        if (got.hour === undefined) return null;
+        var diff = (got.hour * 60 + got.minute) - (h * 60 + mi);
+        if (diff > 720) diff -= 1440; else if (diff < -720) diff += 1440;
+        if (!diff) break;
+        ms -= diff * 60000;
+      }
+      return new Date(ms);
+    }
+    function tzText() {
+      if (!outsidePT || !ready()) return '';
+      try {
+        var inst = ptInstant(picked.day, picked.time);
+        if (!inst) return '';
+        var local = new Intl.DateTimeFormat('en-US', {
+          weekday: 'short', month: 'short', day: 'numeric',
+          hour: 'numeric', minute: '2-digit'
+        }).format(inst);
+        return local + ' where you are (' + visitorTZ.split('/').pop().replace(/_/g, ' ') + ')';
+      } catch (e) { return ''; }
+    }
+
+    /* ─── the message. One source of truth for the panel, the link and the copy. ─── */
+    function whenText() {
+      return DAYN[picked.day.getDay()] + ' ' + MONN[picked.day.getMonth()] + ' ' +
+             picked.day.getDate() + ' at ' + picked.time + ' Pacific';
+    }
+    function draft() {
+      var name = ($('#bf-name') || {}).value || '';
+      var biz  = ($('#bf-biz')  || {}).value || '';
+      var when = whenText();
+      var body = 'Hi John,\n\n' +
+        'I would like the ' + when + ' slot.\n\n' +
+        'Name: ' + (name || '(add your name)') + '\n' +
+        'Business + trade: ' + (biz || '(add your business)') + '\n\n' +
+        'What eats the most time right now:\n\n';
+      return {
+        when: when,
+        subject: '30-min call — ' + when + (biz ? ' — ' + biz : ''),
+        body: body,
+        href: 'mailto:' + EMAIL + '?subject=' + encodeURIComponent('30-min call — ' + when + (biz ? ' — ' + biz : '')) +
+              '&body=' + encodeURIComponent(body)
+      };
+    }
+
+    /* Re-sync everything the panel shows. `announce` is true only when the slot
+       itself changed or the panel just opened — never on a keystroke in Name or
+       Business, so the live region does not chatter while someone types. */
+    function refreshPanel(announce) {
+      if (!done || done.hidden || !ready()) return;
+      var d = draft();
+      if (whenEl) whenEl.textContent = d.when;
+      if (again) { again.href = d.href; again.setAttribute('aria-label', 'Open the email again for ' + d.when); }
+      if (raw) raw.value = 'To: ' + EMAIL + '\nSubject: ' + d.subject + '\n\n' + d.body;
+      if (copy) copy.textContent = 'Copy message';
+      if (announce && live) live.textContent = 'Message updated for ' + d.when + '. Nothing is booked until you send it.';
+    }
+
+    function sync(fromPick) {
       if (sel) {
         sel.textContent = label();
-        sel.classList.toggle('is-set', !!(picked.day && picked.time));
+        sel.classList.toggle('is-set', ready());
       }
-      if (go) go.disabled = !(picked.day && picked.time);
+      if (tzLine) {
+        var t = tzText();
+        tzLine.textContent = t;
+        tzLine.hidden = !t;
+      }
+      if (go) {
+        go.classList.toggle('is-waiting', !ready());
+        if (goT) goT.textContent = ready() ? READY : WAITING;
+      }
+      if (err && ready()) err.textContent = '';
+      // a stale slot must never survive a change of mind
+      if (done && !done.hidden) {
+        if (!ready()) {
+          done.hidden = true;
+          if (live) live.textContent = '';
+        } else {
+          refreshPanel(!!fromPick);
+        }
+      }
     }
 
     function renderTimes() {
@@ -250,7 +390,7 @@
         b.addEventListener('click', function () {
           picked.time = t;
           $$('.slot', timeWrap).forEach(function (o) { o.setAttribute('aria-selected', String(o === b)); });
-          sync();
+          sync(true);
         });
         timeWrap.appendChild(b);
       });
@@ -276,7 +416,7 @@
       b.addEventListener('click', function () {
         picked.day = dt; picked.time = null;
         $$('.day', dayWrap).forEach(function (o) { o.setAttribute('aria-selected', String(o === b)); });
-        renderTimes(); sync();
+        renderTimes(); sync(true);
       });
       dayWrap.appendChild(b);
       dayBtns.push(b);
@@ -317,20 +457,44 @@
     if (form) {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
-        if (!picked.day || !picked.time) return;
-        var name = ($('#bf-name') || {}).value || '';
-        var biz  = ($('#bf-biz')  || {}).value || '';
-        var when = DAYN[picked.day.getDay()] + ' ' + MONN[picked.day.getMonth()] + ' ' +
-                   picked.day.getDate() + ' at ' + picked.time + ' Pacific';
-        var subj = '30-min call — ' + when + (biz ? ' — ' + biz : '');
-        var body = 'Hi John,\n\n' +
-          'I would like the ' + when + ' slot.\n\n' +
-          'Name: ' + (name || '(add your name)') + '\n' +
-          'Business + trade: ' + (biz || '(add your business)') + '\n\n' +
-          'What eats the most time right now:\n\n';
-        window.location.href = 'mailto:' + EMAIL +
-          '?subject=' + encodeURIComponent(subj) +
-          '&body=' + encodeURIComponent(body);
+        if (!ready()) {
+          // the old guard was a bare `return`: the click did nothing, silently
+          if (err) err.textContent = 'Pick a day and a time first, then try again.';
+          if (timeWrap) timeWrap.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+          return;
+        }
+        if (err) err.textContent = '';
+
+        var d = draft();
+        // The form is left exactly as the visitor typed it — still filled, still
+        // editable. The panel appears underneath it as a receipt and a fallback.
+        if (done) {
+          done.hidden = false;
+          refreshPanel(false);
+          if (live) live.textContent = 'Your email app should be opening for ' + d.when +
+            '. It is not booked until you press Send. If nothing opened, copy the message below.';
+        }
+        try { window.location.href = d.href; } catch (e2) {}
+      });
+
+      // typing a name or a business changes the message but not the slot —
+      // re-sync silently so nothing stale can ever be copied or sent
+      ['#bf-name', '#bf-biz'].forEach(function (s) {
+        var i = $(s);
+        if (i) i.addEventListener('input', function () { refreshPanel(false); });
+      });
+    }
+
+    if (copy && raw) {
+      copy.addEventListener('click', function () {
+        function ok() { copy.textContent = 'Copied'; if (live) live.textContent = 'Message copied to your clipboard.'; }
+        function manual() {
+          raw.focus(); raw.select();
+          copy.textContent = 'Press Ctrl/Cmd + C';
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(raw.value).then(ok, manual);
+        } else { manual(); }
       });
     }
   })();
@@ -358,8 +522,13 @@
   (function reveals() {
     if (reduce || !('IntersectionObserver' in window)) return;
 
+    /* Nothing above the fold reveals. An element that starts transformed off its
+       final position is not a settled LCP candidate, and the hero H1 is the LCP
+       element — measured at 856ms of pure deferral for an entrance nobody asked
+       for. The hero is already the first thing you see; it does not need to
+       announce itself. The booking head is off the list for the same reason:
+       it is the entry point for anyone arriving on #book. */
     var groups = [
-      ['.hero__copy > *', 0],
       ['.sec__head > *', 0],
       ['.leak', 1],
       ['.cap', 1],
@@ -368,7 +537,6 @@
       ['.stepc', 1],
       ['.about__fig', 0],
       ['.about__copy > *', 1],
-      ['.book__head > *', 0],
       ['.slots', 0],
       ['.book__side', 1],
       ['.faq__row', 1],

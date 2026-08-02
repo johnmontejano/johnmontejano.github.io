@@ -164,7 +164,14 @@ svg{display:block}
    behind the sheet. The ::before dims everything below the nav — the nav sits
    at z-index 100, above the drawer's 99, so the close button stays reachable. */
 body:has(#drawer:not([hidden])){overflow:hidden}
-.drawer::before{content:"";position:fixed;inset:0;z-index:-1;background:rgba(20,19,26,.3)}
+/* The dim hangs off body, NOT off .drawer::before. .drawer carries a
+   backdrop-filter, which makes it the containing block for its own fixed-
+   position children, so an inset:0 backdrop there resolved to the drawer's own
+   box and tinted the sheet grey instead of the page. z-index 98 sits under the
+   drawer (99) and under the nav (100), so the close button stays reachable. */
+body:has(#drawer:not([hidden]))::after{
+  content:"";position:fixed;inset:0;z-index:98;background:rgba(20,19,26,.3);
+}
 .drawer{position:fixed;z-index:99;inset:72px 12px auto 12px;background:rgba(247,245,240,.97);backdrop-filter:blur(24px);border:1px solid var(--line);border-radius:22px;padding:12px;display:grid;gap:2px;box-shadow:0 24px 50px -20px rgba(20,19,26,.4)}
 .drawer[hidden]{display:none}
 .drawer a{padding:14px 16px;border-radius:14px;font-size:17px;font-weight:500}
@@ -196,12 +203,15 @@ body:has(#drawer:not([hidden])){overflow:hidden}
    grows past the lead-in, the .typer flex item wraps to its own row, the box
    grows one line, and the buttons, the proof row and the whole machine card
    drop 7-8px. Two shifts per loop, 0.117 each. `align-content:start` stops the
-   rows redistributing, and a min-height of three lines reserves the tallest
-   state the six strings can produce, so nothing below it ever moves. */
+   rows redistributing, and min-height reserves the tallest state the six
+   strings can actually produce, so nothing below it ever moves.
+   Measured across 320-1800px: two lines is the worst case everywhere except
+   below ~340px, where the longest string needs a third. Reserving three
+   everywhere would have left ~56px of dead air under the desktop hero. */
 .hero__type{
   margin:26px 0 30px;display:flex;flex-wrap:wrap;align-items:baseline;align-content:start;gap:0 9px;
   font-size:clamp(15px,1.55vw,18px);color:var(--ink-2);
-  min-height:calc(3 * 1.55em);
+  min-height:calc(2 * 1.55em);
 }
 .hero__type-lead{flex-shrink:0}
 .typer{display:inline-flex;align-items:baseline;color:var(--ink);font-weight:600}
@@ -498,7 +508,19 @@ body:has(#drawer:not([hidden])){overflow:hidden}
 
 /* ══════════════════ HOW ══════════════════ */
 .how{padding:clamp(70px,10vw,140px) var(--pad);max-width:var(--maxw);margin:0 auto;border-top:1px solid var(--line-2)}
-.how__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,26px)}
+.how__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,26px);position:relative}
+/* THE SPINE. A 2px rule above the three cards that draws itself left to right as
+   the section passes. Scroll-linked, never scroll-jacked: the page reads the
+   scroll position, it never takes it. Pure transform on the compositor, no JS.
+   Without animation-timeline support it is simply a static full-width rule. */
+.how__rail{position:absolute;left:0;top:-16px;width:100%;height:2px;background:var(--sig);
+  transform-origin:left;border-radius:2px}
+@supports (animation-timeline:view()){
+  .how__rail{transform:scaleX(0);animation:rail linear both;animation-timeline:view();
+    animation-range:cover 12% cover 68%}
+  @keyframes rail{to{transform:scaleX(1)}}
+}
+@media (prefers-reduced-motion:reduce){ .how__rail{transform:none;animation:none} }
 .stepc{display:grid;gap:0;align-content:start;padding:0 0 30px;position:relative}
 .stepc__art{position:relative;aspect-ratio:16/10;border-radius:var(--r);overflow:hidden;margin-bottom:22px;
   background:linear-gradient(170deg,var(--mach-3),var(--mach));border:1px solid var(--mach-line);
@@ -515,19 +537,31 @@ body:has(#drawer:not([hidden])){overflow:hidden}
 .artcall__you{position:absolute;right:16%;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.08);display:grid;place-items:center}
 .artcall__you::after{content:"";width:17px;height:17px;border-radius:100px;background:rgba(255,255,255,.28);box-shadow:0 15px 0 -3px rgba(255,255,255,.28)}
 .artcall__wave{display:flex;align-items:center;gap:3px;height:34px}
-.artcall__wave i{width:2.5px;border-radius:3px;background:var(--live);opacity:.85;height:20%;animation:talk 1.5s ease-in-out infinite}
+/* height:20% + @keyframes talk on `height` was the single most expensive rule on
+   the page: 12 elements forcing a full layout pass every frame, forever, whether
+   or not this section was on screen (measured 480 of 607 layouts per 5s parked
+   at the footer). Same drawing, expressed as scaleY, runs on the compositor and
+   costs the main thread nothing. transform-origin stays centred because the flex
+   parent is align-items:center — the bar grew from its middle before, and does
+   now. */
+.artcall__wave i{width:2.5px;border-radius:3px;background:var(--live);opacity:.85;height:100%;transform:scaleY(.16);animation:talk 1.5s ease-in-out infinite}
 .artcall__wave i:nth-child(1){animation-delay:0s}.artcall__wave i:nth-child(2){animation-delay:.09s}
 .artcall__wave i:nth-child(3){animation-delay:.18s}.artcall__wave i:nth-child(4){animation-delay:.27s}
 .artcall__wave i:nth-child(5){animation-delay:.36s}.artcall__wave i:nth-child(6){animation-delay:.45s}
 .artcall__wave i:nth-child(7){animation-delay:.54s}.artcall__wave i:nth-child(8){animation-delay:.63s}
 .artcall__wave i:nth-child(9){animation-delay:.72s}.artcall__wave i:nth-child(10){animation-delay:.81s}
 .artcall__wave i:nth-child(11){animation-delay:.9s}.artcall__wave i:nth-child(12){animation-delay:.99s}
-@keyframes talk{0%,100%{height:16%}50%{height:100%}}
+@keyframes talk{0%,100%{transform:scaleY(.16)}50%{transform:scaleY(1)}}
 .artcall__clock{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;color:var(--mach-ink-2)}
 
 .artmap{position:absolute;inset:0;display:grid;place-content:center}
 .artmap__line{position:absolute;left:12%;right:12%;top:50%;height:1.5px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.28) 0 6px,transparent 6px 12px)}
-.artmap__pin{position:absolute;top:50%;transform:translate(-50%,-50%);font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;padding:5px 9px;border-radius:100px;white-space:nowrap;opacity:0;animation:pinin .6s var(--e) forwards}
+/* `forwards` alone meant the FIX FIRST / FIX LATER / LEAVE IT sequence was
+   finished 1.35s after load — six screens above where anyone can see it. `both`
+   plus a view() timeline binds it to arrival instead: it plays when the card
+   enters, on the compositor. Where view() is unsupported the timeline is ignored
+   and `both` fills forwards, which is exactly today's behaviour. */
+.artmap__pin{position:absolute;top:50%;transform:translate(-50%,-50%);font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;padding:5px 9px;border-radius:100px;white-space:nowrap;opacity:0;animation:pinin .6s var(--e) both}
 /* white on terracotta was 3.36:1 and grey on #2b2f39 was 4.00:1 — both under AA
    at this size. Ink on terracotta is 5.49:1, #c3c2ce on the slate chip is 7.61:1. */
 .artmap__pin--1{left:26%;background:var(--sig);color:var(--ink);animation-delay:.15s}
@@ -535,8 +569,39 @@ body:has(#drawer:not([hidden])){overflow:hidden}
 .artmap__pin--3{left:80%;background:#2b2f39;color:#c3c2ce;border:1px solid rgba(255,255,255,.15);animation-delay:.75s}
 @keyframes pinin{from{opacity:0;transform:translate(-50%,-30%)scale(.7)}to{opacity:1;transform:translate(-50%,-50%)scale(1)}}
 
+/* ── Scroll-driven: the step art plays when it is looked at ──
+   Everything in here is additive. Strip the @supports block and the section
+   behaves exactly as it did before: pins filled forwards at load, bars and tick
+   looping forever. Inside it, all three are bound to their own view() timeline,
+   so they run on the compositor, only while on screen, and only once. That also
+   retires 18 of the always-on off-screen animations. */
+@supports (animation-timeline:view()){
+  .artmap__pin{animation-timeline:view();animation-delay:0s}
+  .artmap__pin--1{animation-range:entry 25% entry 62%}
+  .artmap__pin--2{animation-range:entry 34% entry 72%}
+  .artmap__pin--3{animation-range:entry 43% entry 82%}
+
+  /* the gear turns under your thumb instead of grinding forever */
+  .artbuild__gear{animation:spin 1s linear both;animation-timeline:view();animation-range:cover}
+  .artbuild__row i::after{animation-iteration-count:1;animation-delay:0s;animation-duration:1s;
+    animation-timeline:view();animation-range:entry 20% entry 78%}
+  .artbuild__row i:nth-child(1)::after{animation-range:entry 20% entry 60%}
+  .artbuild__row i:nth-child(2)::after{animation-range:entry 28% entry 68%}
+  .artbuild__row i:nth-child(3)::after{animation-range:entry 36% entry 76%}
+  .artbuild__row i:nth-child(4)::after{animation-range:entry 44% entry 84%}
+  .artbuild__tick svg{animation-iteration-count:1;animation-duration:1s;
+    animation-timeline:view();animation-range:entry 40% entry 92%}
+}
+@media (prefers-reduced-motion:reduce){
+  .artmap__pin{animation:none;opacity:1}
+  .artbuild__row i::after{animation:none;transform:scaleX(1)}
+  .artbuild__tick svg{animation:none;stroke-dashoffset:0}
+  .artbuild__gear{animation:none}
+}
+
 .artbuild{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:16px}
-.artbuild__gear svg,.artbuild__gear{width:44px;height:44px}
+/* `.artbuild__gear svg` matched nothing — the class is on the svg itself. */
+.artbuild__gear{width:44px;height:44px}
 .artbuild__gear{fill:none;stroke:var(--live);stroke-width:1.4;stroke-linejoin:round;animation:spin 9s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .artbuild__row{display:flex;gap:7px}
@@ -678,15 +743,29 @@ body:has(#drawer:not([hidden])){overflow:hidden}
 .foot__mark{margin:clamp(40px,6vw,72px) 0 22px;text-align:center;line-height:.78;overflow:hidden}
 .foot__mark span{display:block;font-size:0;line-height:0;color:transparent}
 .foot__mark span::after{
-  content:"MONTEJANO";display:block;line-height:.78;
-  font-size:clamp(44px,14.2vw,232px);font-weight:600;letter-spacing:-.05em;
+  /* inline-block, NOT block: on a block box a negative right margin widens the
+     box instead of pulling the trailing letter-space back, which re-introduced
+     the overflow it was meant to cancel. Shrink-to-fit keeps
+     scrollWidth <= clientWidth at 320/360/390/414/768. */
+  content:"MONTEJANO";display:inline-block;line-height:.78;
+  font-size:clamp(40px,14vw,232px);font-weight:600;letter-spacing:-.05em;
   margin-right:-.05em;color:rgba(255,255,255,.055);
 }
 .foot__line{max-width:var(--maxw);margin:0 auto;padding-top:22px;border-top:1px solid var(--mach-line);font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color:var(--mach-ink-2);text-align:center}
 
 /* ══════════════════ SCROLL REVEALS ══════════════════ */
-.rv{opacity:0;transform:translateY(26px)}
-.rv.is-in{opacity:1;transform:none;transition:opacity .75s var(--e),transform .85s var(--e)}
+/* The reveal rises, it no longer fades.
+   A 0 -> 1 opacity transition means every revealing element spends ~750ms at a
+   partial opacity, and blended text at 20% opacity really is 1.04:1 against the
+   paper. axe scores whatever is on screen at the instant it samples, so a
+   Lighthouse run that landed mid-reveal reported ~22 contrast failures and cost
+   3 accessibility points, at random, roughly one run in five. Dropping the fade
+   and keeping the translate makes the entrance deterministic: text is at full
+   contrast from the first frame to the last. It also means nothing on this page
+   is ever invisible while it is technically on screen, which is the better
+   behaviour for anyone reading with low vision or a slow device. */
+.rv{transform:translateY(26px)}
+.rv.is-in{transform:none;transition:transform .85s var(--e)}
 .rv-d1.is-in{transition-delay:.07s}.rv-d2.is-in{transition-delay:.14s}
 .rv-d3.is-in{transition-delay:.21s}.rv-d4.is-in{transition-delay:.28s}
 
@@ -706,6 +785,13 @@ body:has(#drawer:not([hidden])){overflow:hidden}
   .proj,.proj:nth-child(even){grid-template-columns:1fr;gap:24px}
   .proj:nth-child(even) .proj__frame{order:0}
   .how__grid{grid-template-columns:1fr;gap:34px}
+  /* stacked, the spine runs down the left edge instead of across the top */
+  .how__rail{top:0;left:-14px;width:2px;height:100%;transform-origin:top}
+  @supports (animation-timeline:view()){
+    .how__rail{transform:scaleY(0);animation-name:railv}
+    @keyframes railv{to{transform:scaleY(1)}}
+  }
+  @media (prefers-reduced-motion:reduce){ .how__rail{transform:none} }
   .stepc__art{aspect-ratio:2/1}
   .about{grid-template-columns:1fr;gap:34px}
   .about__fig{max-width:400px}
@@ -796,6 +882,7 @@ body:has(#drawer:not([hidden])){overflow:hidden}
      are load-bearing: "30 minutes · free · Pacific" is the entire offer, and
      the machine note is the only visible line saying the feed is made up. */
   .open__note,.open__k,.machine__note,.ev__meta,.hero__proof span,.openslot span,.ev__t small{font-size:12px}
+  .role,.proj__facts li,.stepc__n,.stepc__k,.trades__k{font-size:12px}
   .nav__idtext i{font-size:11px}
   .machine__foot .machine__k{font-size:12px}
   .machine__bar{flex-wrap:wrap;gap:8px 10px}
@@ -811,7 +898,17 @@ body:has(#drawer:not([hidden])){overflow:hidden}
     -webkit-mask-image:linear-gradient(90deg,#000 0 86%,transparent 100%);
     mask-image:linear-gradient(90deg,#000 0 86%,transparent 100%)}
   .slots__days>*{flex:0 0 auto;scroll-snap-align:start}
+
+  /* ─── STAMP ───
+     The stamp is rotated, so its bounding box exceeds the 14px inset and the
+     card's overflow:hidden amputates it — "MISSED" lost its last letters
+     against the rounded corner and read as a rendering bug. Centred, it clears
+     both edges. It needs its own keyframe because `slam` ends on a bare
+     rotate(), which would drop the centring translate at the end of the run. */
+  .stamp{top:12px;right:auto;left:50%;transform:translateX(-50%)rotate(-6deg)scale(1.75)}
+  .is-play .stamp{animation-name:slam-c}
 }
+@keyframes slam-c{to{opacity:1;transform:translateX(-50%)rotate(-6deg)scale(1)}}
 @media (max-width:400px){
   .nav__idtext b{font-size:13px}
   .machine__name{display:none}
@@ -820,6 +917,8 @@ body:has(#drawer:not([hidden])){overflow:hidden}
   /* 320px cannot hold portrait + name + CTA + a 44px burger inside the pill.
      The burger wins; the CTA stays out even when stuck. */
   .nav.is-stuck .nav__cta{display:none}
+  /* only down here does the longest typed string need a third line */
+  .hero__type{min-height:calc(3 * 1.55em)}
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -828,5 +927,140 @@ body:has(#drawer:not([hidden])){overflow:hidden}
   .ev{opacity:1;transform:none}
   .typer__caret{display:none}
   .stamp,.scene__out,.scene__x,.chip{opacity:1}
-  .stamp{transform:translate(-50%,-50%)rotate(-11deg)}
+  .stamp{transform:rotate(-9deg)}
+  /* matches the centred mobile stamp above, minus the slam */
+  @media (max-width:680px){ .stamp{transform:translateX(-50%)rotate(-6deg)} }
 }
+
+/* ══════════════════════════════════════════════════════════
+   STAGE 3 — BOOKING RELIABILITY (appended block)
+   Waiting state, inline error, agenda card, timezone hint and
+   the confirmation panel. Nothing above this line is altered.
+   ══════════════════════════════════════════════════════════ */
+
+/* The agenda moved out of the slots card so the phone reads
+   pick → confirm → context. It keeps the card treatment, and on
+   two columns it sits under the picker rather than beside it. */
+.agenda__box{padding:22px;border-radius:var(--r);border:1px solid var(--mach-line);background:rgba(255,255,255,.03)}
+.agenda__box .agenda{margin-top:0;padding-top:0;border-top:0}
+@media (min-width:921px){
+  /* full-width band under both columns, so moving it out of the picker
+     does not leave a column of dead space beside it */
+  .book__panel > .agenda__box{grid-column:1/-1}
+  .agenda__box .agenda li{grid-template-columns:74px minmax(0,1fr)}
+}
+
+.slots__note{font-size:12.5px;color:var(--mach-ink-2);line-height:1.5}
+
+/* Visitors outside Pacific get the same instant in their own zone.
+   Pacific stays the canonical statement above it. */
+.book__tz{margin-top:4px;font-family:var(--mono);font-size:12px;color:var(--mach-ink-2);line-height:1.45}
+
+/* WAITING STATE. The button was `disabled` with opacity:.42 — a muddy
+   terracotta slab that still read as a live primary control and gave no
+   reason. It is now always operable (pressing it says what is missing)
+   and the waiting look is unmistakably inert: no fill, no glow, no lift. */
+.btn--go.is-waiting{
+  background:transparent;color:var(--mach-ink-2);
+  border-color:var(--mach-line);box-shadow:none;font-weight:500;
+}
+.btn--go.is-waiting svg{opacity:.5}
+.btn--go.is-waiting:hover{background:rgba(255,255,255,.05);color:var(--mach-ink);transform:none;box-shadow:none}
+.btn--go.is-waiting:hover svg{transform:none}
+
+.bf__err{font-size:13px;line-height:1.45;color:#ff9d7d}
+.bf__err:empty{display:none}
+
+/* CONFIRMATION PANEL. It is added beneath the form, never in place of it:
+   every field stays filled and editable, and everything here re-syncs the
+   moment the day, the time or a field changes. */
+.bfok{display:grid;gap:9px;padding:18px;border-radius:var(--r);
+  border:1px solid rgba(79,230,168,.28);background:rgba(79,230,168,.06)}
+/* display:grid would otherwise beat the [hidden] attribute */
+.bfok[hidden]{display:none}
+/* The panel already says all of this on screen. The live region exists only so
+   a screen reader hears the change; showing it twice is noise. */
+.bfok__live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+.bfok__h{font-size:16px;font-weight:600;letter-spacing:-.02em;color:var(--mach-ink);line-height:1.4}
+.bfok__h b{color:var(--live)}
+.bfok__p{font-size:13.5px;color:var(--mach-ink);line-height:1.5}
+.bfok__acts{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px}
+.bfok__acts a{color:var(--mach-ink);text-decoration:underline;text-underline-offset:4px;
+  display:inline-flex;align-items:center;min-height:44px}
+.bfok__acts a:hover{color:var(--live)}
+.bfok__raw{width:100%;padding:12px 13px;border-radius:11px;border:1px solid var(--mach-line);
+  background:rgba(0,0,0,.28);color:var(--mach-ink);font-family:var(--mono);font-size:13px;line-height:1.5;resize:vertical}
+.bfok__copy{min-height:44px;padding:11px 18px;border-radius:100px;justify-self:start;cursor:pointer;
+  border:1px solid var(--mach-line);background:rgba(255,255,255,.06);color:var(--mach-ink);
+  font-size:14px;font-weight:600;transition:background .22s,border-color .22s}
+.bfok__copy:hover{background:rgba(79,230,168,.14);border-color:rgba(79,230,168,.45)}
+
+/* ══════════════════════════════════════════════════════════
+   STAGE 4 — MOTION BUDGET AND IDENTITY (appended block)
+   Nothing above this line is altered by this stage except the
+   `talk` keyframes, the step-art timelines and the how spine.
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Gate the off-screen work ──
+   28 of 33 running animations had a target entirely outside the viewport.
+   The audit's first suggestion was content-visibility:auto on .leak__stage and
+   .trades__track. I measured it and it is wrong here: those boxes are sized by
+   aspect-ratio, so no contain-intrinsic-size guess matches the real height and
+   the mobile document drifted 14216px -> 13935px as you scrolled through it.
+   A page that changes length under the reader's thumb is a worse defect than
+   the one being fixed, so it is not shipped.
+   The explicit route gets the same result and is exact:
+     - the 12 waveform bars no longer touch layout at all (talk is a transform);
+     - the 18 step-art animations are bound to view() timelines above, so they
+       are inert until their card is on screen and finished after it;
+     - the leak scenes are gated on .is-play, which main.js now REMOVES on exit
+       as well as adding on entry, and their JS timers are cleared with it.
+   What is left running off-screen is the two composited marquee transforms in
+   .trades__track, which cost no layout and no style recalc. */
+
+/* ── The one piece of real depth ──
+   The hero machine panel settles from a slight angle to flat as it enters:
+   actual perspective, one element, one composited layer that resolves within a
+   second and is then discarded. No library, no canvas, no GPU memory held for
+   the life of the tab. Everything else that wanted to be 3D here did not earn
+   its bytes. Bound to view() so it never runs for a visitor who never sees it,
+   and absent entirely where view() is unsupported. */
+@supports (animation-timeline:view()){
+  @media (prefers-reduced-motion:no-preference){
+    .hero__machine{perspective:1400px}
+    .machine{animation:settle .9s var(--e) both;animation-timeline:view();
+      animation-range:entry 0% entry 62%}
+    @keyframes settle{from{transform:rotateY(-4deg) rotateX(2deg) translateZ(-40px)}
+                      to{transform:none}}
+  }
+}
+
+/* ── ONE MARK ──
+   The Falling Column: a baseline, two uprights standing, a third bending over
+   into the line. Left to right it is a repeating task falling out of existence.
+   The header lockup, the footer, favicon.svg and apple-touch-icon.png are all
+   the same drawing at different sizes. */
+.mark{display:block;flex-shrink:0;overflow:visible}
+.mark .mark__ink{stroke:currentColor}
+.mark .mark__fall{stroke:var(--sig)}
+.nav__mark{width:26px;height:26px;color:var(--ink)}
+/* The fall draws itself once, on first paint, and then rests. It never loops. */
+@media (prefers-reduced-motion:no-preference){
+  .nav__mark .mark__fall{stroke-dasharray:30;stroke-dashoffset:30;
+    animation:markfall .52s cubic-bezier(.22,1,.36,1) .35s both}
+  @keyframes markfall{to{stroke-dashoffset:0}}
+}
+
+/* The 232px ghost wordmark measured as effectively invisible, so it was not
+   doing the job it was built for. The mark does it instead: 40px, a rule, then
+   the name at a size you can actually read. */
+.foot__mark{margin:clamp(40px,6vw,72px) 0 22px;display:grid;justify-items:center;gap:16px;overflow:visible;line-height:1;text-align:center}
+.foot__mark span{display:block;font-size:0;line-height:0;color:transparent}
+.foot__mark span::after{
+  content:"MONTEJANO";display:inline-block;line-height:1;
+  font-size:24px;font-weight:600;letter-spacing:.16em;margin-right:-.16em;
+  color:rgba(255,255,255,.5);
+}
+.foot__mark .mark{width:40px;height:40px;color:var(--mach-ink)}
+.foot__rule{width:min(240px,52%);height:1px;background:var(--mach-line)}
