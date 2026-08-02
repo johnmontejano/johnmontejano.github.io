@@ -213,11 +213,17 @@ body.is-locked{overflow:hidden}
   min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;
   padding:130px var(--pad) 34px;position:relative;overflow:clip;
 }
-/* one soft aurora behind the headline — a single radial, cheap to paint */
+/* Depth layer: a generated abstract flow texture (10KB webp) under a radial
+   aurora. Decorative only — it is a background, never an LCP candidate, and
+   it sits at low opacity so headline contrast is untouched. */
 .hero::before{
-  content:"";position:absolute;top:-16%;left:-12%;width:72vw;height:72vw;
-  max-width:900px;max-height:900px;border-radius:50%;pointer-events:none;
-  background:radial-gradient(closest-side,rgba(226,112,63,.13),transparent 72%);
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(58% 48% at 12% 6%, rgba(226,112,63,.16), transparent 70%),
+    url("assets/img/hero-texture.webp") center/cover no-repeat;
+  opacity:.55;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 52%,transparent 92%);
+  mask-image:linear-gradient(180deg,#000 0%,#000 52%,transparent 92%);
 }
 .hero__bg{
   position:absolute;top:5%;right:-3%;width:min(46vw,580px);height:auto;opacity:.85;
@@ -226,6 +232,9 @@ body.is-locked{overflow:hidden}
 .hero__bg path{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .hero__bg .b1,.hero__bg .b2{stroke:rgba(244,242,236,.08)}
 .hero__bg .b3{stroke:rgba(226,112,63,.30)}
+/* raise hero content above the texture — but NOT .hero__bg, which must stay
+   absolutely positioned or it drops into flow and pushes the headline down */
+.hero > *:not(.hero__bg){position:relative;z-index:1}
 .eyebrow{
   display:flex;align-items:center;gap:10px;
   font-family:var(--mono);font-size:12.5px;letter-spacing:.15em;text-transform:uppercase;
@@ -370,9 +379,11 @@ body.is-locked{overflow:hidden}
 .machine__sig i:nth-child(3){animation-delay:.38s}
 .machine__sig i:nth-child(4){animation-delay:.55s}
 @keyframes talk{0%,100%{transform:scaleY(.16)}50%{transform:scaleY(1)}}
+/* No fixed height: with 8 events a 420px box hid the last three — the whole
+   payoff of the demo (booked, invoiced, paid) was below the fold of its own
+   panel. The feed sizes to its content at every width. */
 .machine__feed{
-  height:min(46vh,420px);overflow:hidden;
-  padding:20px 18px;display:flex;flex-direction:column;gap:16px;
+  padding:20px 18px;display:flex;flex-direction:column;gap:15px;
 }
 .ev{display:flex;gap:14px;align-items:flex-start}
 html.js .ev{opacity:0;transform:translateY(10px);transition:opacity .5s,transform .5s var(--e)}
@@ -924,14 +935,16 @@ html.js .ev.is-in{opacity:1;transform:none}
 @media (max-width:1023px){
   .demo__inner{grid-template-columns:1fr;gap:30px}
   .how__grid--4{grid-template-columns:repeat(2,minmax(0,1fr));padding-left:0;padding-top:34px}
-  /* .cap__n is also a <span>, so the bare `span{grid-column:2}` rule was
-     catching the number, pushing the TITLE into the 44px number column where
-     it wrapped word-by-word under the overlapping description. Scope the
-     placement explicitly. */
-  .cap{grid-template-columns:44px minmax(0,1fr);gap:6px 16px}
-  .cap__n{grid-column:1;grid-row:1}
+  /* Every child is placed by name. The old `span:not(.cap__n){grid-row:2}`
+     caught BOTH the chips and the description and stacked them in the same
+     cell — they rendered on top of each other at every mobile width. */
+  .cap{grid-template-columns:40px minmax(0,1fr);gap:4px 14px;align-items:start}
+  .cap__n{grid-column:1;grid-row:1;padding-top:5px}
   .cap b{grid-column:2;grid-row:1}
-  .cap>span:not(.cap__n){grid-column:2;grid-row:2}
+  .cap__viz{grid-column:2;grid-row:2;margin-top:10px}
+  .cap__d{grid-column:2;grid-row:3;margin-top:8px}
+  .mini{font-size:10.5px;padding:4px 9px}
+  .mini__ar{flex-basis:14px}
   .proj{grid-template-columns:1fr;gap:24px}
   .proj__frame{order:-1}
   .how__grid,.how__grid--4{grid-template-columns:1fr;gap:40px;padding-top:0;padding-left:22px}
@@ -998,8 +1011,7 @@ html.js .ev.is-in{opacity:1;transform:none}
   .foot__cols{grid-template-columns:1fr}
   .foot__c a{min-height:44px}
   .foot__word{font-size:clamp(42px,13.5vw,120px);-webkit-text-stroke-width:1px}
-  /* the demo must read start-to-finish on a phone, not through a porthole */
-  .machine__feed{height:auto;max-height:none}
+
 }
 @media (max-width:400px){
   .eyebrow{font-size:11.5px;letter-spacing:.09em}
