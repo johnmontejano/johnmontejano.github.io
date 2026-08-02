@@ -1,7 +1,8 @@
 /* ══════════════════════════════════════════════════════════
    John Montejano — site behaviour
-   Progressive enhancement: everything below is additive.
-   The page is complete and readable with this file blocked.
+   Progressive enhancement: the page is complete and readable
+   with this file blocked, with reduced motion, and on touch.
+   GSAP reads the scroll. It never takes it.
    ══════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -30,6 +31,7 @@
     function setOpen(open) {
       burger.setAttribute('aria-expanded', String(open));
       drawer.hidden = !open;
+      document.body.classList.toggle('is-locked', open);
       burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
     }
     burger.addEventListener('click', function () {
@@ -44,7 +46,8 @@
   })();
 
   /* ─────────────────────────────────────────────
-     2. TYPER — the Claude-style type / hold / erase slot
+     2. TYPER — type / hold / erase. The markup ships with the
+     first line already in place, so no-JS reads a real sentence.
      ───────────────────────────────────────────── */
   (function typer() {
     var out = $('#typer-out');
@@ -56,13 +59,14 @@
       'the same address typed into three apps',
       'invoices that go out three weeks late',
       'review requests after every finished job',
-      'the schedule that double-booked a truck'
+      'the reminder that stops the no-show'
     ];
 
     if (reduce) { out.textContent = lines[0] + '.'; return; }
 
     var TYPE = 42, ERASE = 18, HOLD = 1750, GAP = 320;
-    var i = 0, c = 0, erasing = false;
+    // the first line is pre-rendered: start by holding it, then erase
+    var i = 0, c = lines[0].length, erasing = true;
 
     function tick() {
       var line = lines[i];
@@ -77,11 +81,12 @@
       if (c === 0) { erasing = false; i = (i + 1) % lines.length; return setTimeout(tick, GAP); }
       setTimeout(tick, ERASE);
     }
-    setTimeout(tick, 700);
+    setTimeout(tick, HOLD + 700);
   })();
 
   /* ─────────────────────────────────────────────
-     3. THE MACHINE — replays one job, end to end
+     3. THE MACHINE — replays one job, end to end.
+     First paint shows the FINISHED job; the replay is the bonus.
      ───────────────────────────────────────────── */
   (function machine() {
     var feed = $('#feed');
@@ -96,12 +101,6 @@
 
     function clear() { timers.forEach(clearTimeout); timers = []; }
 
-    /* The panel is the largest object on the page. Empty, it read as a panel
-       that had failed to load — 75% dead black for the first four seconds, which
-       is the entire first impression and the window Lighthouse films. So the
-       first thing anyone sees is a FINISHED job: call through to invoice paid,
-       already done. That is also the stronger sales message. The replay is the
-       bonus for whoever stays to watch it. */
     function fill() {
       clear();
       evs.forEach(function (e) { e.classList.add('is-in'); });
@@ -117,7 +116,6 @@
       evs.forEach(function (e, n) {
         timers.push(setTimeout(function () {
           e.classList.add('is-in');
-          // keep the newest row in view as the list outgrows the panel
           var over = feed.scrollHeight - feed.clientHeight;
           if (over > 0) {
             var y = Math.min(over, e.offsetTop - feed.clientHeight + e.offsetHeight + 24);
@@ -139,7 +137,8 @@
   })();
 
   /* ─────────────────────────────────────────────
-     4. LEAK SCENES — each vignette plays itself in view
+     4. LEAK SCENES — each vignette plays only while on screen,
+     and every loop has a teardown.
      ───────────────────────────────────────────── */
   (function scenes() {
     var cards = $$('.leak');
@@ -190,11 +189,6 @@
       loops.typeStop = wipe;
     }
 
-    /* These loops used to start on entry and then run for the life of the tab:
-       two setIntervals and a recursive setTimeout chain rewriting textContent
-       every 46ms, forever, long after the visitor had scrolled past. Now every
-       one of them has a teardown and it runs on exit. Nothing animates for an
-       audience that isn't there. */
     function stop(kind) {
       if (kind === 'call'  && loops.call)  { clearInterval(loops.call);  loops.call = null; }
       if (kind === 'quote' && loops.quote) { clearInterval(loops.quote); loops.quote = null; }
@@ -228,7 +222,7 @@
   })();
 
   /* ─────────────────────────────────────────────
-     5. BOOKING — real dates, real windows, one click
+     5. BOOKING — real dates, one click, nothing destroyed
      ───────────────────────────────────────────── */
   (function booking() {
     var dayWrap = $('#slot-days'), timeWrap = $('#slot-times');
@@ -239,7 +233,6 @@
     var DAYN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     var MONN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-    // next 8 weekdays, starting tomorrow
     var days = [], d = new Date();
     d.setDate(d.getDate() + 1);
     while (days.length < 8) {
@@ -264,9 +257,6 @@
       return picked.time ? s + ' at ' + picked.time + ' PT' : s + ' — pick a time';
     }
 
-    /* ─── timezone: the page already reads the visitor's zone for the SF clock.
-       Build the picked slot as a real instant in Los Angeles, then render it in
-       whatever zone the browser reports. Pacific stays the canonical statement. ─── */
     var visitorTZ = '';
     try { visitorTZ = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
     var outsidePT = visitorTZ && visitorTZ.indexOf('Los_Angeles') < 0;
@@ -280,7 +270,6 @@
       p.forEach(function (x) { if (x.type === 'hour' || x.type === 'minute') o[x.type] = +x.value; });
       return o;
     }
-    // instant whose Los Angeles wall clock is day @ timeStr
     function ptInstant(day, timeStr) {
       var m = /(\d+):(\d+)\s*(AM|PM)/i.exec(timeStr || '');
       if (!m) return null;
@@ -309,7 +298,6 @@
       } catch (e) { return ''; }
     }
 
-    /* ─── the message. One source of truth for the panel, the link and the copy. ─── */
     function whenText() {
       return DAYN[picked.day.getDay()] + ' ' + MONN[picked.day.getMonth()] + ' ' +
              picked.day.getDate() + ' at ' + picked.time + ' Pacific';
@@ -321,7 +309,7 @@
       var body = 'Hi John,\n\n' +
         'I would like the ' + when + ' slot.\n\n' +
         'Name: ' + (name || '(add your name)') + '\n' +
-        'Business + trade: ' + (biz || '(add your business)') + '\n\n' +
+        'Business: ' + (biz || '(add your business)') + '\n\n' +
         'What eats the most time right now:\n\n';
       return {
         when: when,
@@ -332,9 +320,7 @@
       };
     }
 
-    /* Re-sync everything the panel shows. `announce` is true only when the slot
-       itself changed or the panel just opened — never on a keystroke in Name or
-       Business, so the live region does not chatter while someone types. */
+    /* announce only when the slot changed or the panel opened — never per keystroke */
     function refreshPanel(announce) {
       if (!done || done.hidden || !ready()) return;
       var d = draft();
@@ -360,7 +346,6 @@
         if (goT) goT.textContent = ready() ? READY : WAITING;
       }
       if (err && ready()) err.textContent = '';
-      // a stale slot must never survive a change of mind
       if (done && !done.hidden) {
         if (!ready()) {
           done.hidden = true;
@@ -403,14 +388,7 @@
       b.className = 'day';
       b.setAttribute('role', 'tab');
       b.setAttribute('aria-selected', 'false');
-      // NOTE the space between </b> and <span>: it makes the tile's visible text
-      // read "28 Tue" rather than "28Tue", so the aria-label below can contain
-      // it verbatim. .day is a grid container, and a whitespace-only text node
-      // is never rendered as a grid item, so this costs nothing in layout.
       b.innerHTML = '<b>' + dt.getDate() + '</b> <span>' + DAYN[dt.getDay()] + '</span>';
-      // The accessible name must CONTAIN the visible text ("28 Tue"), or the
-      // button trips WCAG 2.5.3 Label in Name. Date first, weekday second,
-      // month and year appended — same order the tile reads on screen.
       b.setAttribute('aria-label', dt.getDate() + ' ' + DAYN[dt.getDay()] + ', ' +
                                    MONN[dt.getMonth()] + ' ' + dt.getFullYear());
       b.addEventListener('click', function () {
@@ -425,7 +403,7 @@
 
     renderTimes(); sync();
 
-    /* ─── the "next openings" strip mirrors the same three real slots ─── */
+    /* the "typical times" strip mirrors real generated slots */
     (function openings() {
       var wrap = $('#open-slots');
       if (!wrap || !days.length) return;
@@ -458,7 +436,6 @@
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         if (!ready()) {
-          // the old guard was a bare `return`: the click did nothing, silently
           if (err) err.textContent = 'Pick a day and a time first, then try again.';
           if (timeWrap) timeWrap.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
           return;
@@ -466,8 +443,6 @@
         if (err) err.textContent = '';
 
         var d = draft();
-        // The form is left exactly as the visitor typed it — still filled, still
-        // editable. The panel appears underneath it as a receipt and a fallback.
         if (done) {
           done.hidden = false;
           refreshPanel(false);
@@ -477,8 +452,6 @@
         try { window.location.href = d.href; } catch (e2) {}
       });
 
-      // typing a name or a business changes the message but not the slot —
-      // re-sync silently so nothing stale can ever be copied or sent
       ['#bf-name', '#bf-biz'].forEach(function (s) {
         var i = $(s);
         if (i) i.addEventListener('input', function () { refreshPanel(false); });
@@ -517,56 +490,142 @@
   })();
 
   /* ─────────────────────────────────────────────
-     7. SCROLL REVEALS
+     7. GSAP — scroll choreography.
+     Transform-only. Nothing above the fold is deferred, nothing
+     is hidden by default, and every trigger dies with its section.
      ───────────────────────────────────────────── */
-  (function reveals() {
-    if (reduce || !('IntersectionObserver' in window)) return;
+  (function motion() {
+    if (reduce || !window.gsap || !window.ScrollTrigger) return;
+    gsap.registerPlugin(ScrollTrigger);
 
-    /* Nothing above the fold reveals. An element that starts transformed off its
-       final position is not a settled LCP candidate, and the hero H1 is the LCP
-       element — measured at 856ms of pure deferral for an entrance nobody asked
-       for. The hero is already the first thing you see; it does not need to
-       announce itself. The booking head is off the list for the same reason:
-       it is the entry point for anyone arriving on #book. */
-    var groups = [
-      ['.sec__head > *', 0],
-      ['.leak', 1],
-      ['.cap', 1],
-      ['.trades', 0],
-      ['.proj', 0],
-      ['.stepc', 1],
-      ['.about__fig', 0],
-      ['.about__copy > *', 1],
-      ['.slots', 0],
-      ['.book__side', 1],
-      ['.faq__row', 1],
-      ['.foot__top > *', 0]
-    ];
+    /* progress bar */
+    var bar = $('#progress');
+    if (bar) {
+      gsap.to(bar, {
+        scaleX: 1, ease: 'none',
+        scrollTrigger: { start: 0, end: 'max', scrub: 0.4 }
+      });
+    }
 
-    var seen = [];
-    groups.forEach(function (g) {
-      $$(g[0]).forEach(function (el, i) {
-        if (seen.indexOf(el) > -1) return;
-        seen.push(el);
-        el.classList.add('rv');
-        if (g[1]) el.classList.add('rv-d' + Math.min(4, i % 4 + 1));
+    /* hero mark drifts against the scroll */
+    var hbg = $('#hero-bg');
+    if (hbg) {
+      gsap.to(hbg, {
+        yPercent: 26, ease: 'none',
+        scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.6 }
+      });
+    }
+
+    /* transform-only reveals — no opacity, so text is always readable */
+    function rise(els, trigger) {
+      els.forEach(function (el, n) {
+        gsap.set(el, { y: 30 });
+        gsap.to(el, {
+          y: 0, duration: 0.9, ease: 'power3.out', delay: (n % 4) * 0.07,
+          scrollTrigger: { trigger: trigger || el, start: 'top 88%', once: true }
+        });
+      });
+    }
+    rise($$('.cap'));
+    rise($$('.proj__meta > *').slice(0, 60));
+    rise($$('.stepc'));
+    rise($$('.about__copy > *'));
+    ['.worth__h', '.worth__p'].forEach(function (s) { rise($$(s)); });
+
+    /* the leak shelf — pinned horizontal scroll on wide screens only */
+    var mm = gsap.matchMedia();
+    mm.add('(min-width: 1024px)', function () {
+      var track = $('#leaks-track');
+      if (!track) return;
+      var dist = function () { return Math.max(0, track.scrollWidth - window.innerWidth); };
+      if (dist() < 40) return;
+      gsap.to(track, {
+        x: function () { return -dist(); },
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.leaks',
+          start: 'top top',
+          end: function () { return '+=' + (dist() + window.innerHeight * 0.25); },
+          pin: true,
+          scrub: 0.7,
+          anticipatePin: 1,
+          invalidateOnRefresh: true
+        }
+      });
+    });
+    mm.add('(max-width: 1023px)', function () {
+      rise($$('.leak'));
+    });
+
+    /* work screenshots breathe against their frames */
+    $$('.proj__shot img').forEach(function (img) {
+      gsap.fromTo(img, { yPercent: -5 }, {
+        yPercent: 5, ease: 'none',
+        scrollTrigger: { trigger: img.closest('.proj'), start: 'top bottom', end: 'bottom top', scrub: 0.6 }
       });
     });
 
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (!en.isIntersecting) return;
-        en.target.classList.add('is-in');
-        io.unobserve(en.target);
+    /* the how-it-works rail draws as you read the steps */
+    var railFill = $('#how-rail-fill');
+    if (railFill) {
+      var horizontal = window.matchMedia('(min-width: 1024px)').matches;
+      gsap.fromTo(railFill,
+        horizontal ? { scaleX: 0 } : { scaleY: 0 },
+        Object.assign(horizontal ? { scaleX: 1 } : { scaleY: 1 }, {
+          ease: 'none',
+          scrollTrigger: { trigger: '.how__grid', start: 'top 75%', end: 'bottom 55%', scrub: 0.5 }
+        })
+      );
+    }
+
+    /* trades marquee shears with scroll velocity */
+    var rows = $$('.trades__row');
+    if (rows.length) {
+      var skew = gsap.quickTo(rows, 'skewX', { duration: 0.4, ease: 'power2.out' });
+      ScrollTrigger.create({
+        trigger: '.trades', start: 'top bottom', end: 'bottom top',
+        onUpdate: function (self) {
+          skew(gsap.utils.clamp(-5, 5, self.getVelocity() / -260));
+        },
+        onLeave: function () { skew(0); },
+        onLeaveBack: function () { skew(0); }
       });
-    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+    }
 
-    seen.forEach(function (el) { io.observe(el); });
+    /* the footer wordmark surfaces from below the fold */
+    var word = $('#foot-word');
+    if (word) {
+      gsap.fromTo(word, { yPercent: 42 }, {
+        yPercent: 0, ease: 'none',
+        scrollTrigger: { trigger: '.foot__mark', start: 'top 96%', end: 'top 55%', scrub: 0.5 }
+      });
+    }
 
-    // failsafe: never leave content hidden
-    setTimeout(function () {
-      seen.forEach(function (el) { el.classList.add('is-in'); });
-    }, 3500);
+    /* custom cursor — fine pointers only */
+    if (window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
+      var dot = $('#cursor'), ring = $('#cursor-ring');
+      if (dot && ring) {
+        document.documentElement.classList.add('has-cursor');
+        var dx = gsap.quickTo(dot, 'x', { duration: 0.12, ease: 'power2.out' });
+        var dy = gsap.quickTo(dot, 'y', { duration: 0.12, ease: 'power2.out' });
+        var rx = gsap.quickTo(ring, 'x', { duration: 0.38, ease: 'power2.out' });
+        var ry = gsap.quickTo(ring, 'y', { duration: 0.38, ease: 'power2.out' });
+        window.addEventListener('pointermove', function (e) {
+          dx(e.clientX); dy(e.clientY); rx(e.clientX); ry(e.clientY);
+        }, { passive: true });
+        document.addEventListener('mouseover', function (e) {
+          if (e.target.closest('a,button,summary,input,textarea')) ring.classList.add('is-on');
+        });
+        document.addEventListener('mouseout', function (e) {
+          if (e.target.closest('a,button,summary,input,textarea')) ring.classList.remove('is-on');
+        });
+      }
+    }
+
+    /* type metrics settle after the webfonts land */
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
+    }
   })();
 
 })();
