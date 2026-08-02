@@ -255,17 +255,67 @@ body.is-locked{overflow:hidden}
 .hero__type{max-width:460px;color:var(--ink-2);font-size:16.5px;line-height:1.55;flex:1 1 320px}
 .hero__sub{display:block;font-size:17px;color:var(--ink-2);margin-bottom:20px;max-width:46ch}
 .hero__type-lead{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
-/* rotating workflow examples: three visible, whole sentences, no typewriter —
-   long enough on screen to actually read */
-.flow{display:flex;flex-direction:column;gap:9px}
-.flow li{
-  position:relative;padding-left:20px;
-  font-size:15.5px;line-height:1.5;color:var(--ink);font-weight:500;
+/* WORKFLOW CHAINS — three nodes and two arrows per row. Read as a picture in
+   about a second; the words are labels, not sentences. */
+.chain{display:flex;flex-direction:column;gap:10px}
+.chain li{display:flex;align-items:center;gap:7px;flex-wrap:nowrap;min-width:0}
+.nd{
+  display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;
+  padding:8px 13px;border-radius:100px;
+  border:1px solid var(--line-ctl);background:var(--panel);
+  font-size:13.5px;font-weight:600;letter-spacing:-.01em;color:var(--ink);white-space:nowrap;
 }
-.flow li::before{content:"";position:absolute;left:2px;top:.55em;width:7px;height:7px;border-radius:50%;background:var(--sig)}
-.flow li.is-out{transition:transform .45s var(--e);transform:translateY(-6px)}
-.flow li.is-new{animation:flowin .5s var(--e) both}
+.nd svg{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.nd--in{color:var(--ink-2);border-color:var(--line);background:transparent}
+.nd--in svg{stroke:var(--warn)}
+.nd--out{border-color:rgba(79,230,168,.4);background:rgba(79,230,168,.08);color:var(--live)}
+/* the connector: a drawn line with an arrowhead, not a bullet */
+.nd__ar{flex:1 1 auto;min-width:14px;height:1.5px;background:var(--line-ctl);position:relative}
+.nd__ar::after{
+  content:"";position:absolute;right:0;top:50%;width:5px;height:5px;
+  border-top:1.5px solid var(--line-ctl);border-right:1.5px solid var(--line-ctl);
+  transform:translateY(-50%) rotate(45deg);
+}
+.chain li.is-new{animation:flowin .5s var(--e) both}
 @keyframes flowin{from{transform:translateY(14px)}to{transform:none}}
+
+/* THE FORK — one input splitting two ways. Carries the whole idea without
+   asking anyone to read a sentence. */
+.fork{
+  max-width:1360px;margin:38px auto 0;
+  display:grid;grid-template-columns:auto auto minmax(0,1fr);
+  align-items:center;gap:0 clamp(12px,2vw,26px);
+}
+.fork__in{
+  display:inline-flex;align-items:center;gap:9px;flex:none;
+  padding:13px 18px;border-radius:100px;border:1px solid var(--line-ctl);
+  font-size:14.5px;font-weight:600;white-space:nowrap;
+}
+.fork__in svg{width:16px;height:16px;fill:none;stroke:var(--sig);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* the split: one line in, two out */
+.fork__split{
+  position:relative;width:clamp(34px,5vw,74px);height:120px;flex:none;
+}
+.fork__split::before,.fork__split::after{
+  content:"";position:absolute;left:0;width:100%;height:calc(50% - 1px);
+  border-right:1.5px solid var(--line-ctl);
+}
+.fork__split::before{top:0;border-top:1.5px solid var(--line-ctl);border-top-right-radius:14px}
+.fork__split::after{bottom:0;border-bottom:1.5px solid var(--line-ctl);border-bottom-right-radius:14px}
+.fork__out{display:flex;flex-direction:column;gap:14px;min-width:0}
+.fork__arm{
+  display:flex;flex-direction:column;gap:5px;min-width:0;
+  padding:15px 20px;border-radius:16px;border:1px solid var(--line-2);
+}
+.fork__arm b{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:600;letter-spacing:-.02em}
+.fork__arm b svg{width:17px;height:17px;flex:none;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fork__arm i{font-style:normal;font-family:var(--mono);font-size:12px;letter-spacing:.03em;color:var(--ink-3)}
+.fork__arm--auto{background:rgba(79,230,168,.07);border-color:rgba(79,230,168,.28)}
+.fork__arm--auto b{color:var(--live)}
+.fork__arm--auto b svg{stroke:var(--live)}
+.fork__arm--you{background:var(--sig-w);border-color:rgba(226,112,63,.3)}
+.fork__arm--you b{color:var(--sig-b)}
+.fork__arm--you b svg{stroke:var(--sig-b)}
 .hero__go{display:flex;flex-direction:column;align-items:flex-start}
 .hero__acts{display:flex;flex-wrap:wrap;gap:12px}
 .hero__risk{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--ink-3);margin-top:12px}
@@ -471,13 +521,29 @@ html.js .ev.is-in{opacity:1;transform:none}
    ───────────────────────────────────────────── */
 .caps{max-width:1360px;margin:40px auto 0}
 .cap{
-  display:grid;grid-template-columns:64px minmax(0,1.1fr) minmax(0,1fr);gap:10px 30px;
-  align-items:baseline;padding:26px 0;border-top:1px solid var(--line);
+  display:grid;grid-template-columns:56px minmax(0,1.05fr) minmax(0,1fr);gap:8px 28px;
+  align-items:center;padding:24px 0;border-top:1px solid var(--line);
+}
+.cap b{grid-column:2;grid-row:1}
+.cap__viz{grid-column:2;grid-row:2;display:flex;align-items:center;gap:7px;margin-top:9px;flex-wrap:nowrap;min-width:0}
+.cap__d{grid-column:3;grid-row:1/span 2;align-self:center}
+/* mini before/after chips — the same language as the hero chains, smaller */
+.mini{
+  font-style:normal;font-family:var(--mono);font-size:11px;letter-spacing:.03em;
+  padding:5px 10px;border-radius:100px;white-space:nowrap;flex:none;
+}
+.mini--was{color:var(--warn);background:rgba(255,107,94,.09);border:1px solid rgba(255,107,94,.28)}
+.mini--now{color:var(--live);background:rgba(79,230,168,.09);border:1px solid rgba(79,230,168,.3)}
+.mini__ar{flex:0 0 18px;height:1.5px;background:var(--line-ctl);position:relative}
+.mini__ar::after{
+  content:"";position:absolute;right:0;top:50%;width:4px;height:4px;
+  border-top:1.5px solid var(--line-ctl);border-right:1.5px solid var(--line-ctl);
+  transform:translateY(-50%) rotate(45deg);
 }
 .cap:last-child{border-bottom:1px solid var(--line)}
 .cap__n{font-family:var(--mono);font-size:12.5px;color:var(--sig-b);letter-spacing:.08em}
 .cap b{font-size:clamp(21px,2.6vw,34px);font-weight:600;letter-spacing:-.025em;line-height:1.1;display:block;transition:transform .35s var(--e),color .2s}
-.cap span{color:var(--ink-2);font-size:15.5px;line-height:1.55}
+.cap__d{color:var(--ink-2);font-size:15px;line-height:1.55}
 @media (hover:hover){.cap:hover b{transform:translateX(10px);color:var(--sig-b)}}
 
 .trades{margin-top:clamp(56px,8vh,90px)}
@@ -641,6 +707,8 @@ html.js .ev.is-in{opacity:1;transform:none}
 .is-play .artcall__wave i{animation:talk 1.3s ease-in-out infinite}
 .artcall__wave i:nth-child(2n){animation-delay:.15s}.artcall__wave i:nth-child(3n){animation-delay:.3s}.artcall__wave i:nth-child(4n){animation-delay:.45s}
 .artcall__clock{position:absolute;bottom:12px;right:14px;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.artcall__tags{position:absolute;inset:auto 0 26px;display:flex;justify-content:center;gap:96px;pointer-events:none}
+.artcall__tags b{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink-3);font-weight:400}
 .artmap{position:absolute;inset:0;padding:26px}
 .artmap__line{position:absolute;left:26px;right:26px;top:50%;height:1.5px;background:var(--line-ctl)}
 .artmap__line::before,.artmap__line::after{content:"";position:absolute;top:50%;width:7px;height:7px;border-radius:50%;background:var(--sig);transform:translateY(-50%)}
@@ -656,6 +724,27 @@ html.js .ev.is-in{opacity:1;transform:none}
 .artmap__pin--2{left:44%;top:58%;color:var(--ink-2);border-color:var(--line-ctl);animation-delay:.55s}
 .artmap__pin--3{left:72%;top:30%;color:var(--ink-3);border-color:var(--line-2);animation-delay:.85s}
 @keyframes pin{to{transform:none;opacity:1}}
+.artrun{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:18px}
+.artrun__live{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:var(--live);
+  border:1px solid rgba(79,230,168,.35);border-radius:100px;padding:3px 9px;margin-bottom:2px;
+}
+.artrun__live i{width:5px;height:5px;border-radius:50%;background:var(--live);animation:pulse 1.7s infinite}
+.artrun__row{display:flex;align-items:center;gap:5px}
+.artrun__row b{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;font-weight:400;
+  color:var(--ink-2);border:1px solid var(--line-ctl);border-radius:100px;padding:4px 8px;white-space:nowrap;
+}
+.artrun__row b:last-child{color:var(--live);border-color:rgba(79,230,168,.35)}
+.artrun__row em{width:12px;height:1.2px;background:var(--line-ctl);flex:none}
+.is-play .artrun__row{animation:runpulse 2.6s ease-in-out infinite}
+.is-play .artrun__row--2{animation-delay:.5s}
+@keyframes runpulse{0%,100%{opacity:.55}50%{opacity:1}}
+.artrun__you{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--sig-b);
+  border:1px dashed rgba(226,112,63,.5);border-radius:100px;padding:4px 10px;margin-top:3px;
+}
 .artbuild{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:22px}
 .artbuild__gear{width:52px;height:52px;stroke:var(--ink-3);stroke-width:1.4;fill:none}
 .is-play .artbuild__gear{animation:spin 9s linear infinite}
@@ -860,6 +949,21 @@ html.js .ev.is-in{opacity:1;transform:none}
 }
 @media (max-width:760px){
   body{font-size:16px}
+  /* chains keep all three nodes on one line by shrinking, never wrapping */
+  .nd{padding:7px 10px;font-size:12.5px;gap:5px}
+  .nd svg{width:12px;height:12px}
+  .nd__ar{min-width:8px}
+  .chain li{gap:5px}
+  /* the fork becomes vertical: in on top, two arms below */
+  .fork{grid-template-columns:1fr;gap:0}
+  .fork__in{justify-self:start}
+  .fork__split{width:100%;height:26px}
+  .fork__split::before,.fork__split::after{
+    left:22px;width:calc(100% - 22px);height:100%;border-right:0;
+    border-left:1.5px solid var(--line-ctl);border-radius:0;
+  }
+  .fork__split::before{border-top:0}
+  .fork__split::after{border-bottom:0}
   .vs{grid-template-columns:1fr;gap:12px}
   .vs__mid{justify-self:center}
   /* one left edge for the whole page: the worth band and the marquee note were

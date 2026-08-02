@@ -54,28 +54,38 @@
     var list = $('#flow');
     if (!list || reduce) return;
 
+    /* [in, middle, out] — each becomes a three-node chain, so the rotation
+       stays a picture rather than turning back into a sentence. */
     var pool = [
-      'Answers a missed call, qualifies the job, and books it into a real opening on your calendar',
-      'Follows up a sent quote until it gets an answer, then books the work the moment they say yes',
-      'Notices a cancellation and fills the empty slot from your waitlist by text',
-      'Turns a voicemail into a transcribed, prioritized job with the callback already scheduled',
-      'Reads an inquiry email, drafts the reply in your voice, and files the lead in your CRM',
-      'Sends the invoice when the job closes, then chases it politely until it clears',
-      'Texts the reminder that stops the no-show, and reschedules the ones who reply',
-      'Asks for the review while the customer is still happy, and routes complaints to you first'
+      ['Voicemail',   'Transcribed', 'Callback set'],
+      ['New lead',    'Scored',      'In your CRM'],
+      ['Job done',    'Invoiced',    'Paid'],
+      ['Tomorrow',    'Reminder',    'They show'],
+      ['Happy client','Asked',       'Review in'],
+      ['Missed call', 'Qualified',   'Booked']
     ];
-    var idx = 3; // markup already shows pool[0..2]
+    var idx = 0;
 
     setInterval(function () {
       var first = list.firstElementChild;
       if (!first) return;
-      var li = document.createElement('li');
-      li.textContent = pool[idx % pool.length];
-      li.className = 'is-new';
+      var set = pool[idx % pool.length];
       idx++;
+      var li = document.createElement('li');
+      li.className = 'is-new';
+      var nodes = first.querySelectorAll('.nd');
+      // clone the shape of the row leaving, swap only the labels
+      li.innerHTML = first.innerHTML;
+      var fresh = li.querySelectorAll('.nd');
+      for (var k = 0; k < fresh.length && k < 3; k++) {
+        var svg = fresh[k].querySelector('svg');
+        fresh[k].textContent = '';
+        if (svg) fresh[k].appendChild(svg);
+        fresh[k].appendChild(document.createTextNode(set[k]));
+      }
       first.remove();
       list.appendChild(li);
-    }, 4200);
+    }, 3400);
   })();
 
   /* ─────────────────────────────────────────────
