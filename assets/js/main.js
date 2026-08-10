@@ -1,96 +1,182 @@
-/* ══════════════════════════════════════════════════════════
-   John Montejano — site behaviour
-   Progressive enhancement: the page is complete and readable
-   with this file blocked, with reduced motion, and on touch.
-   GSAP reads the scroll. It never takes it.
-   ══════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════
+   John Montejano — v5 "Paper and Machine"
+
+   One IIFE, strict mode, ES5-safe syntax. No library, no build step.
+   Every module returns immediately if its root element is absent, so a
+   missing section never throws. The page is complete and readable with
+   this file blocked: nothing here is required to see or read anything.
+
+   Module order:
+   boot · ticker · reveal · splitHero · nav · machine · leaks · fork ·
+   booking (+ openings) · clock · dock · magnetic · reducedMotionWatcher
+   ═══════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var $  = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var hasIO = 'IntersectionObserver' in window;
+  var RM = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  /* every loop registers itself here so the reduced-motion watcher can
+     flip the whole page between "running" and "final state" mid-session. */
+  var LOOPS = [];
+  function registerLoop(o) { LOOPS.push(o); }
 
   /* ─────────────────────────────────────────────
-     1. NAV — stuck state + mobile drawer
+     TICKER — one requestAnimationFrame for the whole page.
+     The console replay, the four leak vignettes and the SF clock all
+     read the same clock. The loop stops entirely when nobody is watching.
+     ───────────────────────────────────────────── */
+  var ticker = (function () {
+    var subs = [], raf = 0;
+    function frame(t) {
+      raf = 0;
+      for (var i = subs.length - 1; i >= 0; i--) subs[i](t);
+      if (subs.length) raf = window.requestAnimationFrame(frame);
+    }
+    return {
+      add: function (fn) {
+        if (subs.indexOf(fn) < 0) subs.push(fn);
+        if (!raf) raf = window.requestAnimationFrame(frame);
+      },
+      remove: function (fn) {
+        var i = subs.indexOf(fn);
+        if (i >= 0) subs.splice(i, 1);
+        if (!subs.length && raf) { window.cancelAnimationFrame(raf); raf = 0; }
+      }
+    };
+  })();
+
+  /* ─────────────────────────────────────────────
+     REVEAL — IntersectionObserver base. The scroll-timeline path in the
+     stylesheet is the enhancement; this can never fail closed.
+     ───────────────────────────────────────────── */
+  (function reveal() {
+    var all = $$('.reveal');
+    if (!all.length) return;
+
+    function force() {
+      $$('.reveal:not(.is-in)').forEach(function (el) { el.classList.add('is-in'); });
+    }
+
+    if (!hasIO) { force(); return; }
+
+    var io = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        var e = entries[i];
+        if (!e.isIntersecting) continue;
+        var group = e.target.closest('[data-stagger]');
+        if (group) {
+          $$('.reveal', group).forEach(function (k, n) {
+            k.style.transitionDelay = Math.min(n, 6) * 60 + 'ms';
+            k.classList.add('is-in');
+            io.unobserve(k);
+          });
+        } else {
+          e.target.classList.add('is-in');
+          io.unobserve(e.target);
+        }
+      }
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0 });
+
+    all.forEach(function (el) { io.observe(el); });
+
+    window.setTimeout(force, 3500);          /* cannot fail closed */
+
+    document.addEventListener('transitionend', function (e) {
+      if (e.target.classList && e.target.classList.contains('is-in')) {
+        e.target.style.transitionDelay = '';
+      }
+    });
+  })();
+
+  /* ─────────────────────────────────────────────
+     SPLIT HERO — the word mask, H1 only, with the accessible duplicate.
+     Under reduced motion the split is not applied at all.
+     ───────────────────────────────────────────── */
+  (function splitHero() {
+    if (RM.matches) return;
+    $$('.split').forEach(function (el) {
+      var text = el.textContent.replace(/\s+/g, ' ').trim();
+      if (!text) return;
+      var out = '<span class="sr-only">' + text + '</span>';
+      var words = text.split(' ');
+      for (var i = 0; i < words.length; i++) {
+        out += '<span class="w" aria-hidden="true"><i style="--i:' + i + '">' + words[i] + '</i></span>';
+        if (i < words.length - 1) out += ' ';
+      }
+      el.innerHTML = out;
+      window.requestAnimationFrame(function () { el.classList.add('is-in'); });
+    });
+  })();
+
+  /* ─────────────────────────────────────────────
+     NAV — stuck state, hide on scroll down, mobile drawer.
+     One passive scroll listener that only flags; every read happens
+     inside a single rAF tick and touches no layout property.
      ───────────────────────────────────────────── */
   (function nav() {
     var el = $('#nav');
     if (!el) return;
-    var sentinel = document.createElement('div');
-    sentinel.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:60px;pointer-events:none';
-    document.body.appendChild(sentinel);
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (e) {
-        el.classList.toggle('is-stuck', !e[0].isIntersecting);
+
+    if (hasIO) {
+      var sentinel = document.createElement('div');
+      sentinel.setAttribute('aria-hidden', 'true');
+      sentinel.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:240px;pointer-events:none';
+      document.body.appendChild(sentinel);
+      var past = false;
+      new IntersectionObserver(function (entries) {
+        past = !entries[0].isIntersecting;
+        el.classList.toggle('is-stuck', past);
+        if (!past) el.classList.remove('is-away');
       }).observe(sentinel);
+
+      var last = window.scrollY, queued = false;
+      window.addEventListener('scroll', function () {
+        if (queued) return;
+        queued = true;
+        window.requestAnimationFrame(function () {
+          queued = false;
+          var y = window.scrollY;
+          var d = y - last;
+          last = y;
+          if (!past || document.body.classList.contains('is-locked')) return;
+          if (d > 6) el.classList.add('is-away');
+          else if (d < -6) el.classList.remove('is-away');
+        });
+      }, { passive: true });
     }
 
     var burger = $('#burger'), drawer = $('#drawer');
     if (!burger || !drawer) return;
+
     function setOpen(open) {
       burger.setAttribute('aria-expanded', String(open));
-      drawer.hidden = !open;
-      document.body.classList.toggle('is-locked', open);
       burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      drawer.hidden = !open;
+      document.body.style.overflow = open ? 'hidden' : '';
+      document.body.classList.toggle('is-locked', open);
+      if (open) el.classList.remove('is-away');
     }
     burger.addEventListener('click', function () {
       setOpen(burger.getAttribute('aria-expanded') !== 'true');
     });
     drawer.addEventListener('click', function (e) {
-      if (e.target.tagName === 'A') setOpen(false);
+      if (e.target.closest('a')) setOpen(false);
     });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && !drawer.hidden) { setOpen(false); burger.focus(); }
     });
+    window.addEventListener('resize', function () {
+      if (window.innerWidth >= 880 && !drawer.hidden) setOpen(false);
+    });
   })();
 
   /* ─────────────────────────────────────────────
-     2. WORKFLOW ROTATOR — three whole-workflow examples visible at once,
-     rotating one at a time so there is always time to read. The markup
-     ships with three real items, so no-JS and reduced-motion read those.
-     ───────────────────────────────────────────── */
-  (function flow() {
-    var list = $('#flow');
-    if (!list || reduce) return;
-
-    /* [in, middle, out] — each becomes a three-node chain, so the rotation
-       stays a picture rather than turning back into a sentence. */
-    var pool = [
-      ['Voicemail',   'Transcribed', 'Callback set'],
-      ['New lead',    'Scored',      'In your CRM'],
-      ['Job done',    'Invoiced',    'Paid'],
-      ['Tomorrow',    'Reminder',    'They show'],
-      ['Happy client','Asked',       'Review in'],
-      ['Missed call', 'Qualified',   'Booked']
-    ];
-    var idx = 0;
-
-    setInterval(function () {
-      var first = list.firstElementChild;
-      if (!first) return;
-      var set = pool[idx % pool.length];
-      idx++;
-      var li = document.createElement('li');
-      li.className = 'is-new';
-      var nodes = first.querySelectorAll('.nd');
-      // clone the shape of the row leaving, swap only the labels
-      li.innerHTML = first.innerHTML;
-      var fresh = li.querySelectorAll('.nd');
-      for (var k = 0; k < fresh.length && k < 3; k++) {
-        var svg = fresh[k].querySelector('svg');
-        fresh[k].textContent = '';
-        if (svg) fresh[k].appendChild(svg);
-        fresh[k].appendChild(document.createTextNode(set[k]));
-      }
-      first.remove();
-      list.appendChild(li);
-    }, 3400);
-  })();
-
-  /* ─────────────────────────────────────────────
-     3. THE MACHINE — replays one job, end to end.
-     First paint shows the FINISHED job; the replay is the bonus.
+     MACHINE CONSOLE — replays one job, end to end.
+     The markup ships every event visible; the replay only ever removes
+     and restores them, so JS-off and reduced motion read the finished job.
      ───────────────────────────────────────────── */
   (function machine() {
     var feed = $('#feed');
@@ -98,155 +184,182 @@
     var evs = $$('.ev', feed);
     if (!evs.length) return;
 
-    if (reduce) { evs.forEach(function (e) { e.classList.add('is-in'); }); return; }
+    var STEP = 620, HOLD = 2200;
+    var span = evs.length * STEP + HOLD;
+    var t0 = 0, on = false;
 
-    var STEP = 1150, RESET = 3600;
-    var timers = [], running = false, first = true;
-
-    function clear() { timers.forEach(clearTimeout); timers = []; }
-
-    function fill() {
-      clear();
-      evs.forEach(function (e) { e.classList.add('is-in'); });
-      feed.scrollTop = feed.scrollHeight;
-      timers.push(setTimeout(function () { first = false; play(); }, RESET));
+    function tick(t) {
+      if (!t0) t0 = t;
+      var p = (t - t0) % span;
+      var shown = Math.min(evs.length, Math.floor(p / STEP) + 1);
+      for (var i = 0; i < evs.length; i++) evs[i].classList.toggle('is-in', i < shown);
     }
-
-    function play() {
-      if (first) return fill();
-      clear();
+    function start() {
+      if (on || RM.matches) return;
+      on = true; t0 = 0;
+      feed.classList.add('is-loop');
+      ticker.add(tick);
+    }
+    function stop() {
+      if (!on) return;
+      on = false;
+      ticker.remove(tick);
+    }
+    function final() {
+      stop();
+      feed.classList.remove('is-loop');
       evs.forEach(function (e) { e.classList.remove('is-in'); });
-      feed.scrollTop = 0;
-      evs.forEach(function (e, n) {
-        timers.push(setTimeout(function () {
-          e.classList.add('is-in');
-          var over = feed.scrollHeight - feed.clientHeight;
-          if (over > 0) {
-            var y = Math.min(over, e.offsetTop - feed.clientHeight + e.offsetHeight + 24);
-            feed.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
-          }
-        }, 420 + n * STEP));
-      });
-      timers.push(setTimeout(play, 420 + evs.length * STEP + RESET));
     }
 
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (entries) {
-        entries.forEach(function (en) {
-          if (en.isIntersecting && !running) { running = true; play(); }
-          else if (!en.isIntersecting && running) { running = false; clear(); }
-        });
-      }, { threshold: 0.18 }).observe(feed);
-    } else { play(); }
+    var visible = !hasIO;
+    registerLoop({
+      start: function () { if (visible) start(); },
+      final: final
+    });
+
+    if (!hasIO) { start(); return; }
+    new IntersectionObserver(function (entries) {
+      visible = entries[0].isIntersecting;
+      if (visible) start(); else stop();
+    }, { threshold: 0.18 }).observe(feed);
   })();
 
   /* ─────────────────────────────────────────────
-     4. LEAK SCENES — each vignette plays only while on screen,
-     and every loop has a teardown.
+     LEAK SCENES — four vignettes. Each renders its FINAL state in the
+     markup (counter at its end value, stamp present, outcome line visible);
+     .is-play only replays it, and only while the card is on screen.
      ───────────────────────────────────────────── */
-  (function scenes() {
+  (function leaks() {
     var cards = $$('.leak');
-    if (!cards.length || reduce) {
-      cards.forEach(function (c) { c.classList.add('is-play'); });
-      return;
+    if (!cards.length) return;
+
+    var CYCLE = 5200;
+    var TYPE = 'Miguel Delgado, 1420 Foothill';
+    var DAYS = [2, 3, 5, 8, 11, 14];
+
+    var live = [];
+
+    function phase(t) { return (t % CYCLE) / CYCLE; }
+
+    function makeTick(card, kind) {
+      var rings = $('.js-rings', card);
+      var days  = $('.js-days', card);
+      var a     = $('.js-typeA', card);
+      var b     = $('.js-typeB', card);
+
+      return function (t) {
+        var p = phase(t);
+        if (kind === 'call' && rings) {
+          rings.textContent = p < 0.55 ? Math.min(6, 1 + Math.floor(p / 0.55 * 6)) : 6;
+        }
+        if (kind === 'quote' && days) {
+          days.textContent = p < 0.55 ? DAYS[Math.min(5, Math.floor(p / 0.55 * 6))] : 14;
+        }
+        if (kind === 'dup' && a && b) {
+          var n = TYPE.length;
+          if (p < 0.30)      { a.textContent = TYPE.slice(0, Math.ceil(p / 0.30 * n)); b.textContent = ''; }
+          else if (p < 0.36) { a.textContent = TYPE; b.textContent = ''; }
+          else if (p < 0.66) { a.textContent = TYPE; b.textContent = TYPE.slice(0, Math.ceil((p - 0.36) / 0.30 * n)); }
+          else               { a.textContent = TYPE; b.textContent = TYPE; }
+        }
+      };
     }
 
-    var loops = {};
-
-    function ringCounter(card) {
-      var el = $('.js-rings', card); if (!el) return;
-      var n = 1;
-      loops.call = setInterval(function () {
-        n = n >= 6 ? 1 : n + 1;
-        el.textContent = n;
-      }, 900);
-    }
-
-    function dayCounter(card) {
-      var el = $('.js-days', card); if (!el) return;
-      var days = [2, 3, 5, 8, 11, 14], n = 0;
-      loops.quote = setInterval(function () {
-        el.textContent = days[n];
-        n = (n + 1) % days.length;
-      }, 620);
-    }
-
-    function doubleType(card) {
+    function finalOf(card, kind) {
+      var rings = $('.js-rings', card), days = $('.js-days', card);
       var a = $('.js-typeA', card), b = $('.js-typeB', card);
-      if (!a || !b) return;
-      var text = 'M. Delgado · 2118 Elm St';
-      var t = [];
-      function wipe() { t.forEach(clearTimeout); t = []; }
-      function run() {
-        wipe();
-        a.textContent = ''; b.textContent = '';
-        for (var i = 1; i <= text.length; i++) {
-          (function (i) { t.push(setTimeout(function () { a.textContent = text.slice(0, i); }, i * 46)); })(i);
-        }
-        var off = text.length * 46 + 620;
-        for (var j = 1; j <= text.length; j++) {
-          (function (j) { t.push(setTimeout(function () { b.textContent = text.slice(0, j); }, off + j * 46)); })(j);
-        }
-        t.push(setTimeout(run, off + text.length * 46 + 2100));
-      }
-      run();
-      loops.typeStop = wipe;
-    }
-
-    function stop(kind) {
-      if (kind === 'call'  && loops.call)  { clearInterval(loops.call);  loops.call = null; }
-      if (kind === 'quote' && loops.quote) { clearInterval(loops.quote); loops.quote = null; }
-      if (kind === 'type'  && loops.typeStop) { loops.typeStop(); }
-    }
-    function start(card, kind) {
-      if (kind === 'call')  ringCounter(card);
-      if (kind === 'quote') dayCounter(card);
-      if (kind === 'type')  doubleType(card);
+      if (kind === 'call'  && rings) rings.textContent = '6';
+      if (kind === 'quote' && days)  days.textContent  = '14';
+      if (kind === 'dup') { if (a) a.textContent = TYPE; if (b) b.textContent = TYPE; }
     }
 
     cards.forEach(function (card) {
-      var kind = card.getAttribute('data-leak');
-      var live = false;
-      if (!('IntersectionObserver' in window)) { card.classList.add('is-play'); return; }
+      var kind  = card.getAttribute('data-leak');
+      var scene = $('.scene', card);
+      if (!scene) return;
+      var tick = makeTick(card, kind);
+      var on = false, visible = !hasIO;
+
+      function start() {
+        if (on || RM.matches) return;
+        on = true;
+        scene.classList.add('is-play');
+        ticker.add(tick);
+      }
+      function stop() {
+        if (!on) return;
+        on = false;
+        scene.classList.remove('is-play');
+        ticker.remove(tick);
+      }
+      function final() { stop(); finalOf(card, kind); }
+
+      live.push({ start: function () { if (visible) start(); }, final: final });
+
+      if (!hasIO) { start(); return; }
       new IntersectionObserver(function (entries) {
-        entries.forEach(function (en) {
-          if (en.isIntersecting) {
-            card.classList.add('is-play');
-            if (live) return;
-            live = true;
-            start(card, kind);
-          } else if (live) {
-            live = false;
-            card.classList.remove('is-play');
-            stop(kind);
-          }
-        });
-      }, { threshold: 0.32 }).observe(card);
+        visible = entries[0].isIntersecting;
+        if (visible) start(); else { stop(); finalOf(card, kind); }
+      }, { threshold: 0.5 }).observe(card);
     });
+
+    live.forEach(registerLoop);
   })();
 
   /* ─────────────────────────────────────────────
-     4b. STEP ART — the How-it-works graphics animate on arrival.
-     They are complete without this: every piece is drawn at rest in CSS,
-     and .is-play only replays the entrance. Previously these depended on
-     .is-play to become visible at all, and nothing ever added it here, so
-     step 02's pins and step 03's bars never rendered.
+     FORK — the two connector paths draw themselves once, on arrival.
+     Without JS they are simply already drawn.
+     ───────────────────────────────────────────── */
+  (function fork() {
+    var root = $('#fork');
+    if (!root) return;
+    var paths = $$('.fork__p', root);
+    if (!paths.length) return;
+
+    paths.forEach(function (p) {
+      var len = 300;
+      try { len = Math.ceil(p.getTotalLength()) || 300; } catch (e) {}
+      p.style.setProperty('--len', len);
+    });
+
+    if (RM.matches || !hasIO) return;
+    var io = new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting) return;
+      root.classList.add('is-draw');
+      io.disconnect();
+    }, { threshold: 0.3 });
+    io.observe(root);
+  })();
+
+  /* ─────────────────────────────────────────────
+     STEP ART — the four how-it-works panels are drawn at rest in CSS;
+     .is-play only animates them, and only while the steps are on screen.
      ───────────────────────────────────────────── */
   (function stepArt() {
-    var steps = $$('.stepc');
-    if (!steps.length) return;
-    if (reduce || !('IntersectionObserver' in window)) return; /* already complete */
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (en.isIntersecting) { en.target.classList.add('is-play'); }
-        else { en.target.classList.remove('is-play'); }
-      });
-    }, { threshold: 0.35 });
-    steps.forEach(function (s) { io.observe(s); });
+    var grid = $('.how__grid');
+    var arts = $$('.how .art');
+    if (!grid || !arts.length || !hasIO) return;
+
+    var visible = false;
+    function paint() {
+      var on = visible && !RM.matches;
+      arts.forEach(function (a) { a.classList.toggle('is-play', on); });
+    }
+    new IntersectionObserver(function (entries) {
+      visible = entries[0].isIntersecting;
+      paint();
+    }, { threshold: 0.25 }).observe(grid);
+
+    registerLoop({ start: paint, final: function () {
+      arts.forEach(function (a) { a.classList.remove('is-play'); });
+    } });
   })();
 
   /* ─────────────────────────────────────────────
-     5. BOOKING — real dates, one click, nothing destroyed
+     BOOKING — real dates, one click, nothing destroyed.
+     Ported unchanged in behaviour from v4: the next 8 weekdays, five
+     windows, timezone line, mailto draft, post-submit panel with a copy
+     fallback, and aria-live announcements on slot change only.
      ───────────────────────────────────────────── */
   (function booking() {
     var dayWrap = $('#slot-days'), timeWrap = $('#slot-times');
@@ -267,8 +380,9 @@
     var picked = { day: null, time: null };
     var sel   = $('#book-sel'), form = $('#bf'), go = $('#bf-go');
     var goT   = $('#bf-go-t'), err = $('#bf-err'), tzLine = $('#book-tz');
-    var done  = $('#bf-done'), live = $('#bf-live'), whenEl = $('#bf-when');
+    var done  = $('#bf-done'), announce = $('#bf-live'), whenEl = $('#bf-when');
     var again = $('#bf-again'), raw = $('#bf-raw'), copy = $('#bf-copy');
+    var panel = sel ? sel.closest('.sel') : null;
 
     var WAITING = 'Pick a day and a time first';
     var READY   = 'Request this time';
@@ -278,7 +392,7 @@
     function label() {
       if (!picked.day) return 'No time picked yet';
       var s = DAYN[picked.day.getDay()] + ' ' + MONN[picked.day.getMonth()] + ' ' + picked.day.getDate();
-      return picked.time ? s + ' at ' + picked.time + ' PT' : s + ' — pick a time';
+      return picked.time ? s + ' at ' + picked.time + ' PT' : s + ' · pick a time';
     }
 
     var visitorTZ = '';
@@ -287,8 +401,7 @@
 
     function laParts(ms) {
       var p = new Intl.DateTimeFormat('en-US', {
-        timeZone: 'America/Los_Angeles', hour12: false,
-        hour: '2-digit', minute: '2-digit'
+        timeZone: 'America/Los_Angeles', hour12: false, hour: '2-digit', minute: '2-digit'
       }).formatToParts(new Date(ms));
       var o = {};
       p.forEach(function (x) { if (x.type === 'hour' || x.type === 'minute') o[x.type] = +x.value; });
@@ -315,8 +428,7 @@
         var inst = ptInstant(picked.day, picked.time);
         if (!inst) return '';
         var local = new Intl.DateTimeFormat('en-US', {
-          weekday: 'short', month: 'short', day: 'numeric',
-          hour: 'numeric', minute: '2-digit'
+          weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
         }).format(inst);
         return local + ' where you are (' + visitorTZ.split('/').pop().replace(/_/g, ' ') + ')';
       } catch (e) { return ''; }
@@ -330,35 +442,40 @@
       var name = ($('#bf-name') || {}).value || '';
       var biz  = ($('#bf-biz')  || {}).value || '';
       var when = whenText();
+      var subject = '30-min call · ' + when + (biz ? ' · ' + biz : '');
       var body = 'Hi John,\n\n' +
         'I would like the ' + when + ' slot.\n\n' +
         'Name: ' + (name || '(add your name)') + '\n' +
         'Business: ' + (biz || '(add your business)') + '\n\n' +
         'What eats the most time right now:\n\n';
       return {
-        when: when,
-        subject: '30-min call — ' + when + (biz ? ' — ' + biz : ''),
-        body: body,
-        href: 'mailto:' + EMAIL + '?subject=' + encodeURIComponent('30-min call — ' + when + (biz ? ' — ' + biz : '')) +
+        when: when, subject: subject, body: body,
+        href: 'mailto:' + EMAIL + '?subject=' + encodeURIComponent(subject) +
               '&body=' + encodeURIComponent(body)
       };
     }
 
-    /* announce only when the slot changed or the panel opened — never per keystroke */
-    function refreshPanel(announce) {
+    /* announce only when the slot changed or the panel opened, never per keystroke */
+    function refreshPanel(say) {
       if (!done || done.hidden || !ready()) return;
-      var d = draft();
-      if (whenEl) whenEl.textContent = d.when;
-      if (again) { again.href = d.href; again.setAttribute('aria-label', 'Open the email again for ' + d.when); }
-      if (raw) raw.value = 'To: ' + EMAIL + '\nSubject: ' + d.subject + '\n\n' + d.body;
+      var dr = draft();
+      if (whenEl) whenEl.textContent = dr.when;
+      if (again) { again.href = dr.href; again.setAttribute('aria-label', 'Open the email again for ' + dr.when); }
+      if (raw) raw.value = 'To: ' + EMAIL + '\nSubject: ' + dr.subject + '\n\n' + dr.body;
       if (copy) copy.textContent = 'Copy message';
-      if (announce && live) live.textContent = 'Message updated for ' + d.when + '. Nothing is booked until you send it.';
+      if (say && announce) announce.textContent = 'Message updated for ' + dr.when + '. Nothing is booked until you send it.';
     }
 
+    var pulse = 0;
     function sync(fromPick) {
       if (sel) {
         sel.textContent = label();
         sel.classList.toggle('is-set', ready());
+      }
+      if (panel && fromPick) {
+        panel.classList.add('is-pulse');
+        window.clearTimeout(pulse);
+        pulse = window.setTimeout(function () { panel.classList.remove('is-pulse'); }, 320);
       }
       if (tzLine) {
         var t = tzText();
@@ -371,12 +488,8 @@
       }
       if (err && ready()) err.textContent = '';
       if (done && !done.hidden) {
-        if (!ready()) {
-          done.hidden = true;
-          if (live) live.textContent = '';
-        } else {
-          refreshPanel(!!fromPick);
-        }
+        if (!ready()) { done.hidden = true; if (announce) announce.textContent = ''; }
+        else refreshPanel(!!fromPick);
       }
     }
 
@@ -384,7 +497,7 @@
       timeWrap.innerHTML = '';
       if (!picked.day) {
         var p = document.createElement('p');
-        p.className = 'slot--none';
+        p.className = 'slot--none small';
         p.textContent = 'Pick a day to see times.';
         timeWrap.appendChild(p);
         return;
@@ -412,7 +525,7 @@
       b.className = 'day';
       b.setAttribute('role', 'tab');
       b.setAttribute('aria-selected', 'false');
-      b.innerHTML = '<b>' + dt.getDate() + '</b> <span>' + DAYN[dt.getDay()] + '</span>';
+      b.innerHTML = '<b>' + dt.getDate() + '</b><span>' + DAYN[dt.getDay()] + '</span>';
       b.setAttribute('aria-label', dt.getDate() + ' ' + DAYN[dt.getDay()] + ', ' +
                                    MONN[dt.getMonth()] + ' ' + dt.getFullYear());
       b.addEventListener('click', function () {
@@ -422,12 +535,17 @@
       });
       dayWrap.appendChild(b);
       dayBtns.push(b);
-      if (i === 0) setTimeout(function () { b.click(); }, 0);
     });
 
-    renderTimes(); sync();
+    /* first day selected on load, without announcing or pulsing */
+    if (dayBtns.length) {
+      picked.day = days[0];
+      dayBtns[0].setAttribute('aria-selected', 'true');
+    }
+    renderTimes();
+    sync(false);
 
-    /* the "typical times" strip mirrors real generated slots */
+    /* the openings strip mirrors real generated slots */
     (function openings() {
       var wrap = $('#open-slots');
       if (!wrap || !days.length) return;
@@ -450,7 +568,7 @@
           var match = $$('.slot', timeWrap).filter(function (s) { return s.textContent === p.t; })[0];
           if (match) match.click();
           var book = document.getElementById('book');
-          if (book) book.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+          if (book) book.scrollIntoView({ behavior: RM.matches ? 'auto' : 'smooth', block: 'start' });
         });
         wrap.appendChild(b);
       });
@@ -461,19 +579,18 @@
         e.preventDefault();
         if (!ready()) {
           if (err) err.textContent = 'Pick a day and a time first, then try again.';
-          if (timeWrap) timeWrap.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+          timeWrap.scrollIntoView({ behavior: RM.matches ? 'auto' : 'smooth', block: 'center' });
           return;
         }
         if (err) err.textContent = '';
-
-        var d = draft();
+        var dr = draft();
         if (done) {
           done.hidden = false;
           refreshPanel(false);
-          if (live) live.textContent = 'Your email app should be opening for ' + d.when +
+          if (announce) announce.textContent = 'Your email app should be opening for ' + dr.when +
             '. It is not booked until you press Send. If nothing opened, copy the message below.';
         }
-        try { window.location.href = d.href; } catch (e2) {}
+        try { window.location.href = dr.href; } catch (e2) {}
       });
 
       ['#bf-name', '#bf-biz'].forEach(function (s) {
@@ -484,11 +601,11 @@
 
     if (copy && raw) {
       copy.addEventListener('click', function () {
-        function ok() { copy.textContent = 'Copied'; if (live) live.textContent = 'Message copied to your clipboard.'; }
-        function manual() {
-          raw.focus(); raw.select();
-          copy.textContent = 'Press Ctrl/Cmd + C';
+        function ok() {
+          copy.textContent = 'Copied';
+          if (announce) announce.textContent = 'Message copied to your clipboard.';
         }
+        function manual() { raw.focus(); raw.select(); copy.textContent = 'Press Ctrl/Cmd + C'; }
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(raw.value).then(ok, manual);
         } else { manual(); }
@@ -497,11 +614,12 @@
   })();
 
   /* ─────────────────────────────────────────────
-     6. SF CLOCK
+     CLOCK — San Francisco, off the shared ticker, repainted every 20s.
      ───────────────────────────────────────────── */
   (function clock() {
     var el = $('#sf-clock');
     if (!el) return;
+    var last = -1;
     function paint() {
       try {
         el.textContent = new Intl.DateTimeFormat('en-US', {
@@ -509,127 +627,94 @@
         }).format(new Date());
       } catch (e) { el.textContent = ''; }
     }
+    function tick(t) { if (last < 0 || t - last > 20000) { last = t; paint(); } }
     paint();
-    setInterval(paint, 20000);
+    if (RM.matches) return;
+    ticker.add(tick);
+    registerLoop({ start: function () { ticker.add(tick); }, final: function () { ticker.remove(tick); paint(); } });
   })();
 
   /* ─────────────────────────────────────────────
-     7. GSAP — scroll choreography.
-     Transform-only. Nothing above the fold is deferred, nothing
-     is hidden by default, and every trigger dies with its section.
+     DOCK — one action, below 880px only. Raises once the hero CTA has
+     left the screen, lowers again while the booking block is on screen,
+     so there are never two competing calls to action in view.
      ───────────────────────────────────────────── */
-  (function motion() {
-    if (reduce || !window.gsap || !window.ScrollTrigger) return;
-    gsap.registerPlugin(ScrollTrigger);
+  (function dock() {
+    var el = $('#dock');
+    if (!el || !hasIO) return;
+    var heroCta = $('.hero__cta'), book = $('#book');
+    if (!heroCta || !book) return;
 
-    /* progress bar */
-    var bar = $('#progress');
-    if (bar) {
-      gsap.to(bar, {
-        scaleX: 1, ease: 'none',
-        scrollTrigger: { start: 0, end: 'max', scrub: 0.4 }
-      });
-    }
+    var pastHero = false, atBook = false;
+    function paint() { el.classList.toggle('is-up', pastHero && !atBook); }
 
-    /* hero mark drifts against the scroll */
-    var hbg = $('#hero-bg');
-    if (hbg) {
-      gsap.to(hbg, {
-        yPercent: 26, ease: 'none',
-        scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.6 }
-      });
-    }
+    new IntersectionObserver(function (entries) {
+      pastHero = !entries[0].isIntersecting;
+      paint();
+    }, { threshold: 0 }).observe(heroCta);
 
-    /* transform-only reveals — no opacity, so text is always readable */
-    function rise(els, trigger) {
-      els.forEach(function (el, n) {
-        gsap.set(el, { y: 30 });
-        gsap.to(el, {
-          y: 0, duration: 0.9, ease: 'power3.out', delay: (n % 4) * 0.07,
-          scrollTrigger: { trigger: trigger || el, start: 'top 88%', once: true }
-        });
-      });
-    }
-    rise($$('.cap'));
-    rise($$('.proj__meta > *').slice(0, 60));
-    rise($$('.stepc'));
-    rise($$('.about__copy > *'));
-    ['.worth__h', '.worth__p'].forEach(function (s) { rise($$(s)); });
+    new IntersectionObserver(function (entries) {
+      atBook = entries[0].isIntersecting;
+      paint();
+    }, { threshold: 0, rootMargin: '-25% 0px -25% 0px' }).observe(book);
+  })();
 
-    /* The leak cards rise into place. This used to be a pinned horizontal
-       shelf; pinning is removed because a stale measurement could fix the
-       section over the hero, and it scroll-jacked besides. */
-    rise($$('.leak'));
+  /* ─────────────────────────────────────────────
+     MAGNETIC — the two primary calls to action, 8px maximum, fine
+     pointers only. The rect is cached and refreshed on a debounced
+     resize; getBoundingClientRect is never called inside pointermove.
+     ───────────────────────────────────────────── */
+  (function magnetic() {
+    if (RM.matches) return;
+    if (!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+    var els = $$('[data-magnetic]');
+    if (!els.length) return;
 
-    /* work screenshots breathe against their frames */
-    $$('.proj__shot img').forEach(function (img) {
-      gsap.fromTo(img, { yPercent: -5 }, {
-        yPercent: 5, ease: 'none',
-        scrollTrigger: { trigger: img.closest('.proj'), start: 'top bottom', end: 'bottom top', scrub: 0.6 }
-      });
+    var MAX = 8;
+    var rects = [];
+    function measure() { rects = els.map(function (e) { return e.getBoundingClientRect(); }); }
+    measure();
+
+    var t = 0;
+    window.addEventListener('resize', function () {
+      window.clearTimeout(t);
+      t = window.setTimeout(measure, 150);
     });
+    window.addEventListener('scroll', function () {
+      window.clearTimeout(t);
+      t = window.setTimeout(measure, 150);
+    }, { passive: true });
 
-    /* the how-it-works rail draws as you read the steps */
-    var railFill = $('#how-rail-fill');
-    if (railFill) {
-      var horizontal = window.matchMedia('(min-width: 1024px)').matches;
-      gsap.fromTo(railFill,
-        horizontal ? { scaleX: 0 } : { scaleY: 0 },
-        Object.assign(horizontal ? { scaleX: 1 } : { scaleY: 1 }, {
-          ease: 'none',
-          scrollTrigger: { trigger: '.how__grid', start: 'top 75%', end: 'bottom 55%', scrub: 0.5 }
-        })
-      );
-    }
-
-    /* trades marquee shears with scroll velocity */
-    var rows = $$('.trades__row');
-    if (rows.length) {
-      var skew = gsap.quickTo(rows, 'skewX', { duration: 0.4, ease: 'power2.out' });
-      ScrollTrigger.create({
-        trigger: '.trades', start: 'top bottom', end: 'bottom top',
-        onUpdate: function (self) {
-          skew(gsap.utils.clamp(-5, 5, self.getVelocity() / -260));
-        },
-        onLeave: function () { skew(0); },
-        onLeaveBack: function () { skew(0); }
+    els.forEach(function (el, i) {
+      el.addEventListener('pointermove', function (e) {
+        var r = rects[i];
+        if (!r || !r.width) return;
+        var dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
+        var dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+        el.style.transform = 'translate3d(' +
+          Math.max(-1, Math.min(1, dx)) * MAX + 'px,' +
+          Math.max(-1, Math.min(1, dy)) * MAX + 'px,0)';
       });
-    }
+      el.addEventListener('pointerleave', function () { el.style.transform = ''; });
+      el.addEventListener('blur', function () { el.style.transform = ''; });
+    });
+  })();
 
-    /* the footer wordmark surfaces from below the fold */
-    var word = $('#foot-word');
-    if (word) {
-      gsap.fromTo(word, { yPercent: 42 }, {
-        yPercent: 0, ease: 'none',
-        scrollTrigger: { trigger: '.foot__mark', start: 'top 96%', end: 'top 55%', scrub: 0.5 }
-      });
-    }
-
-    /* custom cursor — fine pointers only */
-    if (window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
-      var dot = $('#cursor'), ring = $('#cursor-ring');
-      if (dot && ring) {
-        document.documentElement.classList.add('has-cursor');
-        var dx = gsap.quickTo(dot, 'x', { duration: 0.12, ease: 'power2.out' });
-        var dy = gsap.quickTo(dot, 'y', { duration: 0.12, ease: 'power2.out' });
-        var rx = gsap.quickTo(ring, 'x', { duration: 0.38, ease: 'power2.out' });
-        var ry = gsap.quickTo(ring, 'y', { duration: 0.38, ease: 'power2.out' });
-        window.addEventListener('pointermove', function (e) {
-          dx(e.clientX); dy(e.clientY); rx(e.clientX); ry(e.clientY);
-        }, { passive: true });
-        document.addEventListener('mouseover', function (e) {
-          if (e.target.closest('a,button,summary,input,textarea')) ring.classList.add('is-on');
-        });
-        document.addEventListener('mouseout', function (e) {
-          if (e.target.closest('a,button,summary,input,textarea')) ring.classList.remove('is-on');
-        });
+  /* ─────────────────────────────────────────────
+     REDUCED MOTION WATCHER — iOS and macOS both let a user flip this
+     mid-session, so every loop can be stopped and re-started in place.
+     ───────────────────────────────────────────── */
+  (function reducedMotionWatcher() {
+    function apply(reduce) {
+      for (var i = 0; i < LOOPS.length; i++) {
+        if (reduce) { if (LOOPS[i].final) LOOPS[i].final(); }
+        else        { if (LOOPS[i].start) LOOPS[i].start(); }
       }
     }
-
-    /* type metrics settle after the webfonts land */
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
-    }
+    if (RM.matches) apply(true);
+    var handler = function (e) { apply(e.matches); };
+    if (RM.addEventListener) RM.addEventListener('change', handler);
+    else if (RM.addListener) RM.addListener(handler);
   })();
 
 })();
