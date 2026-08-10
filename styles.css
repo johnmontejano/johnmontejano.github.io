@@ -898,7 +898,8 @@ html.js .q:not([open]) .q__wrap{ grid-template-rows:0fr; }
 
 /* ══════════════════════════ BOOKING ══════════════════════════ */
 .book{ padding-block:var(--pad-close); }
-.book__grid{ display:grid; gap:var(--s-7); }
+.book__grid{ display:grid; grid-template-columns:minmax(0,1fr); gap:var(--s-7); }
+.book__grid > *{ min-width:0; }
 .book__note{ color:var(--on-dark-55); margin-bottom:var(--s-4); }
 .days{ display:grid; grid-template-columns:repeat(auto-fit,minmax(84px,1fr)); gap:var(--s-2); }
 .day{
@@ -998,6 +999,7 @@ html.js .q:not([open]) .q__wrap{ grid-template-rows:0fr; }
 @media (max-width:1039px){
   .book{ padding-bottom:calc(var(--pad-sec) + 88px); }
   .days__scroll{
+    max-width:100%;
     overflow-x:auto; scrollbar-width:none; -ms-overflow-style:none;
     scroll-snap-type:x mandatory; scroll-padding-inline:var(--gut);
     margin-inline:0;
