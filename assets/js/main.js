@@ -332,6 +332,16 @@
   })();
 
   /* ─────────────────────────────────────────────
+     FAQ — every row ships `open` so a JS-blocked visitor reads all six
+     answers. With JS, the first stays open and the rest collapse.
+     ───────────────────────────────────────────── */
+  (function faq() {
+    var rows = $$('.faq__list details');
+    if (rows.length < 2) return;
+    for (var i = 1; i < rows.length; i++) rows[i].open = false;
+  })();
+
+  /* ─────────────────────────────────────────────
      STEP ART — the four how-it-works panels are drawn at rest in CSS;
      .is-play only animates them, and only while the steps are on screen.
      ───────────────────────────────────────────── */
