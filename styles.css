@@ -16,7 +16,7 @@
   /* paper register */
   --paper:      #faf9f5;
   --tint:       #f0eee6;
-  --card:       #e3dacc;
+  --card:       #ebe3d8;   /* lightened from #e3dacc so --sig-t clears AA on it */
   --ink:        #141413;
   --ink-72:     rgba(20,20,19,.72);
   --ink-62:     rgba(20,20,19,.62);
@@ -36,7 +36,6 @@
   /* accents */
   --sig:        #dd6b3d;   /* terracotta = "you act". FILL ONLY, paper register */
   --sig-t:      #a8451f;   /* terracotta as TEXT, paper register */
-  --sig-t-card: #93381a;   /* terracotta as TEXT on --card. AA at 14/600 */
   --mint:       #4fe6a8;   /* "the machine is working". DARK REGISTER ONLY */
   --mint-well:  rgba(79,230,168,.10);
   --mint-edge:  rgba(79,230,168,.28);
@@ -707,7 +706,7 @@ html.js .fork.is-draw .fork__p{
 .proj .frame{ margin-bottom:var(--s-3); }
 .proj .frame img{ transform:scale(1.05); transform-origin:50% 0;
                   transition:transform var(--d-state) var(--ease-out); }
-.proj .visit{ margin-top:auto; color:var(--sig-t-card); }
+.proj .visit{ margin-top:auto; }
 @media (hover:hover) and (pointer:fine){
   .proj:hover{ transform:translate3d(0,-3px,0); border-color:var(--ink-72); }
   .proj:hover .frame img{ transform:scale(1); }
