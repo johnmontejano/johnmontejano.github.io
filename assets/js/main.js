@@ -663,7 +663,13 @@
     function paint() { el.classList.toggle('is-up', pastHero && !atBook); }
 
     new IntersectionObserver(function (entries) {
-      pastHero = !entries[0].isIntersecting;
+      var e = entries[0];
+      // "Not intersecting" happens on both sides of the viewport. Only a CTA
+      // sitting above it counts as scrolled past; one below it simply has not
+      // been reached yet, which is the case at load in a short landscape
+      // viewport where the CTA starts below the fold.
+      var viewTop = e.rootBounds ? e.rootBounds.top : 0;
+      pastHero = !e.isIntersecting && e.boundingClientRect.bottom <= viewTop;
       paint();
     }, { threshold: 0 }).observe(heroCta);
 
