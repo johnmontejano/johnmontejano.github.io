@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   John Montejano — v5 "Paper and Machine"
+   John Montejano · v6 "Paper and Machine, refined"
 
    One IIFE, strict mode, ES5-safe syntax. No library, no build step.
    Every module returns immediately if its root element is absent, so a
@@ -7,7 +7,7 @@
    this file blocked: nothing here is required to see or read anything.
 
    Module order:
-   boot · ticker · reveal · splitHero · nav · machine · leaks · fork ·
+   boot · ticker · reveal · splitHero · nav · sectionIndex · rail ·
    booking (+ openings) · clock · dock · magnetic · reducedMotionWatcher
    ═══════════════════════════════════════════════════════════════════════ */
 (function () {
@@ -24,7 +24,7 @@
   function registerLoop(o) { LOOPS.push(o); }
 
   /* ─────────────────────────────────────────────
-     TICKER — one requestAnimationFrame for the whole page.
+     TICKER · one requestAnimationFrame for the whole page.
      The console replay, the four leak vignettes and the SF clock all
      read the same clock. The loop stops entirely when nobody is watching.
      ───────────────────────────────────────────── */
@@ -49,7 +49,7 @@
   })();
 
   /* ─────────────────────────────────────────────
-     REVEAL — IntersectionObserver base. The scroll-timeline path in the
+     REVEAL · IntersectionObserver base. The scroll-timeline path in the
      stylesheet is the enhancement; this can never fail closed.
      ───────────────────────────────────────────── */
   (function reveal() {
@@ -60,8 +60,8 @@
       $$('.reveal:not(.is-in)').forEach(function (el) { el.classList.add('is-in'); });
     }
 
-    /* Under reduced motion there is no reveal choreography to run — the
-       stylesheet already holds every .reveal at its final state — so mark
+    /* Under reduced motion there is no reveal choreography to run · the
+       stylesheet already holds every .reveal at its final state · so mark
        the whole page in at once instead of waiting on intersection or the
        failsafe. Same for a browser with no IntersectionObserver. */
     if (RM.matches || !hasIO) { force(); return; }
@@ -96,12 +96,13 @@
   })();
 
   /* ─────────────────────────────────────────────
-     SPLIT HERO — the word mask, H1 only, with the accessible duplicate.
+     SPLIT HERO · the word mask, H1 only, with the accessible duplicate.
      Under reduced motion the split is not applied at all.
      ───────────────────────────────────────────── */
   (function splitHero() {
     if (RM.matches) return;
-    $$('.split').forEach(function (el) {
+    $$('.split').forEach(function (root) {
+      var el = $('.h1__a', root) || root;
       var text = el.textContent.replace(/\s+/g, ' ').trim();
       if (!text) return;
       var out = '<span class="sr-only">' + text + '</span>';
@@ -111,12 +112,12 @@
         if (i < words.length - 1) out += ' ';
       }
       el.innerHTML = out;
-      window.requestAnimationFrame(function () { el.classList.add('is-in'); });
+      window.requestAnimationFrame(function () { root.classList.add('is-in'); });
     });
   })();
 
   /* ─────────────────────────────────────────────
-     NAV — stuck state, hide on scroll down, mobile drawer.
+     NAV · stuck state, hide on scroll down, mobile drawer.
      One passive scroll listener that only flags; every read happens
      inside a single rAF tick and touches no layout property.
      ───────────────────────────────────────────── */
@@ -152,6 +153,8 @@
       }, { passive: true });
     }
 
+    /* the drawer is the page's numbered index at every width, not a phone
+       fallback: the bar has no section links left to lose. */
     var burger = $('#burger'), drawer = $('#drawer');
     if (!burger || !drawer) return;
 
@@ -161,7 +164,11 @@
       drawer.hidden = !open;
       document.body.style.overflow = open ? 'hidden' : '';
       document.body.classList.toggle('is-locked', open);
-      if (open) el.classList.remove('is-away');
+      if (open) {
+        el.classList.remove('is-away');
+        var first = $('a', drawer);
+        if (first) first.focus();
+      }
     }
     burger.addEventListener('click', function () {
       setOpen(burger.getAttribute('aria-expanded') !== 'true');
@@ -170,15 +177,102 @@
       if (e.target.closest('a')) setOpen(false);
     });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !drawer.hidden) { setOpen(false); burger.focus(); }
-    });
-    window.addEventListener('resize', function () {
-      if (window.innerWidth >= 880 && !drawer.hidden) setOpen(false);
+      if (drawer.hidden) return;
+      if (e.key === 'Escape') { setOpen(false); burger.focus(); return; }
+      if (e.key !== 'Tab') return;
+      /* focus trap: the drawer covers the page, so nothing behind it is
+         reachable by eye and nothing behind it should be reachable by tab. */
+      var f = $$('a[href], button:not(:disabled)', drawer);
+      if (!f.length) return;
+      f.unshift(burger);
+      var i = f.indexOf(document.activeElement);
+      if (e.shiftKey) {
+        if (i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+      } else if (i === f.length - 1) { e.preventDefault(); f[0].focus(); }
     });
   })();
 
   /* ─────────────────────────────────────────────
-     MACHINE CONSOLE — replays one job, end to end.
+     SECTION INDEX · the nav centre reads the numbered section you are in.
+     Decorative for assistive tech: announcing a label on every scroll is
+     noise, and the drawer and the footer carry the real navigation.
+     ───────────────────────────────────────────── */
+  (function sectionIndex() {
+    var idx = $('#idx');
+    if (!idx || !hasIO) return;
+
+    var LABELS = [
+      ['leaks', 'WHERE IT GOES'], ['does', 'WHAT I AUTOMATE'],
+      ['work',  'WORK'],          ['worth', 'WHAT IT REPLACES'],
+      ['how',   'HOW IT WORKS'],  ['about', 'WHO'],
+      ['faq',   'QUESTIONS'],     ['book',  'BOOK']
+    ];
+
+    var els = [], on = {};
+    for (var i = 0; i < LABELS.length; i++) {
+      var el = document.getElementById(LABELS[i][0]);
+      if (!el) continue;
+      el.setAttribute('data-idx', ('0' + (i + 1)).slice(-2) + ' · ' + LABELS[i][1]);
+      els.push(el);
+    }
+    if (!els.length) return;
+
+    function paint() {
+      var label = '';
+      for (var i = 0; i < els.length; i++) {
+        if (on[els[i].id]) label = els[i].getAttribute('data-idx');
+      }
+      if (label) {
+        if (idx.textContent !== label) idx.textContent = label;
+        idx.classList.add('is-on');
+      } else {
+        idx.classList.remove('is-on');
+      }
+    }
+
+    var io = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        on[entries[i].target.id] = entries[i].isIntersecting;
+      }
+      paint();
+    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+
+    els.forEach(function (el) { io.observe(el); });
+  })();
+
+  /* ─────────────────────────────────────────────
+     RAIL · the scroll-progress bar. On a modern browser the stylesheet
+     drives it off a scroll timeline and this module attaches nothing at
+     all, so the page keeps its zero-scroll-listener property.
+     ───────────────────────────────────────────── */
+  (function rail() {
+    var bar = document.querySelector('.progress');
+    if (!bar) return;
+    var native = false;
+    try {
+      native = !!(window.CSS && CSS.supports &&
+                  CSS.supports('animation-timeline', 'scroll(root block)'));
+    } catch (e) {}
+    if (native) return;
+
+    var root = document.documentElement, queued = false;
+    function paint() {
+      var h = root.scrollHeight - window.innerHeight;
+      var p = h > 0 ? window.scrollY / h : 0;
+      root.style.setProperty('--p', Math.max(0, Math.min(1, p)).toFixed(4));
+    }
+    function tick() { queued = false; ticker.remove(tick); paint(); }
+    paint();
+    window.addEventListener('scroll', function () {
+      if (queued) return;
+      queued = true;
+      ticker.add(tick);
+    }, { passive: true });
+    window.addEventListener('resize', paint);
+  })();
+
+  /* ─────────────────────────────────────────────
+     MACHINE CONSOLE · replays one job, end to end.
      The markup ships every event visible; the replay only ever removes
      and restores them, so JS-off and reduced motion read the finished job.
      ───────────────────────────────────────────── */
@@ -229,7 +323,7 @@
   })();
 
   /* ─────────────────────────────────────────────
-     LEAK SCENES — four vignettes. Each renders its FINAL state in the
+     LEAK SCENES · four vignettes. Each renders its FINAL state in the
      markup (counter at its end value, stamp present, outcome line visible);
      .is-play only replays it, and only while the card is on screen.
      ───────────────────────────────────────────── */
@@ -311,7 +405,7 @@
   })();
 
   /* ─────────────────────────────────────────────
-     FORK — the two connector paths draw themselves once, on arrival.
+     FORK · the two connector paths draw themselves once, on arrival.
      Without JS they are simply already drawn.
      ───────────────────────────────────────────── */
   (function fork() {
@@ -336,7 +430,7 @@
   })();
 
   /* ─────────────────────────────────────────────
-     FAQ — every row ships `open` so a JS-blocked visitor reads all six
+     FAQ · every row ships `open` so a JS-blocked visitor reads all six
      answers. With JS, the first stays open and the rest collapse.
      ───────────────────────────────────────────── */
   (function faq() {
@@ -346,7 +440,7 @@
   })();
 
   /* ─────────────────────────────────────────────
-     STEP ART — the four how-it-works panels are drawn at rest in CSS;
+     STEP ART · the four how-it-works panels are drawn at rest in CSS;
      .is-play only animates them, and only while the steps are on screen.
      ───────────────────────────────────────────── */
   (function stepArt() {
@@ -370,32 +464,56 @@
   })();
 
   /* ─────────────────────────────────────────────
-     BOOKING — real dates, one click, nothing destroyed.
-     Ported unchanged in behaviour from v4: the next 8 weekdays, five
-     windows, timezone line, mailto draft, post-submit panel with a copy
-     fallback, and aria-live announcements on slot change only.
+     BOOKING · real dates, one click, nothing destroyed.
+
+     The geometry is new in v6 (a month grid, a phone day list, five window
+     pills) but the logic underneath is the verified v4/v5 module, ported:
+     the next 8 weekdays, five Pacific windows, the timezone line, the
+     mailto draft, the post-submit panel with a clipboard fallback, and the
+     aria-live announcements. The submit stays mailto because no scheduler
+     account exists; the day a real URL arrives it is one block to swap.
      ───────────────────────────────────────────── */
   (function booking() {
-    var dayWrap = $('#slot-days'), timeWrap = $('#slot-times');
-    if (!dayWrap || !timeWrap) return;
+    var grid = $('#cal-grid'), timeWrap = $('#slot-times'), list = $('#daylist');
+    if (!grid || !timeWrap || !list) return;
 
     var EMAIL = 'johnmontejano2@gmail.com';
     var WINDOWS = ['9:00 AM', '10:30 AM', '1:00 PM', '2:30 PM', '4:00 PM'];
     var DAYN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var DAYL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     var MONN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var MONL = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+                'August', 'September', 'October', 'November', 'December'];
+    var WD   = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+    /* the eight weekdays that are genuinely open. Nothing else is offered,
+       and every other date in the month renders visibly unavailable. */
     var days = [], d = new Date();
     d.setDate(d.getDate() + 1);
     while (days.length < 8) {
       if (d.getDay() !== 0 && d.getDay() !== 6) days.push(new Date(d));
       d.setDate(d.getDate() + 1);
     }
+    function iso(dt) {
+      return dt.getFullYear() + '-' + ('0' + (dt.getMonth() + 1)).slice(-2) +
+             '-' + ('0' + dt.getDate()).slice(-2);
+    }
+    var open = {};
+    days.forEach(function (dt) { open[iso(dt)] = dt; });
+
+    var now = new Date();
+    function mIdx(dt) { return dt.getFullYear() * 12 + dt.getMonth(); }
+    var minM = mIdx(now), maxM = mIdx(days[days.length - 1]);
+    if (maxM < minM) maxM = minM;
+    var view = mIdx(days[0]);
 
     var picked = { day: null, time: null };
     var sel   = $('#book-sel'), form = $('#bf'), go = $('#bf-go');
     var goT   = $('#bf-go-t'), err = $('#bf-err'), tzLine = $('#book-tz');
     var done  = $('#bf-done'), announce = $('#bf-live'), whenEl = $('#bf-when');
     var again = $('#bf-again'), raw = $('#bf-raw'), copy = $('#bf-copy');
+    var monthEl = $('#cal-month'), prevB = $('#cal-prev'), nextB = $('#cal-next');
+    var slotHead = $('#slot-head'), tzMine = $('#bk-tzmine');
     var panel = sel ? sel.closest('.sel') : null;
 
     var WAITING = 'Pick a day and a time first';
@@ -405,13 +523,14 @@
 
     function label() {
       if (!picked.day) return 'No time picked yet';
-      var s = DAYN[picked.day.getDay()] + ' ' + MONN[picked.day.getMonth()] + ' ' + picked.day.getDate();
+      var s = DAYL[picked.day.getDay()] + ' ' + MONN[picked.day.getMonth()] + ' ' + picked.day.getDate();
       return picked.time ? s + ' at ' + picked.time + ' PT' : s + ' · pick a time';
     }
 
     var visitorTZ = '';
     try { visitorTZ = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
     var outsidePT = visitorTZ && visitorTZ.indexOf('Los_Angeles') < 0;
+    if (tzMine && outsidePT) tzMine.textContent = ' · your time: ' + visitorTZ;
 
     function laParts(ms) {
       var p = new Intl.DateTimeFormat('en-US', {
@@ -436,20 +555,24 @@
       }
       return new Date(ms);
     }
-    function tzText() {
-      if (!outsidePT || !ready()) return '';
+    function localOf(dayDt, timeStr) {
       try {
-        var inst = ptInstant(picked.day, picked.time);
+        var inst = ptInstant(dayDt, timeStr);
         if (!inst) return '';
-        var local = new Intl.DateTimeFormat('en-US', {
+        return new Intl.DateTimeFormat('en-US', {
           weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
         }).format(inst);
-        return local + ' where you are (' + visitorTZ.split('/').pop().replace(/_/g, ' ') + ')';
       } catch (e) { return ''; }
+    }
+    function tzText() {
+      if (!outsidePT || !ready()) return '';
+      var local = localOf(picked.day, picked.time);
+      if (!local) return '';
+      return local + ' where you are (' + visitorTZ.split('/').pop().replace(/_/g, ' ') + ')';
     }
 
     function whenText() {
-      return DAYN[picked.day.getDay()] + ' ' + MONN[picked.day.getMonth()] + ' ' +
+      return DAYL[picked.day.getDay()] + ' ' + MONN[picked.day.getMonth()] + ' ' +
              picked.day.getDate() + ' at ' + picked.time + ' Pacific';
     }
     function draft() {
@@ -507,8 +630,31 @@
       }
     }
 
+    /* ── column 3 · the five windows ── */
+    function renderHead() {
+      if (!slotHead) return;
+      slotHead.innerHTML = '';
+      if (!picked.day) return;
+      var a = document.createElement('span');
+      a.textContent = DAYN[picked.day.getDay()] + ' ' + MONN[picked.day.getMonth()] +
+                      ' ' + picked.day.getDate();
+      var b = document.createElement('span');
+      b.textContent = 'Pacific time';
+      slotHead.appendChild(a);
+      slotHead.appendChild(b);
+      if (outsidePT) {
+        var l = localOf(picked.day, WINDOWS[0]);
+        if (l) {
+          var c = document.createElement('span');
+          c.textContent = 'first window is ' + l + ' where you are';
+          slotHead.appendChild(c);
+        }
+      }
+    }
+
     function renderTimes() {
       timeWrap.innerHTML = '';
+      renderHead();
       if (!picked.day) {
         var p = document.createElement('p');
         p.className = 'slot--none small';
@@ -520,42 +666,148 @@
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'slot';
-        b.setAttribute('role', 'tab');
-        b.setAttribute('aria-selected', String(picked.time === t));
+        b.setAttribute('aria-pressed', String(picked.time === t));
         b.textContent = t;
         b.addEventListener('click', function () {
           picked.time = t;
-          $$('.slot', timeWrap).forEach(function (o) { o.setAttribute('aria-selected', String(o === b)); });
+          $$('.slot', timeWrap).forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
           sync(true);
         });
         timeWrap.appendChild(b);
       });
     }
 
-    var dayBtns = [];
-    days.forEach(function (dt, i) {
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'day';
-      b.setAttribute('role', 'tab');
-      b.setAttribute('aria-selected', 'false');
-      b.innerHTML = '<b>' + dt.getDate() + '</b><span>' + DAYN[dt.getDay()] + '</span>';
-      b.setAttribute('aria-label', dt.getDate() + ' ' + DAYN[dt.getDay()] + ', ' +
-                                   MONN[dt.getMonth()] + ' ' + dt.getFullYear());
-      b.addEventListener('click', function () {
-        picked.day = dt; picked.time = null;
-        $$('.day', dayWrap).forEach(function (o) { o.setAttribute('aria-selected', String(o === b)); });
-        renderTimes(); sync(true);
+    /* ── selection, shared by the month grid, the day list and the strip ── */
+    function markDays() {
+      var key = picked.day ? iso(picked.day) : '';
+      $$('[data-iso]').forEach(function (b) {
+        b.setAttribute('aria-selected', String(b.getAttribute('data-iso') === key));
       });
-      dayWrap.appendChild(b);
-      dayBtns.push(b);
+      $$('#cal-grid [data-iso]').forEach(function (b) {
+        b.tabIndex = b.getAttribute('data-iso') === key ? 0 : -1;
+      });
+    }
+    function selectDay(dt, say) {
+      picked.day = dt;
+      picked.time = null;
+      markDays();
+      renderTimes();
+      sync(true);
+      if (say && announce) {
+        announce.textContent = DAYL[dt.getDay()] + ' ' + MONL[dt.getMonth()] + ' ' +
+          dt.getDate() + ' selected. Pick one of the five windows.';
+      }
+    }
+
+    /* ── column 2 · the month grid ── */
+    function cell(tag) {
+      var e = document.createElement(tag);
+      e.className = 'cal__d' + (tag === 'span' ? ' cal__d--pad' : '');
+      e.setAttribute('role', 'gridcell');
+      return e;
+    }
+    function renderMonth() {
+      var y = Math.floor(view / 12), m = view % 12;
+      if (monthEl) monthEl.textContent = MONL[m] + ' ' + y;
+      if (prevB) prevB.disabled = view <= minM;
+      if (nextB) nextB.disabled = view >= maxM;
+
+      grid.innerHTML = '';
+
+      var head = document.createElement('div');
+      head.className = 'cal__row cal__wd';
+      head.setAttribute('role', 'row');
+      WD.forEach(function (w) {
+        var s = document.createElement('span');
+        s.className = 'caps';
+        s.setAttribute('role', 'columnheader');
+        s.textContent = w;
+        head.appendChild(s);
+      });
+      grid.appendChild(head);
+
+      var first = new Date(y, m, 1);
+      var lead = (first.getDay() + 6) % 7;           /* Monday-first grid */
+      var dim = new Date(y, m + 1, 0).getDate();
+
+      for (var r = 0; r < 6; r++) {
+        var row = document.createElement('div');
+        row.className = 'cal__row';
+        row.setAttribute('role', 'row');
+        for (var c = 0; c < 7; c++) {
+          var n = r * 7 + c - lead + 1;
+          if (n < 1 || n > dim) { row.appendChild(cell('span')); continue; }
+          var dt = new Date(y, m, n);
+          var key = iso(dt);
+          var b = cell('button');
+          b.type = 'button';
+          b.textContent = n;
+          b.setAttribute('aria-label', DAYL[dt.getDay()] + ', ' + MONL[m] + ' ' + n);
+          if (open[key]) {
+            b.setAttribute('data-iso', key);
+            b.setAttribute('aria-selected', 'false');
+            b.tabIndex = -1;
+            b.addEventListener('click', bindPick(open[key]));
+          } else {
+            b.disabled = true;
+            b.setAttribute('aria-disabled', 'true');
+            b.tabIndex = -1;
+          }
+          row.appendChild(b);
+        }
+        grid.appendChild(row);
+      }
+      markDays();
+    }
+    function bindPick(dt) { return function () { selectDay(dt, true); }; }
+
+    if (prevB) prevB.addEventListener('click', function () { if (view > minM) { view--; renderMonth(); } });
+    if (nextB) nextB.addEventListener('click', function () { if (view < maxM) { view++; renderMonth(); } });
+
+    /* roving focus across the enabled cells, which are the only ones a
+       keyboard has any reason to reach */
+    grid.addEventListener('keydown', function (e) {
+      var k = e.key;
+      if (k !== 'ArrowLeft' && k !== 'ArrowRight' && k !== 'ArrowUp' &&
+          k !== 'ArrowDown' && k !== 'Home' && k !== 'End') return;
+      var cells = $$('#cal-grid button[data-iso]');
+      if (!cells.length) return;
+      var i = cells.indexOf(document.activeElement);
+      var to = i;
+      if (k === 'Home') to = 0;
+      else if (k === 'End') to = cells.length - 1;
+      else if (i < 0) to = 0;
+      else if (k === 'ArrowLeft' || k === 'ArrowUp') to = Math.max(0, i - 1);
+      else to = Math.min(cells.length - 1, i + 1);
+      e.preventDefault();
+      cells.forEach(function (c) { c.tabIndex = -1; });
+      cells[to].tabIndex = 0;
+      cells[to].focus();
     });
 
-    /* first day selected on load, without announcing or pulsing */
-    if (dayBtns.length) {
-      picked.day = days[0];
-      dayBtns[0].setAttribute('aria-selected', 'true');
-    }
+    /* ── the phone day list · a 7-column grid cannot make a 44px target ── */
+    (function renderList() {
+      list.innerHTML = '';
+      days.forEach(function (dt) {
+        var li = document.createElement('li');
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('data-iso', iso(dt));
+        b.setAttribute('aria-selected', 'false');
+        b.innerHTML = '<span>' + DAYN[dt.getDay()] + ' ' + MONN[dt.getMonth()] + ' ' +
+                      dt.getDate() + '</span><em>' + DAYL[dt.getDay()] + '</em>';
+        b.setAttribute('aria-label', DAYL[dt.getDay()] + ', ' + MONL[dt.getMonth()] + ' ' + dt.getDate());
+        b.addEventListener('click', bindPick(dt));
+        li.appendChild(b);
+        list.appendChild(li);
+      });
+    })();
+
+    renderMonth();
+
+    /* first available weekday preselected, without announcing or pulsing */
+    picked.day = days[0];
+    markDays();
     renderTimes();
     sync(false);
 
@@ -578,7 +830,7 @@
         b.innerHTML = '<b>' + DAYN[dt.getDay()] + ' ' + MONN[dt.getMonth()] + ' ' + dt.getDate() +
                       '</b><span>' + p.t + '</span>';
         b.addEventListener('click', function () {
-          dayBtns[p.d].click();
+          selectDay(dt, false);
           var match = $$('.slot', timeWrap).filter(function (s) { return s.textContent === p.t; })[0];
           if (match) match.click();
           var book = document.getElementById('book');
@@ -592,8 +844,14 @@
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         if (!ready()) {
-          if (err) err.textContent = 'Pick a day and a time first, then try again.';
+          if (err) err.textContent = 'Pick a day and a time first.';
           timeWrap.scrollIntoView({ behavior: RM.matches ? 'auto' : 'smooth', block: 'center' });
+          return;
+        }
+        var nameEl = $('#bf-name');
+        if (nameEl && !nameEl.value.replace(/\s+/g, '')) {
+          if (err) err.textContent = 'Add your name so I know who I am confirming with.';
+          nameEl.focus();
           return;
         }
         if (err) err.textContent = '';
@@ -628,7 +886,7 @@
   })();
 
   /* ─────────────────────────────────────────────
-     CLOCK — San Francisco, off the shared ticker, repainted every 20s.
+     CLOCK · San Francisco, off the shared ticker, repainted every 20s.
      ───────────────────────────────────────────── */
   (function clock() {
     var el = $('#sf-clock');
@@ -649,7 +907,7 @@
   })();
 
   /* ─────────────────────────────────────────────
-     DOCK — one action, below 880px only. Raises once the hero CTA has
+     DOCK · one action, below 880px only. Raises once the hero CTA has
      left the screen, lowers again while the booking block is on screen,
      so there are never two competing calls to action in view.
      ───────────────────────────────────────────── */
@@ -680,7 +938,7 @@
   })();
 
   /* ─────────────────────────────────────────────
-     MAGNETIC — the two primary calls to action, 8px maximum, fine
+     MAGNETIC · the two primary calls to action, 8px maximum, fine
      pointers only. The rect is cached and refreshed on a debounced
      resize; getBoundingClientRect is never called inside pointermove.
      ───────────────────────────────────────────── */
@@ -721,7 +979,7 @@
   })();
 
   /* ─────────────────────────────────────────────
-     REDUCED MOTION WATCHER — iOS and macOS both let a user flip this
+     REDUCED MOTION WATCHER · iOS and macOS both let a user flip this
      mid-session, so every loop can be stopped and re-started in place.
      ───────────────────────────────────────────── */
   (function reducedMotionWatcher() {

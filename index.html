@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>John Montejano — You run the jobs. The office runs itself.</title>
+<title>John Montejano · You run the jobs. The office runs itself.</title>
 <meta name="description" content="I build the system that answers, quotes, chases and books while you're on the job. AI systems for service businesses. San Francisco.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -12,19 +12,19 @@
 <link rel="canonical" href="https://johnmontejano.github.io/">
 <meta property="og:site_name" content="John Montejano">
 <meta property="og:locale" content="en_US">
-<meta property="og:title" content="John Montejano — You run the jobs. The office runs itself.">
+<meta property="og:title" content="John Montejano · You run the jobs. The office runs itself.">
 <meta property="og:description" content="I build the system that answers, quotes, chases and books while you're on the job. Thirty minutes, no pitch, you keep the map either way.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://johnmontejano.github.io/">
 <meta property="og:image" content="https://johnmontejano.github.io/assets/img/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="John Montejano — AI systems for service businesses. San Francisco.">
+<meta property="og:image:alt" content="John Montejano · AI systems for service businesses. San Francisco.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="John Montejano — You run the jobs. The office runs itself.">
+<meta name="twitter:title" content="John Montejano · You run the jobs. The office runs itself.">
 <meta name="twitter:description" content="I build the system that answers, quotes, chases and books while you're on the job.">
 <meta name="twitter:image" content="https://johnmontejano.github.io/assets/img/og-card.png">
-<meta name="twitter:image:alt" content="John Montejano — AI systems for service businesses.">
+<meta name="twitter:image:alt" content="John Montejano · AI systems for service businesses.">
 <link rel="preload" href="assets/type/instrument-sans.woff2"  as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/type/instrument-serif.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="styles.css">
@@ -48,14 +48,14 @@
       "@type": "WebSite",
       "@id": "https://johnmontejano.github.io/#website",
       "url": "https://johnmontejano.github.io/",
-      "name": "John Montejano — AI systems for service businesses",
+      "name": "John Montejano · AI systems for service businesses",
       "publisher": { "@id": "https://johnmontejano.github.io/#john" },
       "inLanguage": "en-US"
     },
     {
       "@type": "ProfessionalService",
       "@id": "https://johnmontejano.github.io/#service",
-      "name": "John Montejano — AI systems for service businesses",
+      "name": "John Montejano · AI systems for service businesses",
       "description": "Systems that answer calls, qualify leads, book real calendar slots, send and chase quotes, invoice and follow up for service businesses.",
       "founder": { "@id": "https://johnmontejano.github.io/#john" },
       "email": "mailto:johnmontejano2@gmail.com",
@@ -111,7 +111,7 @@
   <div class="nav__in">
     <a class="nav__id" href="#top">
       <!-- THE FALLING COLUMN: two tasks standing, a third bending over into the
-           line it becomes — the repeating job falling out of existence. -->
+           line it becomes, the repeating job falling out of existence. -->
       <svg class="mark nav__mark" viewBox="0 0 32 32" width="26" height="26" aria-hidden="true" focusable="false">
         <path class="mark__ink" d="M9 25V8"/>
         <path class="mark__ink" d="M16 25V8"/>
@@ -120,29 +120,30 @@
       <b class="nav__idtext">John Montejano</b>
     </a>
 
-    <nav class="nav__links" aria-label="Sections">
-      <a href="#leaks">The problem</a>
-      <a href="#does">What I automate</a>
-      <a href="#work">Work</a>
-      <a href="#how">How it works</a>
-    </nav>
+    <!-- the section index: a visual wayfinder. The drawer and the footer
+         carry the real navigation, so this never announces itself. -->
+    <span class="idx" id="idx" aria-hidden="true" aria-live="off"></span>
 
-    <a class="nav__cta" href="#book" data-magnetic>Book</a>
-
-    <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Open menu">
+    <button class="menu" id="burger" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Open menu">
+      <span class="menu__t">Menu</span>
       <span class="burger__bars" aria-hidden="true"><i></i><i></i></span>
     </button>
+
+    <a class="nav__cta" href="#book" data-magnetic>Book<svg class="ext" viewBox="0 0 14 14" width="14" height="14" aria-hidden="true" focusable="false"><path d="M4 10L10 4M10 4H5.2M10 4v4.8"/></svg></a>
   </div>
 </header>
 
 <div class="drawer" id="drawer" hidden>
-  <div class="drawer__nav" role="navigation" aria-label="Menu">
-    <a href="#leaks">The problem</a>
-    <a href="#does">What I automate</a>
-    <a href="#work">Work</a>
-    <a href="#how">How it works</a>
-    <a href="#about">About</a>
-  </div>
+  <nav class="drawer__nav" aria-label="Sections">
+    <a href="#leaks"><span class="caps drawer__n">01</span>Where it goes</a>
+    <a href="#does"><span class="caps drawer__n">02</span>What I automate</a>
+    <a href="#work"><span class="caps drawer__n">03</span>Work</a>
+    <a href="#worth"><span class="caps drawer__n">04</span>What it replaces</a>
+    <a href="#how"><span class="caps drawer__n">05</span>How it works</a>
+    <a href="#about"><span class="caps drawer__n">06</span>Who</a>
+    <a href="#faq"><span class="caps drawer__n">07</span>Questions</a>
+    <a href="#book"><span class="caps drawer__n">08</span>Book</a>
+  </nav>
   <a class="btn drawer__cta" href="#book">Book a free 30 minutes</a>
 </div>
 
@@ -153,8 +154,11 @@
   <div class="wrap hero__grid" data-stagger>
 
     <div class="hero__copy">
-      <p class="eyebrow reveal">AI systems for service businesses</p>
-      <h1 class="display split">You run the jobs. The office runs itself.</h1>
+      <p class="caps hero__kick reveal">AI systems for service businesses</p>
+      <h1 class="display split">
+        <span class="h1__a">You run the jobs.</span>
+        <span class="h1__b reveal"><span aria-hidden="true">// </span>the office runs itself.</span>
+      </h1>
       <p class="lede reveal">I build the system that answers, quotes, chases and books while you're on the job.</p>
 
       <div class="hero__cta reveal">
@@ -168,8 +172,8 @@
     <!-- the machine console: the hero's graphic -->
     <figure class="mach dark reveal" id="mach">
       <div class="mach__bar">
-        <span class="mach__demo"><i class="mach__dot" aria-hidden="true"></i><span class="caption">Demo</span></span>
-        <span class="caption mach__note">Simulated · not a real customer</span>
+        <span class="mach__demo"><i class="mach__dot" aria-hidden="true"></i><span class="caps mach__d">Demo</span></span>
+        <span class="caps mach__note">Simulated · not a real customer</span>
       </div>
 
       <ol class="mach__feed" id="feed">
@@ -234,7 +238,7 @@
       </ol>
 
       <div class="mach__foot">
-        <span class="mach__label">Your time spent on this job</span>
+        <span class="caps mach__label">Your time spent on this job</span>
         <span class="mach__time"><b class="mach__num">0</b><span class="mach__unit">min</span></span>
       </div>
 
@@ -253,7 +257,7 @@
 <!-- ═══════════════════ NEXT OPENINGS STRIP ═══════════════════ -->
 <aside class="open" aria-label="Next openings">
   <div class="wrap open__in">
-    <p class="caption open__cap">Times that usually work</p>
+    <p class="caps open__cap">Times that usually work</p>
     <div class="open__slots" id="open-slots">
       <a class="btn btn--ghost open__fallback" href="#book">Book a free call</a>
     </div>
@@ -265,7 +269,7 @@
 <section class="leaks" id="leaks">
   <div class="wrap">
     <div class="wrap--read sec__head reveal">
-      <p class="eyebrow">Where it goes</p>
+      <p class="eyebrow">01 &middot; Where it goes</p>
       <h2 class="sec__h">Find the four places work leaks.</h2>
       <p class="lede">Every service business leaks in the same four places. Here they are, running.</p>
     </div>
@@ -273,7 +277,7 @@
     <div class="leaks__grid" data-stagger>
 
       <article class="leak card reveal" data-leak="call">
-        <p class="caption leak__n">01 / Missed calls</p>
+        <p class="caps leak__n">01 / Missed calls</p>
         <div class="stage">
           <div class="scene sc-call" aria-hidden="true">
             <i class="sc-ring"></i>
@@ -287,12 +291,12 @@
             <span class="sc-out js-out">That job went to whoever picked up first.</span>
           </div>
         </div>
-        <h3>The 7pm call nobody caught</h3>
+        <h3 class="cardh">The 7pm call nobody caught</h3>
         <p class="small">It rang out, and the job went to whoever picked up first.</p>
       </article>
 
       <article class="leak card reveal" data-leak="dup">
-        <p class="caption leak__n">02 / Double entry</p>
+        <p class="caps leak__n">02 / Double entry</p>
         <div class="stage">
           <div class="scene sc-dup" aria-hidden="true">
             <div class="sc-win">
@@ -307,17 +311,17 @@
             <span class="sc-out js-out">Hours a week retyping what you already know.</span>
           </div>
         </div>
-        <h3>Typed here. Typed again there.</h3>
+        <h3 class="cardh">Typed here. Typed again there.</h3>
         <p class="small">Same name, same address, two apps, every customer, forever.</p>
       </article>
 
       <article class="leak card reveal" data-leak="quote">
-        <p class="caption leak__n">03 / Dead quotes</p>
+        <p class="caps leak__n">03 / Dead quotes</p>
         <div class="stage">
           <div class="scene sc-quote" aria-hidden="true">
             <div class="sc-doc js-fade">
               <span class="sc-cap">Quote #4471</span>
-              <span class="sc-big">$1,240</span>
+              <span class="sc-big">Your price</span>
               <span class="sc-cap">Sent Tuesday</span>
             </div>
             <div class="sc-days">
@@ -327,12 +331,12 @@
             <span class="sc-out js-out">It died of silence, not a no.</span>
           </div>
         </div>
-        <h3>The follow-up that never got sent</h3>
+        <h3 class="cardh">The follow-up that never got sent</h3>
         <p class="small">The second message wins the work. It never goes out.</p>
       </article>
 
       <article class="leak card reveal" data-leak="noshow">
-        <p class="caption leak__n">04 / No-shows</p>
+        <p class="caps leak__n">04 / No-shows</p>
         <div class="stage">
           <div class="scene sc-noshow" aria-hidden="true">
             <div class="sc-day">
@@ -344,7 +348,7 @@
             <span class="sc-out js-out">An hour you staffed that nobody paid for.</span>
           </div>
         </div>
-        <h3>The 2pm that never showed</h3>
+        <h3 class="cardh">The 2pm that never showed</h3>
         <p class="small">You held the slot, turned others away, and nobody paid for the hour.</p>
       </article>
 
@@ -356,7 +360,7 @@
 <section class="does dark" id="does">
   <div class="wrap">
     <div class="wrap--read sec__head reveal">
-      <p class="eyebrow">The build</p>
+      <p class="eyebrow">02 &middot; What I automate</p>
       <h2 class="sec__h">Make the repeat work run itself.</h2>
       <p class="lede">If it happens the same way twice, it can happen without you. Built on the accounts you already own.</p>
     </div>
@@ -374,40 +378,54 @@
       </div>
     </div>
 
-    <ul class="caps" data-stagger>
+    <!-- what a rule looks like: the literal logic, in the machine's own
+         register. These are rules John builds, never outcomes: no number,
+         no claim, no client name. -->
+    <figure class="rules reveal">
+      <figcaption class="caps">What a rule looks like</figcaption>
+      <ol class="rules__list">
+        <li><span class="rules__l">when job created</span><span class="rules__a" aria-hidden="true">&rarr;</span><span class="rules__r">send the quote</span></li>
+        <li><span class="rules__l">when quote unanswered</span><span class="rules__a" aria-hidden="true">&rarr;</span><span class="rules__r">chase at 48h</span></li>
+        <li><span class="rules__l">when job booked</span><span class="rules__a" aria-hidden="true">&rarr;</span><span class="rules__r">block the calendar</span></li>
+        <li><span class="rules__l">when job complete</span><span class="rules__a" aria-hidden="true">&rarr;</span><span class="rules__r">send the invoice</span></li>
+        <li><span class="rules__l">when invoice paid</span><span class="rules__a" aria-hidden="true">&rarr;</span><span class="rules__r">ask for the review</span></li>
+      </ol>
+    </figure>
+
+    <ul class="capgrid" data-stagger>
       <li class="cap reveal">
-        <span class="caption cap__n">01</span>
-        <h3>Calls answered, day or night</h3>
+        <span class="caps cap__n">01</span>
+        <h3 class="cardh">Calls answered, day or night</h3>
         <span class="ba" aria-hidden="true"><span class="ba__b">Rings out</span><i class="ba__a-arrow"></i><span class="ba__a">Booked</span></span>
         <p class="small">Picks up, qualifies, books, or gets you on the phone.</p>
       </li>
       <li class="cap reveal">
-        <span class="caption cap__n">02</span>
-        <h3>One calendar for everything</h3>
+        <span class="caps cap__n">02</span>
+        <h3 class="cardh">One calendar for everything</h3>
         <span class="ba" aria-hidden="true"><span class="ba__b">3 calendars</span><i class="ba__a-arrow"></i><span class="ba__a">One</span></span>
         <p class="small">Everyone's day in one place. No double bookings, no gaps.</p>
       </li>
       <li class="cap reveal">
-        <span class="caption cap__n">03</span>
-        <h3>Quotes that chase themselves</h3>
+        <span class="caps cap__n">03</span>
+        <h3 class="cardh">Quotes that chase themselves</h3>
         <span class="ba" aria-hidden="true"><span class="ba__b">Sent, silent</span><i class="ba__a-arrow"></i><span class="ba__a">Answered</span></span>
         <p class="small">Your pricing, sent fast, chased until answered.</p>
       </li>
       <li class="cap reveal">
-        <span class="caption cap__n">04</span>
-        <h3>Invoices out the day the work ends</h3>
+        <span class="caps cap__n">04</span>
+        <h3 class="cardh">Invoices out the day the work ends</h3>
         <span class="ba" aria-hidden="true"><span class="ba__b">Weeks late</span><i class="ba__a-arrow"></i><span class="ba__a">Same day</span></span>
         <p class="small">Out the day the job closes. Chased until paid.</p>
       </li>
       <li class="cap reveal">
-        <span class="caption cap__n">05</span>
-        <h3>No retyping between apps</h3>
+        <span class="caps cap__n">05</span>
+        <h3 class="cardh">No retyping between apps</h3>
         <span class="ba" aria-hidden="true"><span class="ba__b">Typed 3x</span><i class="ba__a-arrow"></i><span class="ba__a">Typed once</span></span>
         <p class="small">Your booking tool, your customer list, your accounting. Typed once.</p>
       </li>
       <li class="cap reveal">
-        <span class="caption cap__n">06</span>
-        <h3>Reviews asked for every time</h3>
+        <span class="caps cap__n">06</span>
+        <h3 class="cardh">Reviews asked for every time</h3>
         <span class="ba" aria-hidden="true"><span class="ba__b">Forgotten</span><i class="ba__a-arrow"></i><span class="ba__a">Every job</span></span>
         <p class="small">Asked while they're still happy.</p>
       </li>
@@ -434,7 +452,7 @@
 <section class="work" id="work">
   <div class="wrap">
     <div class="wrap--read sec__head reveal">
-      <p class="eyebrow">Proof</p>
+      <p class="eyebrow">03 &middot; Work</p>
       <h2 class="sec__h">Three things I built and still run.</h2>
       <p class="lede">Live sites, real URLs. Open them.</p>
     </div>
@@ -442,7 +460,7 @@
 
   <a class="bleed reveal" href="https://fastfix.ai" target="_blank" rel="noopener">
     <div class="bleed__text">
-      <p class="caption proj__n">01 / My product</p>
+      <p class="caps proj__n">01 / My product</p>
       <h3 class="proj__h">FastFix.ai</h3>
       <p class="proj__role">Founder. I built all of it.</p>
       <p>Booking, quotes and invoices for home-service companies. My product, my code, live today.</p>
@@ -494,8 +512,8 @@
                  loading="lazy" decoding="async">
           </picture>
         </figure>
-        <p class="caption proj__n">02 / Ran it myself</p>
-        <h3 class="proj__h">GelatoTech</h3>
+        <p class="caps proj__n">02 / Ran it myself</p>
+        <h3 class="cardh">GelatoTech</h3>
         <p class="proj__role">Owner-operator. This is where I learned it.</p>
         <p class="small">Device repair in San Francisco. I took the calls, did the repairs, sent the invoices.</p>
         <ul class="facts">
@@ -523,8 +541,8 @@
                  loading="lazy" decoding="async">
           </picture>
         </figure>
-        <p class="caption proj__n">03 / Stanford GSB LEAD alumni</p>
-        <h3 class="proj__h">LISA</h3>
+        <p class="caps proj__n">03 / Stanford GSB LEAD alumni</p>
+        <h3 class="cardh">LISA</h3>
         <p class="proj__role">I built the site.</p>
         <p class="small">The LEAD Incubator &amp; Startup Accelerator, created and run by alumni of the Stanford Graduate School of Business LEAD programme.</p>
         <ul class="facts">
@@ -537,11 +555,11 @@
 
     </div>
 
-    <p class="caption stats__cap">LISA's numbers, from their own site</p>
+    <p class="caps stats__cap">LISA's numbers, from their own site</p>
     <ul class="stats">
-      <li><b class="stat">220+</b><span class="caption">Startups supported</span></li>
-      <li><b class="stat">42</b><span class="caption">Countries</span></li>
-      <li><b class="stat">200+</b><span class="caption">Mentors</span></li>
+      <li><b class="stat">220+</b><span class="caps">Startups supported</span></li>
+      <li><b class="stat">42</b><span class="caps">Countries</span></li>
+      <li><b class="stat">200+</b><span class="caps">Mentors</span></li>
     </ul>
 
     <p class="small disclaim">LISA is an independent program created and operated by alumni of the LEAD program. It is not affiliated with, endorsed by, or sponsored by Stanford University or Stanford Graduate School of Business.</p>
@@ -552,14 +570,14 @@
 <section class="worth" id="worth">
   <div class="wrap--body">
     <div class="wrap--read sec__head reveal">
-      <p class="eyebrow">What it replaces</p>
+      <p class="eyebrow">04 &middot; What it replaces</p>
       <h2 class="sec__h">Skip the next hire. Build the system.</h2>
       <p class="lede">Hard to hire, harder to keep. The repeat work moves to a system; your people do the rest.</p>
     </div>
 
     <div class="worth__cols" data-stagger>
       <div class="worth__col worth__col--hire reveal">
-        <h3 class="caption worth__t">Another hire</h3>
+        <h3 class="cardh worth__t">Another hire</h3>
         <ul>
           <li>A salary, every month</li>
           <li>Payroll tax and benefits</li>
@@ -569,7 +587,7 @@
         </ul>
       </div>
       <div class="worth__col worth__col--sys card reveal">
-        <h3 class="caption worth__t">One built system</h3>
+        <h3 class="cardh worth__t">One built system</h3>
         <ul>
           <li>One project, one invoice</li>
           <li>Runs 24/7, including 7:04pm</li>
@@ -586,7 +604,7 @@
 <section class="how" id="how">
   <div class="wrap">
     <div class="wrap--read sec__head reveal">
-      <p class="eyebrow">The process</p>
+      <p class="eyebrow">05 &middot; How it works</p>
       <h2 class="sec__h">Book it. Map it. Build it. Own it.</h2>
       <p class="lede">Four steps, and every account is in your name at the end.</p>
     </div>
@@ -603,10 +621,10 @@
             <span class="dchip"><b>13</b><span>Wed</span></span>
           </div>
         </div>
-        <span class="caption step__n">01</span>
-        <h3>Pick a time.</h3>
+        <span class="caps step__n">01</span>
+        <h3 class="cardh">Pick a time.</h3>
         <p class="small">Right on this page. I confirm by email.</p>
-        <p class="caption step__k">Takes 2 minutes.</p>
+        <p class="caps step__k">Takes 2 minutes.</p>
       </li>
 
       <li class="step card reveal">
@@ -618,10 +636,10 @@
             <span class="art__clock">30:00</span>
           </div>
         </div>
-        <span class="caption step__n">02</span>
-        <h3>Walk me through your week.</h3>
+        <span class="caps step__n">02</span>
+        <h3 class="cardh">Walk me through your week.</h3>
         <p class="small">Who answers the phone, what gets typed where, what slips.</p>
-        <p class="caption step__k">Free, and I don't pitch.</p>
+        <p class="caps step__k">Free, and I don't pitch.</p>
       </li>
 
       <li class="step card reveal">
@@ -633,10 +651,10 @@
             <span class="pin"><i></i>Leave it</span>
           </div>
         </div>
-        <span class="caption step__n">03</span>
-        <h3>Get your map.</h3>
+        <span class="caps step__n">03</span>
+        <h3 class="cardh">Get your map.</h3>
         <p class="small">Where the hours go and what to automate first. Yours either way.</p>
-        <p class="caption step__k">Also free. Within 2 days.</p>
+        <p class="caps step__k">Also free. Within 2 days.</p>
       </li>
 
       <li class="step card reveal">
@@ -647,10 +665,10 @@
             <span class="art__note">2 sent to you</span>
           </div>
         </div>
-        <span class="caption step__n">04</span>
-        <h3>I build it. It runs.</h3>
+        <span class="caps step__n">04</span>
+        <h3 class="cardh">I build it. It runs.</h3>
         <p class="small">Built in accounts you own. Judgment calls still come to you.</p>
-        <p class="caption step__k">You get your evenings back.</p>
+        <p class="caps step__k">You get your evenings back.</p>
       </li>
 
     </ol>
@@ -663,11 +681,11 @@
     <figure class="about__fig reveal">
       <img src="assets/img/jm-portrait.webp" width="900" height="1124"
            alt="John Montejano" loading="lazy" decoding="async">
-      <figcaption class="caption">John Montejano<span>San Francisco, CA</span></figcaption>
+      <figcaption class="caps">John Montejano<span>San Francisco, CA</span></figcaption>
     </figure>
 
     <div class="about__copy reveal">
-      <p class="eyebrow">Who</p>
+      <p class="eyebrow">06 &middot; Who</p>
       <h2 class="sec__h">I build these. I don't just spec them.</h2>
       <p>No handoffs, no account manager, no offshore team. You talk to the person who writes it.</p>
       <p>I ran a service business before I automated one. I know exactly what breaks when you get busy, because it broke on me.</p>
@@ -683,7 +701,7 @@
 <section class="faq" id="faq">
   <div class="wrap--body">
     <div class="wrap--read sec__head">
-      <p class="eyebrow">Questions</p>
+      <p class="eyebrow">07 &middot; Questions</p>
       <h2 class="sec__h">The things people ask before booking.</h2>
     </div>
 
@@ -720,35 +738,65 @@
 <section class="book dark" id="book">
   <div class="wrap">
     <div class="wrap--read sec__head reveal">
-      <p class="eyebrow">Next openings</p>
+      <p class="eyebrow">08 &middot; Book</p>
       <h2 class="sec__h">Take a slot. Take the map.</h2>
-      <p class="lede">Thirty minutes, <span class="mint">free</span>, and the map is yours whether we build anything or not. Times are Pacific.</p>
+      <p class="lede">Thirty minutes, free, and the map is yours whether we build anything or not. Times are Pacific.</p>
     </div>
 
-    <div class="book__grid">
+    <!-- the booker · three columns, no shadow, no internal scroll, and only
+         the eight weekdays that are genuinely open. Submitting composes a
+         real prefilled email; nothing is submitted to this page. -->
+    <div class="booker reveal" id="booker">
 
-      <div class="book__slots reveal">
-        <p class="small book__note">Windows I usually keep free. I confirm by email.</p>
-        <div class="days__scroll">
-          <div class="days" id="slot-days" role="tablist" aria-label="Pick a day"></div>
-        </div>
-        <div class="times" id="slot-times" role="tablist" aria-label="Pick a time"></div>
+      <div class="bk__id">
+        <img class="bk__av" src="assets/img/jm-square.webp" width="640" height="640"
+             alt="John Montejano" loading="lazy" decoding="async">
+        <span class="bk__who">John Montejano</span>
+        <h3 class="cardh">Workflow assessment</h3>
+        <p class="bk__desc">Thirty minutes. Free. You keep the map either way.</p>
+        <ul class="bk__meta">
+          <li><svg class="bk__i" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.2"/><path d="M8 4.6V8l2.4 1.5"/></svg>30m</li>
+          <li><svg class="bk__i" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="1.8" y="3" width="12.4" height="8.4" rx="1.4"/><path d="M5.4 13.6h5.2"/></svg>Video call or phone, your choice</li>
+          <li><svg class="bk__i" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.2"/><path d="M1.8 8h12.4M8 1.8a11 11 0 0 1 0 12.4A11 11 0 0 1 8 1.8"/></svg><span>America/Los_Angeles<span id="bk-tzmine"></span></span></li>
+        </ul>
+        <p class="bk__foot">Windows I usually keep free. I confirm by email.</p>
+        <p class="small bk__nojs">Email me at <a href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a> and I will send the next open windows back.</p>
       </div>
 
-      <div class="book__form">
-        <div class="sel">
-          <p class="caption">Selected</p>
-          <p class="sel__v" id="book-sel">No time picked yet</p>
-          <p class="small sel__tz" id="book-tz" hidden></p>
+      <div class="bk__cal">
+        <div class="cal__head">
+          <b class="cal__m" id="cal-month"></b>
+          <span class="cal__arrows">
+            <button class="cal__b" id="cal-prev" type="button" aria-label="Previous month" disabled><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10 3L5 8l5 5"/></svg></button>
+            <button class="cal__b" id="cal-next" type="button" aria-label="Next month"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3l5 5-5 5"/></svg></button>
+          </span>
         </div>
+        <div class="cal__grid" id="cal-grid" role="grid" aria-label="Pick a day"></div>
+        <ul class="daylist" id="daylist" aria-label="Pick a day"></ul>
+      </div>
 
+      <div class="bk__slots">
+        <p class="caps bk__sh" id="slot-head"></p>
+        <div class="times" id="slot-times" role="group" aria-label="Pick a time"></div>
+      </div>
+
+    </div>
+
+    <div class="confirm reveal">
+      <div class="sel">
+        <p class="caps">Selected</p>
+        <p class="sel__v" id="book-sel">No time picked yet</p>
+        <p class="small sel__tz" id="book-tz" hidden></p>
+      </div>
+
+      <div class="confirm__r">
         <form id="bf" novalidate>
           <p class="f">
-            <label class="caption" for="bf-name">Name</label>
+            <label class="caps" for="bf-name">Name</label>
             <input id="bf-name" name="name" type="text" autocomplete="name" placeholder="Miguel Delgado">
           </p>
           <p class="f">
-            <label class="caption" for="bf-biz">Business + what you do</label>
+            <label class="caps" for="bf-biz">Business + what you do</label>
             <input id="bf-biz" name="business" type="text" autocomplete="organization" placeholder="Delgado Plumbing, Oakland">
           </p>
           <button class="btn btn--go is-waiting" id="bf-go" type="submit"><span id="bf-go-t">Pick a day and a time first</span></button>
@@ -757,7 +805,7 @@
         </form>
 
         <div class="done" id="bf-done" hidden>
-          <p class="caption">Your email is open for <b id="bf-when"></b></p>
+          <p class="caps">Your email is open for <b id="bf-when"></b></p>
           <p class="small">It isn't booked until you press Send. Nothing was submitted to this page.</p>
           <textarea class="done__raw" id="bf-raw" readonly rows="7" aria-label="The message, to copy"></textarea>
           <span class="done__row">
@@ -767,14 +815,13 @@
         </div>
         <p class="sr-only" id="bf-live" role="status" aria-live="polite"></p>
       </div>
-
     </div>
 
     <div class="agenda">
       <ol class="agenda__rows">
-        <li><span class="caption">00–10</span><b>You talk.</b><span class="small">A normal week, untidied.</span></li>
-        <li><span class="caption">10–25</span><b>I dig.</b><span class="small">One recent customer, from first call to money landing.</span></li>
-        <li><span class="caption">25–30</span><b>I tell you.</b><span class="small">What to automate first, and roughly what it costs.</span></li>
+        <li><span class="mono agenda__t">00–10</span><b>You talk.</b><span class="small">A normal week, untidied.</span></li>
+        <li><span class="mono agenda__t">10–25</span><b>I dig.</b><span class="small">One recent customer, from first call to money landing.</span></li>
+        <li><span class="mono agenda__t">25–30</span><b>I tell you.</b><span class="small">What to automate first, and roughly what it costs.</span></li>
       </ol>
       <p class="small agenda__foot">Nothing worth building? I'll say so, and the map is still yours.</p>
     </div>
@@ -802,7 +849,7 @@
 
     <div class="foot__cols">
       <div class="foot__col">
-        <h3 class="caption">Sections</h3>
+        <p class="caps foot__ct">Sections</p>
         <ul>
           <li><a href="#leaks">The problem</a></li>
           <li><a href="#does">What I automate</a></li>
@@ -812,7 +859,7 @@
         </ul>
       </div>
       <div class="foot__col">
-        <h3 class="caption">Live work</h3>
+        <p class="caps foot__ct">Live work</p>
         <ul>
           <li><a href="https://fastfix.ai" target="_blank" rel="noopener">fastfix.ai<svg class="ext" viewBox="0 0 14 14" width="14" height="14" aria-hidden="true" focusable="false"><path d="M4 10L10 4M10 4H5.2M10 4v4.8"/></svg></a></li>
           <li><a href="https://gelatotech.com" target="_blank" rel="noopener">gelatotech.com<svg class="ext" viewBox="0 0 14 14" width="14" height="14" aria-hidden="true" focusable="false"><path d="M4 10L10 4M10 4H5.2M10 4v4.8"/></svg></a></li>
@@ -820,7 +867,7 @@
         </ul>
       </div>
       <div class="foot__col">
-        <h3 class="caption">Contact</h3>
+        <p class="caps foot__ct">Contact</p>
         <ul>
           <li><a href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a></li>
           <li><a href="https://www.linkedin.com/in/johnmontejano/" target="_blank" rel="me noopener">LinkedIn<svg class="ext" viewBox="0 0 14 14" width="14" height="14" aria-hidden="true" focusable="false"><path d="M4 10L10 4M10 4H5.2M10 4v4.8"/></svg></a></li>
@@ -843,7 +890,7 @@
       </svg>
     </div>
 
-    <p class="caption foot__legal">© 2026 John Montejano · Automation for service businesses · Designed and built by me</p>
+    <p class="caps foot__legal">© 2026 John Montejano · Automation for service businesses · Designed and built by me</p>
   </div>
 </footer>
 
