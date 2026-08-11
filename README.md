@@ -26,8 +26,10 @@ styles.css          the single stylesheet
 assets/js/main.js   the single script (one IIFE, no dependencies)
 assets/type/        two self-hosted Instrument faces, both preloaded
 assets/img/         the portrait, the square avatar, the small avatar,
-                    three project screenshots and their three 640x800
-                    mobile crops (-m.png)
+                    three project screenshots and their three 640px-wide
+                    mobile crops (-m.png). The two client screenshots are
+                    cropped to regions that carry no rating, review count,
+                    price, duration, guarantee or phone number.
 favicon.svg  apple-touch-icon.png  robots.txt  sitemap.xml  .nojekyll
 ```
 
