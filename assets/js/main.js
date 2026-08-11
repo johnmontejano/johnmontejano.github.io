@@ -60,7 +60,11 @@
       $$('.reveal:not(.is-in)').forEach(function (el) { el.classList.add('is-in'); });
     }
 
-    if (!hasIO) { force(); return; }
+    /* Under reduced motion there is no reveal choreography to run — the
+       stylesheet already holds every .reveal at its final state — so mark
+       the whole page in at once instead of waiting on intersection or the
+       failsafe. Same for a browser with no IntersectionObserver. */
+    if (RM.matches || !hasIO) { force(); return; }
 
     var io = new IntersectionObserver(function (entries) {
       for (var i = 0; i < entries.length; i++) {
