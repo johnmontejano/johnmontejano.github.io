@@ -50,16 +50,18 @@
   --mono:  ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
            "Liberation Mono", monospace;
 
-  --t-display: clamp(44px, 2rem + 4.6vw, 104px);   /* h1  · 98px at 1440 */
-  --t-h2:      clamp(32px, 1.5rem + 2.6vw, 62px);  /* h2  · 61px at 1440 */
-  --t-h3:      clamp(24px, 1rem + 1.6vw, 40px);    /* sub-head, featured title */
-  --t-h4:      clamp(19px, 0.9rem + 0.4vw, 23px);  /* .cardh card titles */
+  /* the rem terms are written out in px: the root font-size is the 15px body,
+     so 2rem here would resolve to 30 and quietly cost the display 2px */
+  --t-display: clamp(44px, 32px + 4.6vw, 104px);   /* h1  · 98.2px at 1440 */
+  --t-h2:      clamp(32px, 24px + 2.6vw, 62px);    /* h2  · 61.4px at 1440 */
+  --t-h3:      clamp(24px, 16px + 1.6vw, 40px);    /* sub-head, featured title */
+  --t-h4:      clamp(19px, 14.4px + 0.4vw, 23px);  /* .cardh card titles */
   --t-lede:    17px;
   --t-body:    15px;
   --t-small:   13px;
   --t-label:   12.5px;                              /* mono meta, rule strings */
   --t-caps:    11px;                                /* mono uppercase labels */
-  --t-stat:    clamp(44px, 2rem + 3.2vw, 92px);
+  --t-stat:    clamp(44px, 32px + 3.2vw, 92px);
 
   /* the sans micro size that is not part of the mono register, and the one
      UI size the nav, the buttons and the links share */
@@ -136,7 +138,11 @@ button{cursor:pointer}
 ul,ol{list-style:none}
 [hidden]{display:none !important}
 b,strong{font-weight:600}
+/* the italic is retired: <i> is a decorative hook everywhere on this page
+   and nothing anywhere is allowed to compute font-style:italic */
+i,em,address,cite,dfn,var{font-style:normal}
 q{quotes:"\201C" "\201D"}
+.blk{display:block}
 summary::-webkit-details-marker{display:none}
 
 ::selection{background:var(--sig);color:var(--ink)}
@@ -285,7 +291,13 @@ p          { font-size:var(--t-body); line-height:1.60; letter-spacing:0;
              transform var(--d-enter) var(--ease);
 }
 .reveal.is-in{ opacity:1; transform:none; }
-html:not(.js) .reveal{ opacity:1; transform:none; transition:none; }
+/* !important because the scroll-timeline path below animates opacity, and a
+   filled animation outruns any plain declaration. With JS blocked there is
+   no choreography to run and nothing may be left invisible. */
+html:not(.js) .reveal{
+  opacity:1 !important; transform:none !important;
+  transition:none !important; animation:none !important;
+}
 @media (max-width:734px){ .reveal{ transform:translate3d(0,12px,0); } }
 
 @supports (animation-timeline: view()){
@@ -412,6 +424,9 @@ html:not(.js) .drawer{ display:none; }
 .drawer__n{ flex:0 0 auto; min-width:3ch; }
 @media (hover:hover) and (pointer:fine){ .drawer__nav a:hover{ color:var(--sig-t); } }
 .drawer__cta{ width:100%; min-height:52px; margin-top:var(--s-7); color:var(--ink); }
+/* terracotta only while the drawer is actually on screen, so the accent
+   budget holds at every viewport */
+.drawer:not([hidden]) .drawer__cta{ background:var(--sig); }
 
 /* ══════════════════════════ HERO ══════════════════════════ */
 .hero{
@@ -430,9 +445,8 @@ html:not(.js) .drawer{ display:none; }
 /* the split sentence · a serif clause on paper, completed by a mono clause
    carrying the comment marker. The marker is hidden from the accessible
    name, so a screen reader never says "slash slash". */
-.h1__a{ display:block; font-family:var(--serif); font-weight:400;
-        font-size:var(--t-display); line-height:1.00; letter-spacing:-.015em;
-        color:var(--ink); }
+.h1__a{ display:block; font-size:var(--t-display); line-height:1.00;
+        letter-spacing:-.015em; color:var(--ink); }
 .h1__b{ display:block; font-family:var(--mono); font-weight:400;
         font-size:clamp(18px, 1.5vw + 6px, 30px); line-height:1.35;
         letter-spacing:-.01em; color:var(--sig-t); margin-top:var(--s-4);
@@ -475,7 +489,7 @@ html:not(.js) .drawer{ display:none; }
 .mach__bar{ display:flex; align-items:center; justify-content:space-between; gap:var(--s-3); }
 .mach__demo{ display:inline-flex; align-items:center; gap:8px; }
 .mach__dot{ width:6px; height:6px; border-radius:var(--r-pill); background:var(--mint); flex:0 0 auto; }
-.mach__note{ text-align:right; }
+.mach__note{ text-align:right; color:var(--on-dark-55); }
 .mach__feed{ display:flex; flex-direction:column; gap:var(--s-4); }
 .ev{ display:flex; gap:var(--s-4); align-items:baseline; }
 .ev__t{ flex:0 0 auto; min-width:7ch; white-space:nowrap;
@@ -973,7 +987,7 @@ html.js .fork.is-draw .fork__p{
 }
 
 /* ══════════════════════════ FAQ ══════════════════════════ */
-.faq{ padding-block:var(--pad-sec); content-visibility:auto; contain-intrinsic-size:0 900px; }
+.faq{ padding-block:var(--pad-sec); }
 .q{ border-top:1px solid var(--line); }
 .q:last-of-type{ border-bottom:1px solid var(--line); }
 .q > summary{
@@ -1245,8 +1259,7 @@ html:not(.js) .dock{ display:none; }
 }
 
 /* ══════════════════════════ FOOTER ══════════════════════════ */
-.foot{ padding-block:var(--pad-close) var(--s-8);
-       content-visibility:auto; contain-intrinsic-size:0 900px; }
+.foot{ padding-block:var(--pad-close) var(--s-8); }
 .foot__top{ display:flex; flex-wrap:wrap; align-items:end; justify-content:space-between;
             gap:var(--s-6); padding-bottom:var(--s-7); border-bottom:1px solid var(--line-d); }
 .foot__act{ display:flex; flex-direction:column; align-items:flex-start; gap:10px; }
@@ -1286,9 +1299,6 @@ html:not(.js) .dock{ display:none; }
   .menu{ margin-left:auto; padding:0; }
   .menu .menu__t{ display:none; }
   .menu .burger__bars{ display:block; }
-  /* terracotta only while the drawer is actually on screen, so the accent
-     budget holds at every viewport */
-  .drawer:not([hidden]) .drawer__cta{ background:var(--sig); }
 }
 @media (max-width:734px){
   .proof{ gap:var(--s-3); }
@@ -1314,10 +1324,12 @@ html:not(.js) .dock{ display:none; }
   .scene *{ animation:none !important; }
   .art *{ animation:none !important; }
   /* the rail reports position, which is state and not motion, so it stays
-     rendered and stays tracking. Its timeline is the scroll, not the clock. */
+     rendered and stays tracking. Under reduce it drops the scroll timeline
+     and reads a custom property instead, so the page runs zero animations
+     while the rail still says exactly where you are. */
   .progress{
     display:block !important;
-    animation-duration:1ms !important;
-    animation-iteration-count:1 !important;
+    animation:none !important;
+    transform:scaleX(var(--p,0)) !important;
   }
 }

@@ -253,22 +253,34 @@
       native = !!(window.CSS && CSS.supports &&
                   CSS.supports('animation-timeline', 'scroll(root block)'));
     } catch (e) {}
-    if (native) return;
 
-    var root = document.documentElement, queued = false;
+    var root = document.documentElement, queued = false, attached = false;
     function paint() {
       var h = root.scrollHeight - window.innerHeight;
       var p = h > 0 ? window.scrollY / h : 0;
       root.style.setProperty('--p', Math.max(0, Math.min(1, p)).toFixed(4));
     }
     function tick() { queued = false; ticker.remove(tick); paint(); }
-    paint();
-    window.addEventListener('scroll', function () {
-      if (queued) return;
-      queued = true;
-      ticker.add(tick);
-    }, { passive: true });
-    window.addEventListener('resize', paint);
+    function attach() {
+      if (attached) return;
+      attached = true;
+      paint();
+      window.addEventListener('scroll', function () {
+        if (queued) return;
+        queued = true;
+        ticker.add(tick);
+      }, { passive: true });
+      window.addEventListener('resize', paint);
+    }
+
+    /* On a modern browser with motion allowed the stylesheet drives the rail
+       off a scroll timeline and nothing is attached here at all, so the page
+       keeps its zero-scroll-listener property. Under reduce the timeline is
+       dropped so the page runs no animations, and this takes over. */
+    if (!native || RM.matches) attach();
+    var onRM = function (e) { if (e.matches) attach(); };
+    if (RM.addEventListener) RM.addEventListener('change', onRM);
+    else if (RM.addListener) RM.addListener(onRM);
   })();
 
   /* ─────────────────────────────────────────────
@@ -636,9 +648,11 @@
       slotHead.innerHTML = '';
       if (!picked.day) return;
       var a = document.createElement('span');
+      a.className = 'caps';
       a.textContent = DAYN[picked.day.getDay()] + ' ' + MONN[picked.day.getMonth()] +
                       ' ' + picked.day.getDate();
       var b = document.createElement('span');
+      b.className = 'caps';
       b.textContent = 'Pacific time';
       slotHead.appendChild(a);
       slotHead.appendChild(b);
@@ -646,6 +660,7 @@
         var l = localOf(picked.day, WINDOWS[0]);
         if (l) {
           var c = document.createElement('span');
+          c.className = 'caps';
           c.textContent = 'first window is ' + l + ' where you are';
           slotHead.appendChild(c);
         }
