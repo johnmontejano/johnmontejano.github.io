@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" as="font" type="font/woff2" href="assets/type/switzer-400.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="assets/type/switzer-300.woff2" crossorigin>
-<script>document.documentElement.className+=" js"</script>
+<script>document.documentElement.className+=(("ontouchstart" in window)?" touch":" notouch")+" js"</script>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -62,12 +62,12 @@
 <!-- ============ 01 WHERE IT LEAKS ============ -->
 <section class="block" id="leak">
   <div class="wrap">
-    <div class="head fade">
+    <div class="head reveal">
       <h2 class="h2 split">Four leaks</h2>
       <p class="label">01 &nbsp;/&nbsp; Where it goes</p>
     </div>
-    <p class="lead fade" style="margin-bottom:var(--gap-section)">Every service business loses the same four hours. None of them are the work you were hired for.</p>
-    <div class="grid2 fade">
+    <p class="lead reveal" style="margin-bottom:var(--gap-section)">Every service business loses the same four hours. None of them are the work you were hired for.</p>
+    <div class="grid2 reveal reveal-group">
       <article class="cell">
         <span class="cell__n">01 / Missed calls</span>
         <div><h3 class="h4">The 7pm call nobody caught.</h3>
@@ -95,11 +95,11 @@
 <!-- ============ 02 THE REGISTER ============ -->
 <section class="block" id="automate" style="padding-top:0">
   <div class="wrap">
-    <div class="head fade">
+    <div class="head reveal">
       <h2 class="h2 split">If it happens twice,<br>it happens<br>without you</h2>
       <p class="label">02 &nbsp;/&nbsp; What I automate</p>
     </div>
-    <ul class="rules fade">
+    <ul class="rules reveal reveal-group">
       <li class="rule"><span class="rule__w">when a job is created</span><span class="rule__a">&rarr;</span><span class="rule__t">send the quote</span></li>
       <li class="rule"><span class="rule__w">when a quote goes unanswered</span><span class="rule__a">&rarr;</span><span class="rule__t">chase at 48 hours</span></li>
       <li class="rule"><span class="rule__w">when a job is booked</span><span class="rule__a">&rarr;</span><span class="rule__t">block the calendar</span></li>
@@ -107,14 +107,14 @@
       <li class="rule"><span class="rule__w">when the invoice is paid</span><span class="rule__a">&rarr;</span><span class="rule__t">ask for the review</span></li>
       <li class="rule"><span class="rule__w">when the call needs judgment</span><span class="rule__a">&rarr;</span><span class="rule__t">it still comes to you</span></li>
     </ul>
-    <p class="body muted fade" style="margin-top:26px;max-width:58ch">Built on the accounts you already own. Pricing calls, exceptions and anything that needs a human stay with you &mdash; on purpose.</p>
+    <p class="body muted reveal" style="margin-top:26px;max-width:58ch">Built on the accounts you already own. Pricing calls, exceptions and anything that needs a human stay with you &mdash; on purpose.</p>
   </div>
 </section>
 
 <!-- ============ 03 WORK ============ -->
 <section class="block lite" id="work">
   <div class="wrap">
-    <div class="head fade">
+    <div class="head reveal">
       <h2 class="h2 split">Three things I built<br>and still run</h2>
       <p class="label">03 &nbsp;/&nbsp; Work</p>
     </div>
@@ -122,10 +122,8 @@
   <div class="wrap">
     <div class="work">
 
-      <article class="job fade">
-        <a class="job__media" href="https://fastfix.ai" target="_blank" rel="noopener">
-          <img src="assets/img/work-fastfix.webp" alt="FastFix.ai, a booking, quoting and invoicing platform for home-service companies" loading="lazy" width="1200" height="750">
-        </a>
+      <article class="job reveal">
+        <a class="job__media img-wrapper" href="https://fastfix.ai" target="_blank" rel="noopener"><span class="img-container img--shot" data-speed="1"><img src="assets/img/work-fastfix.webp" alt="FastFix.ai, a booking, quoting and invoicing platform for home-service companies" loading="lazy" width="1200" height="750"></span></a>
         <div>
           <p class="label">01 / My product &mdash; founder</p>
           <h3 class="h3" style="margin-top:12px">FastFix.ai</h3>
@@ -135,10 +133,8 @@
         </div>
       </article>
 
-      <article class="job job--flip fade">
-        <a class="job__media" href="https://gelatotech.com" target="_blank" rel="noopener">
-          <img src="assets/img/work-gelatotech.webp" alt="GelatoTech, a device repair business in San Francisco" loading="lazy" width="1200" height="750">
-        </a>
+      <article class="job job--flip reveal">
+        <a class="job__media img-wrapper" href="https://gelatotech.com" target="_blank" rel="noopener"><span class="img-container img--shot" data-speed="-.5"><img src="assets/img/work-gelatotech.webp" alt="GelatoTech, a device repair business in San Francisco" loading="lazy" width="1200" height="750"></span></a>
         <div>
           <p class="label">02 / Ran it myself &mdash; owner-operator</p>
           <h3 class="h3" style="margin-top:12px">GelatoTech</h3>
@@ -148,10 +144,8 @@
         </div>
       </article>
 
-      <article class="job fade">
-        <a class="job__media" href="https://gsb-lead-lisa.com" target="_blank" rel="noopener">
-          <img src="assets/img/work-lisa.webp" alt="LISA, an incubator and startup accelerator run by Stanford GSB LEAD alumni" loading="lazy" width="1200" height="750">
-        </a>
+      <article class="job reveal">
+        <a class="job__media img-wrapper" href="https://gsb-lead-lisa.com" target="_blank" rel="noopener"><span class="img-container img--shot" data-speed=".5"><img src="assets/img/work-lisa.webp" alt="LISA, an incubator and startup accelerator run by Stanford GSB LEAD alumni" loading="lazy" width="1200" height="750"></span></a>
         <div>
           <p class="label">03 / Client &mdash; design + build</p>
           <h3 class="h3" style="margin-top:12px">LISA</h3>
@@ -175,11 +169,11 @@
 <!-- ============ 04 INSTEAD OF A HIRE (inverted) ============ -->
 <section class="block" id="instead">
   <div class="wrap">
-    <div class="head fade">
+    <div class="head reveal">
       <h2 class="h2 split">Skip the next hire.<br>Build the system.</h2>
       <p class="label">04 &nbsp;/&nbsp; What it replaces</p>
     </div>
-    <div class="swap fade">
+    <div class="swap reveal reveal-group">
       <div class="swap__col swap__col--out">
         <p class="label" style="margin-bottom:8px">Another hire</p>
         <ul>
@@ -207,11 +201,11 @@
 <!-- ============ 05 HOW ============ -->
 <section class="block" id="how">
   <div class="wrap">
-    <div class="head fade">
+    <div class="head reveal">
       <h2 class="h2 split">Book it. Map it.<br>Build it. Own it.</h2>
       <p class="label">05 &nbsp;/&nbsp; How it works</p>
     </div>
-    <div class="steps fade">
+    <div class="steps reveal reveal-group">
       <div class="step"><b>01</b><h3 class="h4">Pick a time.</h3><p class="body muted">Right on this page. I confirm by email. Takes two minutes.</p></div>
       <div class="step"><b>02</b><h3 class="h4">Walk me through your week.</h3><p class="body muted">Who answers the phone, what gets typed where, what slips. Free, and I don't pitch.</p></div>
       <div class="step"><b>03</b><h3 class="h4">Get your map.</h3><p class="body muted">Where the hours go and what to automate first. Yours either way, within two days.</p></div>
@@ -223,12 +217,12 @@
 <!-- ============ 06 WHO ============ -->
 <section class="block" id="who" style="padding-top:0">
   <div class="wrap">
-    <div class="head fade">
+    <div class="head reveal">
       <h2 class="h2 split">I build these.<br>I don't just spec them.</h2>
       <p class="label">06 &nbsp;/&nbsp; Who</p>
     </div>
-    <div class="fade" style="display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:clamp(24px,5vw,64px);align-items:start">
-      <img src="assets/img/jm-portrait.webp" alt="John Montejano" loading="lazy" style="filter:grayscale(1);width:100%">
+    <div class="reveal" style="display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:clamp(24px,5vw,64px);align-items:start">
+      <span class="img-wrapper" style="display:block;aspect-ratio:4/5"><span class="img-container"><img src="assets/img/jm-portrait.webp" alt="John Montejano" loading="lazy"></span></span>
       <div>
         <p class="h3">I ran a service business before I automated one.</p>
         <p class="body muted" style="margin-top:20px;max-width:52ch">I know exactly what breaks when you get busy, because it broke on me. No handoffs, no account manager, no offshore team &mdash; you talk to the person who writes it.</p>
@@ -242,11 +236,11 @@
 <!-- ============ 07 QUESTIONS ============ -->
 <section class="block" id="questions" style="padding-top:0">
   <div class="wrap">
-    <div class="head fade">
+    <div class="head reveal">
       <h2 class="h2 split">Before you book</h2>
       <p class="label">07 &nbsp;/&nbsp; Questions</p>
     </div>
-    <div class="faq fade">
+    <div class="faq reveal">
       <details class="qa"><summary class="qa__q">Will this replace my people?<span class="qa__i" aria-hidden="true"></span></summary><p class="qa__a body">No. It takes the retyping and the chasing off their plate.</p></details>
       <details class="qa"><summary class="qa__q">I'm not technical. Is that a problem?<span class="qa__i" aria-hidden="true"></span></summary><p class="qa__a body">No. You run the business, I run the system. Plain English, and every account is in your name.</p></details>
       <details class="qa"><summary class="qa__q">Is this only for trades?<span class="qa__i" aria-hidden="true"></span></summary><p class="qa__a body">No. Any business where customers book a time: clinics, salons, med spas, repair, cleaners, property managers.</p></details>
@@ -260,11 +254,11 @@
 <!-- ============ 08 BOOK (inverted) ============ -->
 <section class="block" id="book">
   <div class="wrap">
-    <div class="head fade">
+    <div class="head reveal">
       <h2 class="h2 split">Take a slot.<br>Take the map.</h2>
       <p class="label">08 &nbsp;/&nbsp; Book</p>
     </div>
-    <div class="book fade">
+    <div class="book reveal">
       <div class="book__side">
         <p class="label">Workflow assessment</p>
         <p class="h4" style="margin-top:10px">Thirty minutes. Free.<br>You keep the map either way.</p>
