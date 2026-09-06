@@ -69,7 +69,7 @@
 
       /* ---------- 3. smooth scroll (their Locomotive layer) ---------- */
       if (typeof window.Lenis !== "undefined") {
-        var lenis = new Lenis({ duration: 1.15, smoothWheel: true });
+        var lenis = new Lenis({ lerp: 0.1, smoothWheel: true, touchMultiplier: 3.5 });
         lenis.on("scroll", ScrollTrigger.update);
         gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
         gsap.ticker.lagSmoothing(0);
@@ -123,10 +123,13 @@
       }
 
       /* ---------- 5. parallax, at their speeds (.5 / 1 / -.5 / -1) ---------- */
+      // locomotive maps data-scroll-speed as parseFloat(attr) / 10, so "1" is a
+      // 0.1 factor and "12.5" is 1.25. Same mapping here.
       gsap.utils.toArray("[data-speed]").forEach(function (el) {
-        var s = parseFloat(el.getAttribute("data-speed")) || 0;
-        gsap.fromTo(el, { yPercent: -4 * s }, {
-          yPercent: 4 * s, ease: "none",
+        var f = (parseFloat(el.getAttribute("data-speed")) || 0) / 10;
+        if (!f) return;
+        gsap.fromTo(el, { yPercent: -50 * f }, {
+          yPercent: 50 * f, ease: "none",
           scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: 0.6 }
         });
       });
@@ -141,6 +144,72 @@
       allMasks.forEach(function (m) { m.style.transform = "scaleX(0)"; });
     }
   }
+
+  /* ---------- theme inversion: the whole page cross-fades over 1.25s ----------
+     The reference fires locomotive's SET_BACKGROUND and toggles .white-bg on the
+     app root. Here the work section drives [data-theme] on <html>; the 1.25s
+     transitions live in CSS so ground, type, rules and cursor migrate as one. */
+  (function () {
+    var lightZone = document.getElementById("work");
+    if (!lightZone) return;
+    function apply(light) {
+      document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
+    }
+    apply(false);
+    if (!("IntersectionObserver" in window)) return;
+    new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { apply(e.isIntersecting); });
+    }, { threshold: 0, rootMargin: "-45% 0px -45% 0px" }).observe(lightZone);
+  })();
+
+  /* ---------- custom cursor ----------
+     10vw disc scaled to .075 at rest, position lerped 0.15/frame, swelling to
+     .75 over media with the arrow, vanishing over links (as the reference does).
+     Desktop non-touch only; never runs under reduced motion. */
+  (function () {
+    if (RM) return;
+    var dot = document.querySelector(".dot-cursor");
+    if (!dot || !window.matchMedia("(min-width:1024px)").matches) return;
+    if (!document.documentElement.classList.contains("notouch")) return;
+
+    var mx = window.innerWidth / 2, my = window.innerHeight / 2;
+    var cx = mx, cy = my, scale = 0.075, target = 0.075;
+    var label = dot.querySelector("span");
+    var on = false;
+
+    window.addEventListener("mousemove", function (e) {
+      mx = e.clientX; my = e.clientY;
+      if (!on) { on = true; cx = mx; cy = my; dot.classList.add("is-on"); }
+    }, { passive: true });
+    document.addEventListener("mouseleave", function () { dot.classList.remove("is-on"); });
+    document.addEventListener("mouseenter", function () { if (on) dot.classList.add("is-on"); });
+
+    function setState(next, mode, text) {
+      target = next;
+      dot.classList.toggle("on-media", mode === "media");
+      dot.classList.toggle("on-label", mode === "label");
+      if (text != null) label.textContent = text;
+      dot.style.opacity = next === 0 ? "0" : "";
+    }
+    document.querySelectorAll(".img-wrapper").forEach(function (el) {
+      el.addEventListener("mouseenter", function () { setState(0.75, "media"); });
+      el.addEventListener("mouseleave", function () { setState(0.075, null); });
+    });
+    document.querySelectorAll("a, button, summary, input").forEach(function (el) {
+      if (el.closest(".img-wrapper")) return;
+      el.addEventListener("mouseenter", function () { setState(0, null); });
+      el.addEventListener("mouseleave", function () { setState(0.075, null); });
+    });
+
+    (function tick() {
+      cx += (mx - cx) * 0.15;
+      cy += (my - cy) * 0.15;
+      scale += (target - scale) * 0.15;
+      dot.style.transform = "translate3d(" + (cx - dot.offsetWidth / 2) + "px," +
+        (cy - dot.offsetHeight / 2) + "px,0) scale3d(" + scale + "," + scale + ",1)";
+      requestAnimationFrame(tick);
+    })();
+  })();
 
   /* ---------- booking slots ---------- */
   var slotsEl = document.getElementById("slots"), picked = null;
