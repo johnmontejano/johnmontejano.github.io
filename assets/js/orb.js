@@ -308,7 +308,21 @@ function mountOrb(canvas) {
     if (!running) draw();      // keep the still frame correct in reduced-motion / paused states
   });
   ro.observe(canvas);
-  setSize(canvas.clientWidth, canvas.clientHeight);
+  // The canvas may still be display:none when we first measure (the .has-webgl
+  // class is what reveals it), and a ResizeObserver on a display:none element
+  // reports 0 — which left the backing store at its 300x150 default and made the
+  // shader render upscaled and soft. Fall back to the hosting section's box, and
+  // keep a resize listener as a backstop for when RO callbacks are deferred
+  // (they are, while document.hidden is true).
+  const host = canvas.parentElement || canvas;
+  function measure() {
+    const w = canvas.clientWidth || host.clientWidth || window.innerWidth;
+    const h = canvas.clientHeight || host.clientHeight || window.innerHeight;
+    setSize(w, h);
+    if (!running) draw();
+  }
+  measure();
+  window.addEventListener('resize', measure, { passive: true });
 
   /* ---- pause when the tab is hidden ---- */
   document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
@@ -338,6 +352,8 @@ function mountOrb(canvas) {
 (function initOrb(){
   const c = document.querySelector('.orb-gl');
   if (!c) return;
+  const root = document.documentElement;
+  root.classList.add('has-webgl');            // give the canvas layout BEFORE measuring it
   const orb = mountOrb(c);
-  if (orb) document.documentElement.classList.add('has-webgl');  // only now do we hide the CSS orb
+  if (!orb) root.classList.remove('has-webgl');   // mount failed: fall back to the CSS orb
 })();
