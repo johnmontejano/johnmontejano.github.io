@@ -208,16 +208,25 @@
      app root. Here the work section drives [data-theme] on <html>; the 1.25s
      transitions live in CSS so ground, type, rules and cursor migrate as one. */
   (function () {
-    var lightZone = document.getElementById("work");
-    if (!lightZone) return;
+    // The light island covers the evidence and the human: the work section through
+    // the portrait. The portrait is a real photograph on a near-white ground, so
+    // stranding it on black would read as a bright rectangle punched in the page.
+    var zones = ["work", "who"].map(function (id) { return document.getElementById(id); })
+                               .filter(Boolean);
+    if (!zones.length) return;
     function apply(light) {
       document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
     }
     apply(false);
     if (!("IntersectionObserver" in window)) return;
-    new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { apply(e.isIntersecting); });
-    }, { threshold: 0, rootMargin: "-45% 0px -45% 0px" }).observe(lightZone);
+    var lit = new Set();
+    var io2 = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) lit.add(e.target); else lit.delete(e.target);
+      });
+      apply(lit.size > 0);
+    }, { threshold: 0, rootMargin: "-45% 0px -45% 0px" });
+    zones.forEach(function (z) { io2.observe(z); });
   })();
 
   /* ---------- custom cursor ----------

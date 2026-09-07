@@ -396,12 +396,12 @@ html[data-theme="light"] .job__media{background:#f1f1f1}
 /* who + intro: these were inline grids with no small-screen fallback. At 390px the
    320px column overflowed by 129px, which widened the document and pushed the fixed
    nav's CTA off-screen. */
-.who-grid{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);
+.who-grid{display:grid;grid-template-columns:minmax(0,540px) minmax(0,1fr);
   gap:clamp(24px,5vw,64px);align-items:start}
 .intro-acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px}
 @media (max-width:760px){
   .who-grid{grid-template-columns:1fr;gap:28px}
-  .who-grid .img-wrapper{max-width:280px}
+  .who-grid .img-wrapper{max-width:320px}
 }
 /* belt and braces: nothing may widen the document */
 html{overflow-x:hidden}
