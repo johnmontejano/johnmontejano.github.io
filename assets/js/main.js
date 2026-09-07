@@ -88,27 +88,33 @@
       /* ---------- 4. the mask collapses to the right, line by line ----------
          transform-origin:100% 50% is set in CSS; scaleX 1 -> 0 wipes the plate
          off toward the right edge, revealing the line left-to-right. */
-      function wipe(el, delay) {
-        var masks = el.querySelectorAll(".mask");
-        if (!masks.length) return;
-        gsap.to(masks, {
-          scaleX: 0, duration: 1.25, ease: "expo.out", stagger: 0.085, delay: delay || 0,
-          overwrite: true
+      /* ---------- 4. the mask wipe, scroll-linked per line ----------
+         Measured on the reference: maskPercent = clamp((610 - lineTop)/2.45, 0, 100)
+         — it begins when a line reaches 67.8vh and completes at 40.6vh, a 27vh
+         window with ~2.25 lines mid-wipe at any instant. Their smoothing tween is
+         duration .25 / ease none, which is scrub: 0.25 exactly.
+         This replaces a one-shot 1.25s tween that resolved every heading in the
+         first 200px of its section and then went inert. */
+      var hero = document.querySelector(".hero .display");
+      function scrubWipe(h) {
+        h.querySelectorAll(".mask").forEach(function (m) {
+          var line = m.closest(".line") || m.parentElement;
+          gsap.fromTo(m, { scaleX: 1 }, {
+            scaleX: 0, ease: "none",
+            scrollTrigger: { trigger: line, start: "top 67.8%", end: "top 40.6%", scrub: 0.25 }
+          });
         });
       }
-      var hero = document.querySelector(".hero .display");
-      heads.forEach(function (h) {
-        if (h === hero) return;
-        var r = h.getBoundingClientRect();
-        if (r.top < window.innerHeight * 0.9 && r.bottom > 0) { wipe(h); return; }
-        ScrollTrigger.create({
-          trigger: h, start: "top 85%", once: true,
-          onEnter: function () { wipe(h); }
-        });
-      });
+      heads.forEach(function (h) { if (h !== hero) scrubWipe(h); });
+
+      // the hero has no scroll runway above it, so it plays on load
       if (hero) {
+        var heroMasks = hero.querySelectorAll(".mask");
         var heroPlayed = false;
-        var playHero = function () { if (heroPlayed) return; heroPlayed = true; wipe(hero, 0.2); };
+        var playHero = function () {
+          if (heroPlayed) return; heroPlayed = true;
+          gsap.to(heroMasks, { scaleX: 0, duration: 1.25, ease: "expo.out", stagger: 0.085, delay: 0.2 });
+        };
         if (document.visibilityState === "visible") { playHero(); }
         else {
           document.addEventListener("visibilitychange", function onVis() {
@@ -116,11 +122,28 @@
             document.removeEventListener("visibilitychange", onVis);
             playHero();
           });
-          setTimeout(function () {
-            if (!heroPlayed) { heroPlayed = true; gsap.set(hero.querySelectorAll(".mask"), { scaleX: 0 }); }
-          }, 6000);
+          setTimeout(function () { if (!heroPlayed) { heroPlayed = true; gsap.set(heroMasks, { scaleX: 0 }); } }, 6000);
         }
       }
+
+      /* ---------- 4b. the marquee is scroll-driven, not time-driven ----------
+         The reference has NO time-based animation anywhere on the page. Its
+         horizontal strip measured -1.216px of X per px of Y. Ours was the only
+         thing on the page that moved while you were standing still. */
+      (function () {
+        var strip = document.querySelector(".mq__t");
+        var rail = document.querySelector(".mq");
+        if (!strip || !rail) return;
+        strip.style.animation = "none";
+        var travel = function () {
+          return Math.min(strip.scrollWidth / 2, 1.216 * (window.innerHeight + rail.offsetHeight));
+        };
+        gsap.fromTo(strip, { x: 0 }, {
+          x: function () { return -travel(); }, ease: "none",
+          scrollTrigger: { trigger: rail, start: "top bottom", end: "bottom top",
+                           scrub: 0.4, invalidateOnRefresh: true }
+        });
+      })();
 
       /* ---------- 5. parallax, at their speeds (.5 / 1 / -.5 / -1) ---------- */
       // locomotive maps data-scroll-speed as parseFloat(attr) / 10, so "1" is a
@@ -133,6 +156,41 @@
           scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: 0.6 }
         });
       });
+
+      /* ---------- 5b. shear the #who layers apart ----------
+         The reference's team section runs the portrait 288px UP (speed .5) against
+         the name 200px DOWN (speed -2) — opposite signs, ~250px of relative
+         displacement. Ours had +-28px on three images and nothing else. */
+      (function () {
+        var who = document.getElementById("who");
+        if (!who) return;
+        var pic = who.querySelector(".img-wrapper");
+        var copy = who.querySelector(".h3");
+        if (!pic || !copy) return;
+        var st = { trigger: who, start: "top bottom", end: "bottom top", scrub: 0.5 };
+        gsap.fromTo(pic,  { y: 90 },  { y: -90, ease: "none", scrollTrigger: st });
+        gsap.fromTo(copy, { y: -55 }, { y: 62,  ease: "none", scrollTrigger: Object.assign({}, st) });
+      })();
+
+      /* ---------- 5c. header hides going down, returns going up ----------
+         Verified live on the reference: opacity 0<->1 only, .7s expo, no translate,
+         flipping on the first frame of reversal. */
+      (function () {
+        var nav = document.getElementById("nav");
+        if (!nav) return;
+        var last = window.scrollY, dir = 0;
+        function onScroll() {
+          var y = window.scrollY;
+          var d = y > last ? 1 : (y < last ? -1 : dir);
+          if (d !== dir) {
+            dir = d;
+            nav.classList.toggle("is-away", d === 1 && y > 140);
+          }
+          if (y <= 140) nav.classList.remove("is-away");
+          last = y;
+        }
+        window.addEventListener("scroll", onScroll, { passive: true });
+      })();
 
       var orb = document.querySelector(".orb");
       if (orb) {
@@ -210,6 +268,122 @@
       requestAnimationFrame(tick);
     })();
   })();
+
+
+  /* ===== visual devices bootstrap (docs/VISUAL_DEVICES.md) =====
+     No Lenis here: main.js already owns it above and Lenis scrolls the real
+     window, so no scrollerProxy is needed. */
+  var RMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var hasGSAP2 = typeof window.gsap !== "undefined" && typeof window.ScrollTrigger !== "undefined";
+  var LIVE = hasGSAP2 && !RMQ.matches;
+  if (hasGSAP2) {
+    window.addEventListener("load", function () { ScrollTrigger.refresh(); });
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
+    }
+  }
+
+(function () {
+  var els = [].slice.call(document.querySelectorAll("[data-count]"));
+  if (!els.length) return;
+
+  function render(el, v) {
+    var dp = parseInt(el.getAttribute("data-decimals") || "0", 10);
+    el.textContent = (el.getAttribute("data-prefix") || "") +
+      v.toFixed(dp).replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
+      (el.getAttribute("data-suffix") || "");
+  }
+
+  els.forEach(function (el) {
+    var to = parseFloat(el.getAttribute("data-count"));
+    if (isNaN(to)) return;
+
+    /* Reserve the final width NOW, before resetting to zero. tabular-nums keeps
+       every digit the same width; this keeps the digit COUNT from changing the
+       box, so "9 -> 220" cannot shove the label sideways mid-count. */
+    render(el, to);
+    el.style.minWidth = el.getBoundingClientRect().width + "px";
+
+    if (!LIVE) return;                 // final value is already painted
+
+    var from = parseFloat(el.getAttribute("data-from") || "0");
+    var box = { v: from };
+    render(el, from);
+
+    ScrollTrigger.create({
+      trigger: el,
+      start: "top 88%",
+      once: true,
+      onEnter: function () {
+        gsap.to(box, {
+          v: to,
+          duration: 1.25,
+          ease: "expo.out",                       // = cubic-bezier(.19,1,.22,1)
+          snap: { v: parseFloat(el.getAttribute("data-step") || "1") },
+          onUpdate: function () { render(el, box.v); }
+        });
+      }
+    });
+  });
+})();
+
+(function () {
+  var root = document.querySelector("[data-vs]");
+  if (!root) return;
+  var oldRows = [].slice.call(root.querySelectorAll(".vs__state--old .vs__row"));
+  var newRows = [].slice.call(root.querySelectorAll(".vs__state--new .vs__row"));
+  var strikes = [].slice.call(root.querySelectorAll(".vs__strike"));
+  if (!oldRows.length) return;
+
+  if (!LIVE) { root.classList.add("vs--static"); return; }
+
+  var tl = gsap.timeline({
+    defaults: { ease: "none" },
+    scrollTrigger: {
+      trigger: root,
+      start: "top 74%",
+      end: "bottom 82%",
+      scrub: 0.5
+    }
+  });
+  tl.to(strikes, { scaleX: 1, duration: 0.55, stagger: 0.16 }, 0);
+  tl.to(oldRows, { opacity: 0.34, duration: 0.55, stagger: 0.16 }, 0.1);
+  tl.fromTo(newRows,
+    { opacity: 0, y: 16 },
+    { opacity: 1, y: 0, duration: 0.55, stagger: 0.16, ease: "expo.out" },
+    0.42);
+})();
+
+(function () {
+  var root = document.querySelector("[data-run]");
+  if (!root) return;
+  var beats = [].slice.call(root.querySelectorAll(".run__beat"));
+  if (!beats.length) return;
+
+  if (!LIVE) { root.classList.add("run--static"); return; }
+
+  /* One unit of timeline per beat. The segment under beat i travels down to
+     beat i+1 over exactly 1 unit, so beat i lights the instant the line
+     reaches it — no measuring, and it stays correct through any resize. */
+  var tl = gsap.timeline({
+    defaults: { ease: "none" },
+    scrollTrigger: {
+      trigger: root,
+      start: "top 72%",
+      end: "bottom 76%",
+      scrub: 0.45
+    }
+  });
+  beats.forEach(function (b, i) {
+    tl.to(b, { opacity: 1, duration: 0.34 }, i);
+    var seg = b.querySelector(".run__seg");
+    if (seg && i < beats.length - 1) tl.to(seg, { scaleY: 1, duration: 1 }, i);
+  });
+  /* Pad to exactly N units so scroll progress maps 1:1 onto beat index:
+     progress p puts the line at beat p * beats.length. Without this the
+     timeline ends at 6.34 and the last two beats arrive early. */
+  tl.set({}, {}, beats.length);
+})();
 
   /* ---------- booking slots ---------- */
   var slotsEl = document.getElementById("slots"), picked = null;

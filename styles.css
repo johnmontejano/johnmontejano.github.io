@@ -194,7 +194,9 @@ html[data-theme="light"] .img--shot{background:#f4f4f2}
 :where(a,button,input,textarea):focus-visible{outline:2px solid currentColor;outline-offset:3px}
 
 /* ---- nav ---- */
-.nav{position:fixed;inset:0 0 auto;z-index:80}
+.nav{position:fixed;inset:0 0 auto;z-index:80;opacity:1;
+  transition:opacity .7s cubic-bezier(.19,1,.22,1)}
+.nav.is-away{opacity:0;pointer-events:none}
 .nav__in{display:flex;align-items:center;justify-content:space-between;gap:24px;height:70px;
   max-width:1600px;margin-inline:auto;padding-inline:clamp(20px,3vw,44px)}
 .nav__mark{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--fg)}
@@ -315,7 +317,7 @@ html[data-theme="light"] .job__media{background:#f1f1f1}
 .mq{overflow:hidden;border-block:1px solid var(--hair);padding-block:20px;background:var(--bg);
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
           mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
-.mq__t{display:flex;gap:44px;width:max-content;animation:mq 52s linear infinite}
+.mq__t{display:flex;gap:44px;width:max-content}
 .mq__t span{font-size:13px;letter-spacing:.09em;text-transform:uppercase;color:var(--fg-mute);white-space:nowrap}
 @keyframes mq{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
 
@@ -407,6 +409,71 @@ html{overflow-x:hidden}
 
 .skip{position:absolute;left:-9999px;z-index:200;background:#fff;color:#000;padding:12px 18px}
 .skip:focus{left:12px;top:12px}
+
+
+/* ===== scroll-driven visual devices (docs/VISUAL_DEVICES.md) ===== */
+.run{margin-top:clamp(30px,4vw,56px)}
+.run__beats{display:block}
+.run__beat{display:grid;grid-template-columns:13px minmax(0,1fr);
+  column-gap:clamp(18px,2.4vw,34px);align-items:stretch}
+.run__rail{position:relative;justify-self:center;width:1px;background:var(--hair)}
+.run__beat:last-child .run__rail{background:none}
+.run__seg{position:absolute;top:0;bottom:0;left:0;width:1px;background:var(--fg);
+  transform:scaleY(1);transform-origin:50% 0}   /* base = finished frame, for no-JS */
+.run__dot{position:absolute;top:.52em;left:50%;width:7px;height:7px;margin:-3px 0 0 -3px;
+  background:var(--fg)}
+.run__beat:first-child .run__dot{width:11px;height:11px;margin:-5px 0 0 -5px}
+/* the gap between beats lives INSIDE the grid row, so the rail spans it */
+.run__body{align-self:start;display:flex;flex-wrap:wrap;align-items:baseline;
+  column-gap:clamp(14px,1.6vw,26px);row-gap:4px;
+  padding-bottom:clamp(26px,3.4vw,44px)}
+.run__beat:last-child .run__body{padding-bottom:0}
+.run__t{font-size:13px;font-weight:500;letter-spacing:.06em;color:var(--fg-mute);
+  min-width:6.5ch;font-variant-numeric:tabular-nums}
+.run__w{font-size:clamp(19px,2.5vw,34px);font-weight:300;line-height:1.14;
+  letter-spacing:-.01em;color:var(--fg)}
+/* pre-animation state — .js only, so no-JS shows all seven beats lit */
+.js .run__beat{opacity:.26}
+.js .run__seg{transform:scaleY(0)}
+/* resolved state, used by reduced motion and by the no-GSAP fallback */
+.run--static .run__beat{opacity:1}
+.run--static .run__seg{transform:scaleY(1)}
+@media(max-width:560px){
+  .run__beat{grid-template-columns:11px minmax(0,1fr)}
+  .run__body{flex-direction:column;row-gap:2px;padding-bottom:22px}
+  .run__t{min-width:0}}
+
+.vs{border-top:1px solid var(--hair)}
+.vs__state{padding-block:clamp(26px,3vw,40px);border-bottom:1px solid var(--hair)}
+.vs__state:last-child{border-bottom:0}
+.vs__k{display:block;margin-bottom:16px;font-size:var(--fs-label);font-weight:500;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--fg-mute)}
+.vs__list{display:grid;gap:0}
+.vs__row{position:relative;padding-block:11px;font-size:clamp(15px,1.7vw,20px);
+  font-weight:300;line-height:1.35;color:var(--fg-dim)}
+.vs__line{position:relative;display:inline}
+.vs__strike{position:absolute;left:0;top:.62em;width:100%;height:1px;
+  background:currentColor;transform:scaleX(1);transform-origin:0 50%;pointer-events:none}
+.js .vs__strike{transform:scaleX(0)}          /* base = finished frame, for no-JS */
+.js .vs__state--old .vs__row{opacity:.95}
+/* optional right-aligned annotation, e.g. an annual cost */
+.vs__cost{float:right;margin-left:20px;font-size:13px;letter-spacing:.05em;
+  color:var(--fg-mute);font-variant-numeric:tabular-nums}
+/* pre-animation state — .js only */
+.js .vs__state--new .vs__row{opacity:0}
+/* resolved state, used by reduced motion and by the no-GSAP fallback */
+.vs--static .vs__state--old .vs__row{opacity:.34}
+.vs--static .vs__state--old .vs__strike{transform:scaleX(1)}
+.vs--static .vs__state--new .vs__row{opacity:1}
+@media(max-width:560px){.vs__cost{float:none;display:block;margin:4px 0 0}}
+
+.count{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(22px,3vw,40px)}
+.count__n{display:block;font-size:clamp(34px,4.4vw,62px);font-weight:200;line-height:1;
+  letter-spacing:-.03em;color:var(--fg);
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"lnum" 1}
+.count__l{display:block;margin-top:10px;font-size:var(--fs-label);font-weight:500;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--fg-mute)}
+@media(max-width:640px){.count{grid-template-columns:1fr;gap:26px}}
 
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
