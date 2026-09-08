@@ -197,6 +197,13 @@ html[data-theme="light"] .img--shot{background:#f4f4f2}
 /* ---- nav ---- */
 .nav{position:fixed;inset:0 0 auto;z-index:80;opacity:1;
   transition:opacity .7s cubic-bezier(.19,1,.22,1)}
+/* The nav colours follow the document theme, but a section boundary can put
+   light-theme type over a dark band (the tile gallery runs black through the
+   light island). A theme-tinted scrim keeps it legible without making the bar
+   solid, which the reference never does. */
+.nav::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(to bottom,var(--bg) 0%,rgba(0,0,0,0) 100%);opacity:.88;
+  transition:background 1.25s var(--ease)}
 .nav.is-away{opacity:0;pointer-events:none}
 .nav__in{display:flex;align-items:center;justify-content:space-between;gap:24px;height:70px;
   max-width:1600px;margin-inline:auto;padding-inline:clamp(20px,3vw,44px)}
