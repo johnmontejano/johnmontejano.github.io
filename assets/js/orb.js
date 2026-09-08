@@ -161,6 +161,7 @@ void main(){
    ORB — mount
    ============================================================ */
 function mountOrb(canvas) {
+  var simTimeSeed = 0;
   if (!canvas) return null;
 
   const CONFIG = {
@@ -178,6 +179,15 @@ function mountOrb(canvas) {
     renderScale: 0.65,    // render smaller than CSS size and let the GPU upscale
     maxFps: 45            // 0 = uncapped
   };
+  // Per-canvas overrides from data-* attributes. The lens canvas runs the same
+  // shader with a larger radius, an offset focus and its own time scale, so the
+  // disc reads as a refracting sphere over the background fluid rather than a
+  // window onto it.
+  ['radius','warp','intensity','grain','speed','renderScale'].forEach(function (k) {
+    if (canvas.dataset[k] != null) CONFIG[k] = parseFloat(canvas.dataset[k]);
+  });
+  if (canvas.dataset.focus) CONFIG.focus = canvas.dataset.focus.split(',').map(Number);
+  if (canvas.dataset.tstart) simTimeSeed = parseFloat(canvas.dataset.tstart);
 
   /* ---- sRGB hex -> linear float triplet ---- */
   function toLinear(hex) {
@@ -197,7 +207,7 @@ function mountOrb(canvas) {
   if (!gl) return null;
 
   let prog, u, buf, running = false, rafId = 0, visible = true;
-  let simTime = 0, lastTs = 0, acc = 0;
+  let simTime = (typeof simTimeSeed === "number" ? simTimeSeed : 0), lastTs = 0, acc = 0;
   const frameBudget = CONFIG.maxFps ? 1 / CONFIG.maxFps : 0;
 
   function compile(type, src) {
@@ -356,4 +366,11 @@ function mountOrb(canvas) {
   root.classList.add('has-webgl');            // give the canvas layout BEFORE measuring it
   const orb = mountOrb(c);
   if (!orb) root.classList.remove('has-webgl');   // mount failed: fall back to the CSS orb
+  const l = document.querySelector('.orb-lens');
+  if (orb && l) {
+    root.classList.add('has-lens');                 // give the lens canvas layout BEFORE measuring it
+    let lens = null;
+    try { lens = mountOrb(l); } catch (e) { lens = null; }
+    if (!lens) root.classList.remove('has-lens');
+  }
 })();

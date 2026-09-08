@@ -162,6 +162,7 @@ html[data-theme="light"] ::selection{background:#000;color:#fff}
   max-width:100%}
 .hero .line{text-align:center}
 .js .line .content .txt{display:inline-block;will-change:transform}
+.line .content .txt--next{position:absolute;left:0;top:0;white-space:nowrap}
 .js .line .content .mask{display:inline-block;position:absolute;top:0;left:0;width:100%;height:115%;
   transform-origin:100% 50%;transform:translateZ(0);opacity:.65;background:var(--bg);
   pointer-events:none;z-index:2}
@@ -235,6 +236,23 @@ html[data-theme="light"] ::selection{background:#000;color:#fff}
   0%{transform:rotate(0deg) scale(1);opacity:.72}
   50%{transform:rotate(14deg) scale(1.12);opacity:.9}
   100%{transform:rotate(-9deg) scale(1.05);opacity:.76}}
+/* ---- the glass sphere over the fluid, as in the reference hero ----
+   A second canvas running the same shader, clipped to a disc and given a larger
+   radius, an offset focus and its own clock, so it reads as a refracting lens
+   with a hard silhouette rather than a window onto the background. Rim and
+   falloff are gradients - no box-shadow anywhere on this page. */
+.lens{position:absolute;z-index:1;left:49%;top:-10%;width:min(80vmin,720px);aspect-ratio:1;
+  border-radius:50%;overflow:hidden;pointer-events:none;display:none;
+  border:1px solid rgba(255,255,255,.07);transform:translateZ(0)}
+.has-lens .lens{display:block}
+.lens canvas{display:block;width:100%;height:100%;animation:lensdrift 26s var(--ease) infinite alternate}
+.lens::after{content:"";position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.12) 0%,rgba(255,255,255,0) 40%),
+             radial-gradient(circle at 50% 50%,rgba(0,0,0,0) 52%,rgba(0,0,0,.62) 100%)}
+@keyframes lensdrift{from{transform:scale(1.02) translate3d(-1%,0,0)}to{transform:scale(1.08) translate3d(1.5%,-1.5%,0)}}
+@media(max-width:760px){.lens{left:30%;top:4%;width:120vmin}}
+@media(prefers-reduced-motion:reduce){.lens canvas{animation:none}}
+
 .hero__in{position:relative;z-index:3;width:100%;max-width:var(--container);margin-inline:auto;
   padding-inline:clamp(20px,5vw,40px)}
 .hero h1{margin:0}
@@ -329,7 +347,7 @@ html[data-theme="light"] ::selection{background:#000;color:#fff}
 .work>.job:nth-child(even){margin-top:clamp(90px,19vw,275px)}
 .job{display:block;padding-block:clamp(26px,3vw,48px);opacity:1}
 .job .job__media{margin-bottom:22px}
-.notouch .job .img-container img{opacity:.62;transition:opacity var(--t2) linear,
+.notouch .job .img-container img{opacity:.4;transition:opacity var(--t2) linear,
   transform var(--t2) var(--ease)}
 .notouch .job:hover .img-container img{opacity:1}
 @media(max-width:860px){.work{grid-template-columns:1fr}

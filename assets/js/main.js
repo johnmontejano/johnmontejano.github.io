@@ -177,8 +177,16 @@
       (function () {
         var h1 = document.querySelector(".hero .display");
         if (!h1) return;
-        var txts = h1.querySelectorAll(".txt");
+        var txts = [].slice.call(h1.querySelectorAll(".txt"));
         if (txts.length < 2) return;
+        // The reference's slot is TWO stacked parts per line: the next part rises
+        // (expo.out, from t=.55/.65) while the current one is still leaving
+        // (expo.inOut, .9s, second part lagging .1s). One element cannot do both,
+        // so each line gets a hidden twin parked below the mask.
+        var nexts = txts.map(function (el) {
+          var n = el.cloneNode(true); n.classList.add("txt--next"); n.setAttribute("aria-hidden", "true");
+          el.parentNode.appendChild(n); gsap.set(n, { yPercent: 120, y: 0 }); return n;
+        });
         var LINES = [
           ["You run the jobs.", "The office runs itself."],
           ["You are under a sink.", "The quote goes out anyway."],
@@ -186,42 +194,34 @@
           ["You are driving home.", "Tomorrow is already booked."]
         ];
         var i = 0, timer = null, tl = null, inView = true;
-
-        // The headline is the most important text on the page: it must never be
-        // left parked off-screen by an interrupted timeline.
         function settle() {
           if (tl) { tl.kill(); tl = null; }
-          gsap.set(txts, { yPercent: 0, clearProps: "transform" });
+          gsap.set(txts,  { yPercent: 0,   y: 0 });
+          gsap.set(nexts, { yPercent: 120, y: 0 });
         }
         function cycle() {
-          if (!inView || document.hidden) return;
+          if (!inView || document.hidden || tl) return;
           var next = LINES[(i + 1) % LINES.length];
-          if (tl) tl.kill();
-          tl = gsap.timeline({ onInterrupt: settle });
-          tl.to(txts[0], { yPercent: -150, duration: 0.9, ease: "expo.inOut", overwrite: true }, 0)
-            .to(txts[1], { yPercent: -150, duration: 0.9, ease: "expo.inOut", overwrite: true }, 0.1)
-            .add(function () {
-              txts[0].textContent = next[0];
-              txts[1].textContent = next[1];
-              gsap.set(txts, { yPercent: 120 });
-            })
-            .to(txts[0], { yPercent: 0, duration: 0.9, ease: "expo.out", overwrite: true }, 0.55)
-            .to(txts[1], { yPercent: 0, duration: 0.9, ease: "expo.out", overwrite: true }, 0.65);
-          i = (i + 1) % LINES.length;
+          nexts[0].textContent = next[0]; nexts[1].textContent = next[1];
+          tl = gsap.timeline({ onInterrupt: settle, onComplete: function () {
+            txts[0].textContent = next[0]; txts[1].textContent = next[1];
+            gsap.set(txts,  { yPercent: 0,   y: 0 });
+            gsap.set(nexts, { yPercent: 120, y: 0 });
+            tl = null; i = (i + 1) % LINES.length;
+          }});
+          tl.to(txts[0],  { yPercent: -150, y: 0, duration: 0.9, ease: "expo.inOut" }, 0)
+            .to(txts[1],  { yPercent: -150, y: 0, duration: 0.9, ease: "expo.inOut" }, 0.1)
+            .fromTo(nexts[0], { yPercent: 120, y: 0 }, { yPercent: 0, y: 0, duration: 0.9, ease: "expo.out" }, 0.55)
+            .fromTo(nexts[1], { yPercent: 120, y: 0 }, { yPercent: 0, y: 0, duration: 0.9, ease: "expo.out" }, 0.65);
         }
         function start() { if (!timer && inView && !document.hidden) timer = setInterval(cycle, 4500); }
         function stop() { clearInterval(timer); timer = null; settle(); }
-
         if ("IntersectionObserver" in window) {
-          new IntersectionObserver(function (es) {
-            inView = es[0].isIntersecting;
-            inView ? start() : stop();
-          }, { threshold: 0.25 }).observe(h1);
+          new IntersectionObserver(function (es) { inView = es[0].isIntersecting; inView ? start() : stop(); },
+            { threshold: 0.25 }).observe(h1);
         }
         setTimeout(function () { if (document.visibilityState === "visible") start(); }, 3200);
-        document.addEventListener("visibilitychange", function () {
-          document.hidden ? stop() : start();
-        });
+        document.addEventListener("visibilitychange", function () { document.hidden ? stop() : start(); });
         window.addEventListener("pagehide", stop);
       })();
 
@@ -349,6 +349,11 @@
       })();
 
       var orb = document.querySelector(".orb");
+      var lensWrap = document.querySelector(".lens");
+      if (lensWrap) {
+        gsap.to(lensWrap, { yPercent: 34, ease: "none",
+          scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.8 } });
+      }
       if (orb) {
         gsap.to(orb, { yPercent: 20, ease: "none",
           scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.8 } });
