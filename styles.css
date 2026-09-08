@@ -149,8 +149,8 @@ html[data-theme="light"] ::selection{background:#000;color:#fff}
    until you cannot read it — the exact complaint on round 4 ("cropped in too
    much... you're not auditing the actual website"). Shots stay whole and only
    breathe slightly. The motion vocabulary is kept; the crop is not. */
-.img--shot{background:#0d0d0d}
-html[data-theme="light"] .img--shot{background:#f4f4f2}
+.img--shot{background:#f4f4f2}
+
 .img--shot img{object-fit:cover;transform:translate3d(-50%,-50%,0) scale(1)}
 .is-inview .img--shot img{transform:translate3d(-50%,-50%,0) scale(1.02)}
 .notouch .img-wrapper:hover .img--shot img{transform:translate3d(-50%,-50%,0) scale(1.05)!important}
@@ -330,7 +330,7 @@ html[data-theme="light"] .img--shot{background:#f4f4f2}
   .work>.job:nth-child(even){margin-top:0}}
 /* Each vetted crop keeps its own native aspect — forcing 16/10 was letterboxing a
    1250x280 strip into a 271px box and painting it at 36% of the frame. */
-.job__media{position:relative;overflow:hidden;background:#0d0d0d;display:block;width:100%;
+.job__media{position:relative;overflow:hidden;background:#111;display:block;width:100%;
   align-self:center;aspect-ratio:var(--ar,16/10)}
 html[data-theme="light"] .job__media{background:#f1f1f1}
 /* image behaviour lives in the .img-wrapper/.img-container primitives above */
