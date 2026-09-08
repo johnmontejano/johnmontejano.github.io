@@ -35,7 +35,7 @@
 
   if (!RM) {
     /* ---------- 2. is-inview, the Locomotive way ---------- */
-    var targets = [].slice.call(document.querySelectorAll(".reveal,.head,.job,.word"));
+    var targets = [].slice.call(document.querySelectorAll(".reveal,.head,.job,.word,.tiles"));
     // Anything already on screen is revealed synchronously. IntersectionObserver
     // does not deliver callbacks while document.hidden is true (background tab,
     // prerender, headless capture), so waiting on it can strand the whole page.
@@ -191,6 +191,23 @@
         }
         window.addEventListener("scroll", onScroll, { passive: true });
       })();
+
+      /* ---------- 5d. rotated tile gallery: rows shear against each other ----------
+         The reference runs its tile rows at data-scroll-speed +-1 with the inner
+         containers at -+.5, so the rows travel in opposite directions as the page
+         scrolls. Each row here holds its images twice, so a half-width translation
+         reads as continuous. */
+      gsap.utils.toArray(".tiles__line").forEach(function (line) {
+        var s = parseFloat(line.getAttribute("data-tspeed")) || 0;
+        if (!s) return;
+        var span = function () { return line.scrollWidth / 2; };
+        gsap.fromTo(line,
+          { x: function () { return s > 0 ? -span() : 0; } },
+          { x: function () { return s > 0 ? 0 : -span(); },
+            ease: "none",
+            scrollTrigger: { trigger: ".tiles", start: "top bottom", end: "bottom top",
+                             scrub: 0.5, invalidateOnRefresh: true } });
+      });
 
       var orb = document.querySelector(".orb");
       if (orb) {

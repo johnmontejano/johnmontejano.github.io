@@ -255,6 +255,37 @@ html[data-theme="light"] .img--shot{background:#f4f4f2}
 .is-inview .cell__media img{transform:translate3d(-50%,-50%,0) scale(1.2)}
 .notouch .cell:hover .cell__media img{transform:translate3d(-50%,-50%,0) scale(1.3)}
 
+/* ---- rotated tile gallery ----------------------------------------------
+   Ported from the reference's .tiles--rotated: a wrap rotated 45deg holding
+   rows of images that travel horizontally as the page scrolls vertically.
+   Their rows run at data-scroll-speed +-1 with inner containers at -+.5, so
+   the rows shear against each other rather than moving as one block.        */
+/* always black: the reference keeps this gallery on its dark ground, and the
+   light island would otherwise show white gaps between the rotated tiles */
+.tiles{position:relative;overflow:hidden;min-height:min(96vh,900px);background:#000;color:#fff;
+  display:flex;align-items:center}
+.tiles__wrap{position:absolute;left:50%;top:50%;z-index:0;width:190%;
+  transform:translate3d(-50%,-50%,0) rotate(-22deg);display:flex;flex-direction:column;gap:18px}
+.tiles__line{display:flex;gap:18px;width:max-content;will-change:transform}
+.tiles__img{position:relative;overflow:hidden;flex:0 0 auto;width:clamp(190px,20vw,320px);
+  aspect-ratio:4/3;background:#0d0d0d}
+.tiles__img img{width:100%;height:100%;position:absolute;top:50%;left:50%;object-fit:cover;
+  transform:translate3d(-50%,-50%,0) scale(1.1);
+  transition:transform var(--t2) var(--ease),opacity var(--t2) linear;opacity:.55}
+.tiles.is-inview .tiles__img img{opacity:.9}
+.notouch .tiles__img:hover img{transform:translate3d(-50%,-50%,0) scale(1.25);opacity:1}
+.tiles__over{position:relative;z-index:3;width:100%;max-width:var(--container);
+  margin-inline:auto;padding:clamp(40px,6vw,90px) clamp(20px,5vw,40px)}
+.tiles__over .inner{max-width:46ch;padding:clamp(24px,3vw,42px);
+  background:radial-gradient(140% 150% at 15% 50%,rgba(0,0,0,.94) 0%,rgba(0,0,0,.78) 60%,transparent 100%)}
+.tiles__over .lead{max-width:30ch;color:#fff}
+.tiles__over .label{color:#c9c9c9}
+@media(max-width:760px){.tiles{min-height:70vh}.tiles__wrap{width:260%}}
+
+/* ---- the one chromatic control, as on the reference's gradient pill ---- */
+.btn--grad{background:var(--iridescent);border-color:transparent;color:#0a0a0a}
+.btn--grad:hover{background:var(--iridescent);color:#0a0a0a;filter:brightness(1.12)}
+
 /* ---- full-bleed image band with a single line over it ---- */
 .band{position:relative;min-height:min(84vh,760px);display:flex;align-items:flex-end;
   overflow:hidden;background:#000}
@@ -276,8 +307,19 @@ html[data-theme="light"] .img--shot{background:#f4f4f2}
 
 /* ---- work ---- */
 .work{border:0}
-.job{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:clamp(30px,5vw,72px);
-  align-items:center;padding-block:clamp(70px,9vw,150px)}
+/* The reference lays projects out as a staggered two-column grid of large image
+   cards — right column dropped ~275px against the left — not as alternating
+   full-width rows. Cards rest at reduced opacity and resolve under the pointer. */
+.work{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,4vw,64px);
+  column-gap:clamp(30px,5vw,90px);align-items:start;border:0}
+.work>.job:nth-child(even){margin-top:clamp(90px,19vw,275px)}
+.job{display:block;padding-block:clamp(26px,3vw,48px);opacity:1}
+.job .job__media{margin-bottom:22px}
+.notouch .job .img-container img{opacity:.62;transition:opacity var(--t2) linear,
+  transform var(--t2) var(--ease)}
+.notouch .job:hover .img-container img{opacity:1}
+@media(max-width:860px){.work{grid-template-columns:1fr}
+  .work>.job:nth-child(even){margin-top:0}}
 /* Each vetted crop keeps its own native aspect — forcing 16/10 was letterboxing a
    1250x280 strip into a 271px box and painting it at 36% of the frame. */
 .job__media{position:relative;overflow:hidden;background:#0d0d0d;display:block;width:100%;
@@ -289,8 +331,6 @@ html[data-theme="light"] .job__media{background:#f1f1f1}
   border-bottom:1px solid currentColor;padding-bottom:3px;
   transition:gap var(--t2) var(--ease),opacity var(--t1) var(--ease)}
 .job__go:hover{gap:16px;opacity:.6}
-.job--flip .job__media{order:2}
-@media(max-width:860px){.job{grid-template-columns:1fr}.job--flip .job__media{order:0}}
 
 .ledger{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:34px}
 .ledger div{padding:0}
