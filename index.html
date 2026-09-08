@@ -28,19 +28,20 @@
 
 <header class="nav" id="nav">
   <div class="nav__in">
-    <a class="nav__mark" href="#top">John Montejano</a>
-    <nav class="nav__links" aria-label="Sections">
+    <a class="nav__mark" href="#top">John <span>Montejano</span></a>
+    <button class="burger" id="burger" aria-label="Menu" aria-expanded="false" aria-controls="navlinks"><i></i><i></i></button>
+    <nav class="nav__links" id="navlinks" aria-label="Sections">
       <a href="#work">Work</a>
-      <a href="#how">How it works</a>
-      <a href="#questions">Questions</a>
+      <a href="#manifesto">Manifesto</a>
+      <a href="#trades">Trades</a>
+      <a href="#who">Who</a>
+      <a href="#contact">Contact</a>
     </nav>
-    <a class="btn nav__cta" href="#book">Book a call</a>
   </div>
 </header>
 
 <main id="main">
 
-<!-- ============ HERO: the display owns the viewport ============ -->
 <section class="hero" id="top">
   <div class="orb" aria-hidden="true"></div>
   <canvas class="orb-gl" aria-hidden="true"></canvas>
@@ -48,147 +49,25 @@
   <div class="hero__in">
     <h1 class="display split">You run the jobs.<br>The office runs itself.</h1>
   </div>
+  <a class="scrolldown" href="#work" aria-label="Scroll down">
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <defs><path id="sdp" d="M50,50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0"/></defs>
+      <text><textPath href="#sdp">SCROLL DOWN · SCROLL DOWN · </textPath></text>
+    </svg>
+    <span class="scrolldown__dot" aria-hidden="true"></span>
+  </a>
 </section>
 
-<div class="mq" aria-hidden="true">
-  <div class="mq__t">
-    <span>Plumbing</span><span>Dental</span><span>HVAC</span><span>Salons</span><span>Electrical</span><span>Cleaning</span><span>Med spa</span><span>Auto repair</span><span>Roofing</span><span>Property management</span><span>Landscaping</span><span>Moving</span><span>Pest control</span><span>Photography</span><span>Locksmiths</span><span>Appliance repair</span>
-    <span>Plumbing</span><span>Dental</span><span>HVAC</span><span>Salons</span><span>Electrical</span><span>Cleaning</span><span>Med spa</span><span>Auto repair</span><span>Roofing</span><span>Property management</span><span>Landscaping</span><span>Moving</span><span>Pest control</span><span>Photography</span><span>Locksmiths</span><span>Appliance repair</span>
-  </div>
-</div>
 
 
-<section class="block" id="intro" style="padding-block:clamp(90px,10vw,170px)">
-  <div class="wrap">
-    <div class="who-grid reveal">
-      <span class="img-wrapper" style="display:block;aspect-ratio:4/5">
-        <span class="img-container"><img src="assets/img/atmos/tools-wall.webp" alt="A pegboard wall of hand tools in a dark garage" loading="lazy" width="1024" height="1536"></span>
-      </span>
-      <div>
-        <p class="lead" style="max-width:24ch">I build the system that answers, quotes, chases and books while you're on the job.</p>
-        <div class="intro-acts">
-          <a class="btn" href="#book">Book a free 30 minutes</a>
-          <a class="btn btn--ghost" href="#work">See what I've built</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- ============ 01 WHERE IT LEAKS ============ -->
-<section class="block" id="leak">
-  <div class="wrap">
-    <div class="head reveal">
-      <p class="label">01 &nbsp;/&nbsp; Where it goes</p>
-      <h2 class="h2 split">Four leaks</h2>
-    </div>
-    <div class="grid2 reveal reveal-group">
-      <article class="cell">
-        <span class="cell__media img-wrapper"><img src="assets/img/atmos/phone-counter.webp" alt="A phone ringing on an empty counter late at night" loading="lazy" width="1536" height="960"></span>
-        <span class="cell__n">01 / Missed calls</span>
-        <h3 class="h4">The 7pm call nobody caught.</h3>
-      </article>
-      <article class="cell">
-        <span class="cell__media img-wrapper"><img src="assets/img/atmos/jobsheet-hand.webp" alt="A hand writing on a paper job sheet beside a closed laptop" loading="lazy" width="1023" height="1279"></span>
-        <span class="cell__n">02 / Double entry</span>
-        <h3 class="h4">Typed here. Typed again there.</h3>
-      </article>
-      <article class="cell">
-        <span class="cell__media img-wrapper"><img src="assets/img/atmos/bench-night.webp" alt="A workshop bench at night lit by a single lamp" loading="lazy" width="1536" height="960"></span>
-        <span class="cell__n">03 / Dead quotes</span>
-        <h3 class="h4">It died of silence, not a no.</h3>
-      </article>
-      <article class="cell">
-        <span class="cell__media img-wrapper"><img src="assets/img/atmos/calendar-shadow.webp" alt="A blank wall calendar with one square catching the light" loading="lazy" width="1536" height="960"></span>
-        <span class="cell__n">04 / No-shows</span>
-        <h3 class="h4">The 2pm that never showed.</h3>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section class="band reveal">
-  <div class="band__media img-wrapper">
-    <video class="band__video" poster="assets/img/atmos/van-dusk.webp" autoplay muted loop playsinline preload="none"
-           aria-label="A service van parked on a wet street at dusk">
-      <source src="assets/video/band-street.mp4" type="video/mp4">
-    </video>
-  </div>
-  <div class="grain" aria-hidden="true"></div>
-  <div class="band__in">
-    <h2 class="h2 split">You are still on the job<br>at seven in the evening.</h2>
-  </div>
-</section>
-
-<!-- ============ 02 THE REGISTER ============ -->
-<section class="block" id="automate" style="padding-top:0">
-  <div class="wrap">
-    <div class="head reveal">
-      <p class="label">02 &nbsp;/&nbsp; What I automate</p>
-      <h2 class="h2 split">If it happens twice,<br>it happens<br>without you</h2>
-    </div>
-    <ul class="rules reveal reveal-group">
-      <li class="rule"><span class="rule__w">when a job is created</span><span class="rule__a">&rarr;</span><span class="rule__t">send the quote</span></li>
-      <li class="rule"><span class="rule__w">when a quote goes unanswered</span><span class="rule__a">&rarr;</span><span class="rule__t">chase at 48 hours</span></li>
-      <li class="rule"><span class="rule__w">when a job is booked</span><span class="rule__a">&rarr;</span><span class="rule__t">block the calendar</span></li>
-      <li class="rule"><span class="rule__w">when the work is complete</span><span class="rule__a">&rarr;</span><span class="rule__t">send the invoice</span></li>
-      <li class="rule"><span class="rule__w">when the invoice is paid</span><span class="rule__a">&rarr;</span><span class="rule__t">ask for the review</span></li>
-      <li class="rule"><span class="rule__w">when the call needs judgment</span><span class="rule__a">&rarr;</span><span class="rule__t">it still comes to you</span></li>
-    </ul>
-    <p class="body muted reveal" style="margin-top:26px;max-width:58ch">Built on the accounts you already own. Judgment stays with you.</p>
-  </div>
-</section>
-
-<section class="block" id="run-sec">
-  <div class="wrap">
-    <div class="head reveal">
-      <p class="label">03 &nbsp;/&nbsp; One job, end to end</p>
-      <h2 class="h2 split">Tuesday, 7:04pm.<br>You are under a sink.</h2>
-    </div>
-
-    <div class="run" data-run>
-      <ol class="run__beats">
-        <li class="run__beat">
-          <span class="run__rail" aria-hidden="true"><i class="run__seg"></i><i class="run__dot"></i></span>
-          <div class="run__body"><b class="run__t">7:04pm</b><span class="run__w">The call comes in</span></div>
-        </li>
-        <li class="run__beat">
-          <span class="run__rail" aria-hidden="true"><i class="run__seg"></i><i class="run__dot"></i></span>
-          <div class="run__body"><b class="run__t">7:04pm</b><span class="run__w">Answered and qualified</span></div>
-        </li>
-        <li class="run__beat">
-          <span class="run__rail" aria-hidden="true"><i class="run__seg"></i><i class="run__dot"></i></span>
-          <div class="run__body"><b class="run__t">7:05pm</b><span class="run__w">Your calendar checked</span></div>
-        </li>
-        <li class="run__beat">
-          <span class="run__rail" aria-hidden="true"><i class="run__seg"></i><i class="run__dot"></i></span>
-          <div class="run__body"><b class="run__t">7:05pm</b><span class="run__w">Three slots texted over</span></div>
-        </li>
-        <li class="run__beat">
-          <span class="run__rail" aria-hidden="true"><i class="run__seg"></i><i class="run__dot"></i></span>
-          <div class="run__body"><b class="run__t">7:11pm</b><span class="run__w">Booked for Thursday</span></div>
-        </li>
-        <li class="run__beat">
-          <span class="run__rail" aria-hidden="true"><i class="run__seg"></i><i class="run__dot"></i></span>
-          <div class="run__body"><b class="run__t">Thu 4:12pm</b><span class="run__w">Invoice sent</span></div>
-        </li>
-        <li class="run__beat">
-          <span class="run__rail" aria-hidden="true"><i class="run__seg"></i><i class="run__dot"></i></span>
-          <div class="run__body"><b class="run__t">Thu 6:40pm</b><span class="run__w">Paid. Review asked.</span></div>
-        </li>
-      </ol>
-    </div>
-
-    <p class="body muted" style="margin-top:clamp(30px,4vw,52px)">You did not touch a phone.</p>
-  </div>
-</section>
 
 <!-- ============ 03 WORK ============ -->
 <section class="block" id="work">
   <div class="wrap">
     <div class="head reveal">
-      <p class="label">04 &nbsp;/&nbsp; Work</p>
-      <h2 class="h2 split">Three things I built<br>and still run</h2>
+      <p class="label eyebrow">&rarr; &nbsp;Work</p>
+      <h2 class="h2 split">Selected work</h2>
     </div>
   </div>
   <div class="wrap">
@@ -248,51 +127,106 @@
   </div>
 </section>
 
-<!-- ============ 04 INSTEAD OF A HIRE (inverted) ============ -->
-<section class="block" id="instead">
+<!-- ============ BUILT FOR (their "They trust us") ============ -->
+<section class="trust reveal" id="built-for">
+  <div class="wrap trust__in">
+    <p class="label trust__k">Built for</p>
+    <p class="trust__words" data-words><span class="bw">Plumbing</span> <span class="bw">HVAC</span> <span class="bw">Dental</span> <span class="bw">Salons</span> <span class="bw">Electrical</span> <span class="bw">Cleaning</span> <span class="bw">Med spa</span> <span class="bw">Auto repair</span> <span class="bw">Roofing</span> <span class="bw">Property management</span> <span class="bw">Landscaping</span> <span class="bw">Moving</span> <span class="bw">Pest control</span> <span class="bw">Locksmiths</span> <span class="bw">Appliance repair</span> </p>
+    <a class="btn btn--grad" href="#contact">&rarr; &nbsp;Book a free 30 minutes</a>
+  </div>
+  <a class="eyebrow-next" href="#manifesto">&rarr; &nbsp;Manifesto</a>
+</section>
+
+<!-- ============ MANIFESTO ============ -->
+<section class="block manifesto" id="manifesto">
   <div class="wrap">
-    <div class="head reveal">
-      <p class="label">05 &nbsp;/&nbsp; What it replaces</p>
-      <h2 class="h2 split">Skip the next hire.<br>Build the system.</h2>
-    </div>
-    <div class="vs" data-vs>
-  <div class="vs__state vs__state--old">
-    <span class="vs__k">Another hire</span>
-    <ul class="vs__list">
-      <li class="vs__row"><span class="vs__line">A salary, every month<i class="vs__strike" aria-hidden="true"></i></span></li>
-      <li class="vs__row"><span class="vs__line">Payroll tax and benefits<i class="vs__strike" aria-hidden="true"></i></span></li>
-      <li class="vs__row"><span class="vs__line">Weeks of training<i class="vs__strike" aria-hidden="true"></i></span></li>
-      <li class="vs__row"><span class="vs__line">Turnover, then training again<i class="vs__strike" aria-hidden="true"></i></span></li>
-      <li class="vs__row"><span class="vs__line">Forty hours, then it stops<i class="vs__strike" aria-hidden="true"></i></span></li>
-    </ul>
-  </div>
-  <div class="vs__state vs__state--new">
-    <span class="vs__k">One built system</span>
-    <ul class="vs__list">
-      <li class="vs__row"><span class="vs__line">One project, one invoice</span></li>
-      <li class="vs__row"><span class="vs__line">Runs at 7:04pm and on Sundays</span></li>
-      <li class="vs__row"><span class="vs__line">Taught once, stays taught</span></li>
-      <li class="vs__row"><span class="vs__line">Never calls out, never quits</span></li>
-      <li class="vs__row"><span class="vs__line">Every follow-up, every time</span></li>
-    </ul>
-  </div>
-</div>
+    <p class="label eyebrow">&rarr; &nbsp;Manifesto</p>
+    <h2 class="mline split">Assess. Simplify. Automate.<br>If it happens the same<br>way twice, it can<br>happen without you.<br>Built on accounts you own.<br>Judgment stays with you.</h2>
+    <p class="manifesto__p reveal">I ran a service business before I automated one. The system answers, quotes, chases and books while you are on the job. Every account stays in your name, and every call that needs a human still comes to you.</p>
   </div>
 </section>
 
-<!-- ============ 05 HOW ============ -->
-<section class="block" id="how">
+<!-- ============ STRENGTHS (the four leaks) ============ -->
+<section class="block strengths" id="leaks">
+  <div class="wrap">
+    <p class="label eyebrow">&rarr; &nbsp;Where it goes</p>
+    <article class="strength">
+      <span class="strength__label">&#8600; &nbsp;Missed calls</span>
+      <div class="strength__orb img-wrapper"><span class="img-container"><img src="assets/img/atmos/phone-counter.webp" alt="A phone ringing on an empty counter late at night" loading="lazy"></span></div>
+      <p class="strength__text"><b class="strength__n">01</b>The 7pm call nobody caught. It rang out, and the job went to whoever picked up first.</p>
+    </article>
+    <article class="strength">
+      <span class="strength__label">&#8600; &nbsp;Double entry</span>
+      <div class="strength__orb img-wrapper"><span class="img-container"><img src="assets/img/atmos/jobsheet-hand.webp" alt="A hand writing on a paper job sheet" loading="lazy"></span></div>
+      <p class="strength__text"><b class="strength__n">02</b>Typed here. Typed again there. Same name, same address, two apps, every customer, forever.</p>
+    </article>
+    <article class="strength">
+      <span class="strength__label">&#8600; &nbsp;Dead quotes</span>
+      <div class="strength__orb img-wrapper"><span class="img-container"><img src="assets/img/atmos/bench-night.webp" alt="A workshop bench at night" loading="lazy"></span></div>
+      <p class="strength__text"><b class="strength__n">03</b>It died of silence, not a no. The second message wins the work. It never goes out.</p>
+    </article>
+    <article class="strength">
+      <span class="strength__label">&#8600; &nbsp;No-shows</span>
+      <div class="strength__orb img-wrapper"><span class="img-container"><img src="assets/img/atmos/calendar-shadow.webp" alt="A blank wall calendar with one square lit" loading="lazy"></span></div>
+      <p class="strength__text"><b class="strength__n">04</b>The 2pm that never showed. You held the slot, turned others away, and nobody paid for the hour.</p>
+    </article>
+  </div>
+</section>
+
+<section class="block" id="run-sec">
   <div class="wrap">
     <div class="head reveal">
-      <p class="label">06 &nbsp;/&nbsp; How it works</p>
-      <h2 class="h2 split">Book it. Map it.<br>Build it. Own it.</h2>
+      <p class="label eyebrow">&rarr; &nbsp;One job, end to end</p>
+      <h2 class="h2 split">Tuesday, 7:04pm.<br>You are under a sink.</h2>
     </div>
-    <div class="steps reveal reveal-group">
-      <div class="step"><b>01</b><h3 class="h4">Pick a time.</h3><p class="body muted">On this page. I confirm by email.</p></div>
-      <div class="step"><b>02</b><h3 class="h4">Walk me through your week.</h3><p class="body muted">Who answers, what gets typed where, what slips.</p></div>
-      <div class="step"><b>03</b><h3 class="h4">Get your map.</h3><p class="body muted">Where the hours go, and what to automate first. Yours either way.</p></div>
-      <div class="step"><b>04</b><h3 class="h4">I build it. It runs.</h3><p class="body muted">Built in accounts you own.</p></div>
+
+    <div class="run" data-run>
+      <ol class="run__beats">
+        <li class="run__beat">
+          <span class="run__rail" aria-hidden="true"><i class="run__seg"></i><i class="run__dot"></i></span>
+          <div class="run__body"><b class="run__t">7:04pm</b><span class="run__w">The call comes in</span></div>
+        </li>
+        <li class="run__beat">
+          <span class="run__rail" aria-hidden="true"><i class="run__seg"></i><i class="run__dot"></i></span>
+          <div class="run__body"><b class="run__t">7:04pm</b><span class="run__w">Answered and qualified</span></div>
+        </li>
+        <li class="run__beat">
+          <span class="run__rail" aria-hidden="true"><i class="run__seg"></i><i class="run__dot"></i></span>
+          <div class="run__body"><b class="run__t">7:05pm</b><span class="run__w">Your calendar checked</span></div>
+        </li>
+        <li class="run__beat">
+          <span class="run__rail" aria-hidden="true"><i class="run__seg"></i><i class="run__dot"></i></span>
+          <div class="run__body"><b class="run__t">7:05pm</b><span class="run__w">Three slots texted over</span></div>
+        </li>
+        <li class="run__beat">
+          <span class="run__rail" aria-hidden="true"><i class="run__seg"></i><i class="run__dot"></i></span>
+          <div class="run__body"><b class="run__t">7:11pm</b><span class="run__w">Booked for Thursday</span></div>
+        </li>
+        <li class="run__beat">
+          <span class="run__rail" aria-hidden="true"><i class="run__seg"></i><i class="run__dot"></i></span>
+          <div class="run__body"><b class="run__t">Thu 4:12pm</b><span class="run__w">Invoice sent</span></div>
+        </li>
+        <li class="run__beat">
+          <span class="run__rail" aria-hidden="true"><i class="run__seg"></i><i class="run__dot"></i></span>
+          <div class="run__body"><b class="run__t">Thu 6:40pm</b><span class="run__w">Paid. Review asked.</span></div>
+        </li>
+      </ol>
     </div>
+
+    <p class="body muted" style="margin-top:clamp(30px,4vw,52px)">You did not touch a phone.</p>
+  </div>
+</section>
+
+<section class="band reveal">
+  <div class="band__media img-wrapper">
+    <video class="band__video" poster="assets/img/atmos/van-dusk.webp" autoplay muted loop playsinline preload="none"
+           aria-label="A service van parked on a wet street at dusk">
+      <source src="assets/video/band-street.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="band__in">
+    <h2 class="h2 split">You are still on the job<br>at seven in the evening.</h2>
   </div>
 </section>
 
@@ -314,7 +248,7 @@
 <!-- ============ 06 WHO ============ -->
 <section class="block" id="who" style="padding-top:0">
   <div class="wrap">
-    <div class="head reveal"><p class="label">07 &nbsp;/&nbsp; Who</p></div>
+    <div class="head reveal"><p class="label eyebrow">&rarr; &nbsp;Who</p></div>
     <div class="reveal who-grid">
       <span class="img-wrapper" style="display:block;aspect-ratio:4/5"><span class="img-container"><img src="assets/img/jm-portrait.webp" alt="John Montejano" loading="lazy"></span></span>
       <div>
@@ -331,7 +265,7 @@
 <section class="block" id="questions" style="padding-top:0">
   <div class="wrap">
     <div class="head reveal">
-      <p class="label">08 &nbsp;/&nbsp; Questions</p>
+      <p class="label eyebrow">&rarr; &nbsp;Questions</p>
       <h2 class="h2 split">Before you book</h2>
     </div>
     <div class="faq reveal">
@@ -346,75 +280,44 @@
 </section>
 
 <!-- ============ 08 BOOK (inverted) ============ -->
-<section class="band reveal">
-  <div class="band__media img-wrapper">
-    <video class="band__video" poster="assets/img/atmos/van-interior.webp" autoplay muted loop playsinline preload="none"
-           aria-label="The open back of a work van at night">
-      <source src="assets/video/band-van.mp4" type="video/mp4">
-    </video>
-  </div>
-  <div class="grain" aria-hidden="true"></div>
-  <div class="band__in">
-    <h2 class="h2 split">One call.<br>Then you decide.</h2>
-  </div>
-</section>
+</main>
 
-<section class="block" id="book">
+<!-- ============ CONTACT (light cut, like their footer) ============ -->
+<footer class="contact" id="contact">
   <div class="wrap">
-    <div class="head reveal">
-      <p class="label">09 &nbsp;/&nbsp; Book</p>
-      <h2 class="h2 split">Take a slot.<br>Take the map.</h2>
-    </div>
-    <div class="book reveal">
-      <div class="book__side">
-        <p class="label">Workflow assessment</p>
-        <p class="h4" style="margin-top:10px">Thirty minutes. Free.<br>You keep the map either way.</p>
-        <ul style="margin-top:24px">
-          <li style="padding-block:12px;border-bottom:1px solid var(--hair);color:#dcdcdc;font-size:15px"><b class="num" style="color:#fff">00&ndash;10</b> &nbsp; You talk. A normal week, untidied.</li>
-          <li style="padding-block:12px;border-bottom:1px solid var(--hair);color:#dcdcdc;font-size:15px"><b class="num" style="color:#fff">10&ndash;25</b> &nbsp; I dig into one recent customer.</li>
-          <li style="padding-block:12px;color:#dcdcdc;font-size:15px"><b class="num" style="color:#fff">25&ndash;30</b> &nbsp; What to automate first, and roughly the cost.</li>
-        </ul>
-        <p class="body" style="color:var(--ash);margin-top:20px">Video or phone. Pacific times.</p>
-      </div>
-      <div class="book__side">
+    <p class="label eyebrow">&rarr; &nbsp;Contact</p>
+    <h2 class="contact__h split">Keep in touch <span class="rings" aria-hidden="true"></span></h2>
+    <p class="label" style="margin-top:clamp(40px,5vw,72px)">Start a conversation</p>
+    <a class="mail" href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a>
+
+    <div class="contact__grid">
+      <div>
         <p class="label">Windows I usually keep free</p>
         <div class="slots" id="slots" role="group" aria-label="Preferred time"></div>
         <form class="book__f" id="bookForm">
           <input type="text" id="bName" name="name" placeholder="Name" autocomplete="name" required>
           <input type="text" id="bBiz" name="business" placeholder="Business + what you do" required>
-          <button class="btn btn--inv" type="submit">Open the email &nearr;</button>
+          <button class="btn" type="submit">Open the email &nearr;</button>
         </form>
-        <p class="body" style="color:var(--ash);margin-top:16px" id="bookNote">Opens an email with your time filled in. It isn't booked until you press Send. Nothing is submitted here.</p>
-        <p class="body" style="margin-top:12px"><a href="mailto:johnmontejano2@gmail.com" style="color:#fff;border-bottom:1px solid var(--hair)">johnmontejano2@gmail.com</a></p>
+        <p class="body muted" style="margin-top:14px;max-width:40ch" id="bookNote">Thirty minutes, free. Opens an email with your time filled in. It isn't booked until you press Send. Nothing is submitted here.</p>
+      </div>
+      <div>
+        <p class="label">Where</p>
+        <p class="contact__city">San Francisco <span class="ico" aria-hidden="true">&#9719;</span></p>
+        <p class="body muted">California &middot; Pacific time<br>Video call or phone</p>
+        <p class="label" style="margin-top:34px">Live work</p>
+        <a class="ulink" href="https://fastfix.ai" target="_blank" rel="noopener">&rarr; &nbsp;<span>fastfix.ai</span></a><br>
+        <a class="ulink" href="https://gelatotech.com" target="_blank" rel="noopener">&rarr; &nbsp;<span>gelatotech.com</span></a><br>
+        <a class="ulink" href="https://gsb-lead-lisa.com" target="_blank" rel="noopener">&rarr; &nbsp;<span>gsb-lead-lisa.com</span></a>
+      </div>
+      <div>
+        <p class="label">Follow</p>
+        <a class="ulink big" href="https://www.linkedin.com/in/johnmontejano" target="_blank" rel="noopener"><span>LinkedIn</span></a><br>
+        <a class="ulink big" href="mailto:johnmontejano2@gmail.com"><span>Email</span></a>
+        <a class="totop" href="#top" aria-label="Back to top">&uarr;</a>
       </div>
     </div>
-  </div>
-</section>
-
-</main>
-
-<footer class="foot">
-  <div class="wrap">
-    <div class="foot__grid">
-      <div>
-        <p class="h4" style="max-width:18ch">One call. One map.<br>Then you decide.</p>
-        <a class="btn btn--inv" href="#book" style="margin-top:22px">Book a free 30 minutes</a>
-      </div>
-      <div>
-        <p class="label" style="margin-bottom:10px">Live work</p>
-        <a href="https://fastfix.ai" target="_blank" rel="noopener">fastfix.ai</a><br>
-        <a href="https://gelatotech.com" target="_blank" rel="noopener">gelatotech.com</a><br>
-        <a href="https://gsb-lead-lisa.com" target="_blank" rel="noopener">gsb-lead-lisa.com</a>
-      </div>
-      <div>
-        <p class="label" style="margin-bottom:10px">Contact</p>
-        <a href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a><br>
-        <a href="https://www.linkedin.com/in/johnmontejano" target="_blank" rel="noopener">LinkedIn</a><br>
-        <span style="color:var(--slate);font-size:14px;line-height:2">San Francisco, CA</span>
-      </div>
-    </div>
-    <p class="foot__mark" aria-hidden="true">Montejano</p>
-    <div class="foot__end">
+    <div class="contact__end">
       <span>&copy; 2026 John Montejano &middot; Automation for service businesses</span>
       <span>Designed and built by me</span>
     </div>

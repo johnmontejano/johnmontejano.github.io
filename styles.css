@@ -31,6 +31,7 @@
   --irid-a:rgb(160,224,171);
   --irid-b:rgb(255,172,46);
   --irid-c:rgb(165,45,37);
+  --iridescent:linear-gradient(90deg,var(--irid-a),var(--irid-b) 50%,var(--irid-c));
 
   --sans:Switzer,Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
   --fs-display:clamp(30px,3.8vw,56px);
@@ -474,6 +475,134 @@ html{overflow-x:hidden}
 #loader .text-display span{display:inline-block;opacity:0;transform:translate3d(0,100%,0);
   will-change:transform,opacity}
 html.is-loading,html.is-loading body{overflow:hidden}
+
+/* =========================================================================
+   Section-for-section port of the reference: vertical nav stack, scroll badge,
+   "built for" word rise, manifesto, strengths rows, light contact footer.
+   ========================================================================= */
+
+/* ---- nav: logo left, links stacked vertically on the right, .4 -> 1 ---- */
+.nav__in{align-items:flex-start;height:auto;padding-top:26px}
+.nav__mark{font-size:13px;letter-spacing:.02em;text-transform:none;font-weight:500}
+.nav__mark span{font-weight:300;opacity:.7;margin-left:.35em}
+.nav__links{display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+.nav__links a{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg);opacity:.4;
+  display:inline-flex;align-items:center;
+  transition:color 1.25s var(--ease),opacity .4s linear,transform .8s var(--ease)}
+.nav__links a::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;
+  margin-right:8px;opacity:0;transform:translateX(-100%);transition:opacity .4s linear,transform .8s var(--ease)}
+.notouch .nav__links a:hover,.nav__links a.active{opacity:1}
+.notouch .nav__links a:hover::before,.nav__links a.active::before{opacity:1;transform:none}
+.burger{display:none;width:34px;height:22px;position:relative}
+.burger i{position:absolute;left:0;width:100%;height:1px;background:var(--fg);transition:all .5s var(--ease)}
+.burger i:nth-child(1){top:6px}.burger i:nth-child(2){top:15px}
+.burger[aria-expanded="true"] i:nth-child(1){top:10px;transform:rotate(45deg)}
+.burger[aria-expanded="true"] i:nth-child(2){top:10px;transform:rotate(-45deg)}
+@media(max-width:760px){
+  .burger{display:block}
+  .nav__links{display:flex;position:fixed;inset:0;background:#000;padding:110px clamp(20px,5vw,40px) 40px;
+    align-items:flex-start;gap:18px;transform:translate3d(-100%,0,0);transition:transform .75s var(--ease);z-index:-1}
+  .nav__links a{font-size:22px;letter-spacing:.02em;text-transform:none;opacity:1}
+  .nav.is-open .nav__links{transform:none}
+}
+/* the nav flips to dark type over the light footer, like their SET_BACKGROUND */
+html[data-nav="light"] .nav{--fg:#000;--bg:#fff}
+html[data-nav="light"] .dot-cursor{background:#000;color:#fff}
+
+/* ---- rotating "scroll down" badge, bottom-left of the hero ---- */
+.scrolldown{position:absolute;left:clamp(20px,5vw,40px);bottom:clamp(28px,4vw,48px);z-index:3;
+  width:92px;height:92px;display:grid;place-items:center;color:#fff}
+.scrolldown svg{position:absolute;inset:0;width:100%;height:100%;animation:rotating 10s linear infinite}
+.scrolldown text{font-size:9.5px;letter-spacing:.22em;fill:currentColor;font-family:var(--sans)}
+.scrolldown__dot{width:22px;height:22px;border:1px solid currentColor;border-radius:50%;position:relative}
+.scrolldown__dot::after{content:"";position:absolute;left:50%;top:5px;width:1px;height:10px;background:currentColor;transform:translateX(-50%)}
+@keyframes rotating{to{transform:rotate(1turn)}}
+
+/* ---- eyebrows: "-> Label" in small caps, as they open every section ---- */
+.eyebrow{font-size:11px;letter-spacing:.06em;text-transform:none;font-weight:500;color:var(--fg);margin-bottom:clamp(34px,5vw,80px)}
+.eyebrow-next{position:absolute;left:clamp(20px,5vw,40px);bottom:clamp(30px,5vw,60px);font-size:11px;font-weight:500;
+  color:var(--fg);opacity:.9;transition:opacity .4s linear}
+.notouch .eyebrow-next:hover{opacity:.5}
+
+/* ---- "built for": centred word list that rises word by word ---- */
+.trust{position:relative;min-height:90vh;display:flex;align-items:center;padding-block:clamp(90px,10vw,160px)}
+.trust__in{text-align:center}
+.trust__k{color:var(--fg);font-size:11px;letter-spacing:.06em;text-transform:none;font-weight:500;margin-bottom:clamp(30px,4vw,60px)}
+.trust__words{font-size:clamp(24px,2.5vw,36px);line-height:1.4;font-weight:400;max-width:26em;margin:0 auto clamp(40px,5vw,70px)}
+.bw{display:inline-block;opacity:0;will-change:transform,opacity}
+.bw::after{content:",";margin:0 .3em 0 -.05em}
+.bw:last-child::after{content:"."}
+.trust .btn--grad{padding:16px 34px}
+
+/* ---- manifesto: huge light lines, wiped by scroll ---- */
+.manifesto .mline{font-size:clamp(30px,5.9vw,86px);font-weight:300;line-height:1;letter-spacing:-.014em;max-width:none}
+.manifesto .mline .line{margin-bottom:.06em}
+.manifesto__p{margin:clamp(50px,7vw,110px) 0 0 auto;max-width:34ch;font-size:clamp(17px,1.5vw,22px);
+  line-height:1.5;font-weight:400;color:var(--fg-dim)}
+
+/* ---- strengths rows: hairline that draws itself, label, orb, numbered copy ---- */
+.strength{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);
+  gap:clamp(30px,6vw,90px);align-items:center;padding:clamp(70px,8vw,120px) 0 clamp(60px,7vw,100px)}
+.strength::before{content:"";position:absolute;top:0;left:0;width:100%;height:1px;background:var(--fg);opacity:.25;
+  transform:scaleX(0);transform-origin:50% 50%;transition:transform 2s var(--ease);transition-delay:.25s}
+.strength.is-inview::before{transform:scaleX(1)}
+.strength__label{position:absolute;top:22px;left:0;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--fg-mute)}
+.strength__orb{width:clamp(150px,17vw,230px);aspect-ratio:1;border-radius:50%;overflow:hidden;margin-inline:auto;
+  opacity:0;transform:translate3d(0,40%,0);transition:opacity .75s linear,transform 1s var(--ease);transition-delay:.35s}
+.strength__orb .img-container img{transform:translate3d(-50%,-50%,0) scale(1.05)}
+.strength.is-inview .strength__orb .img-container img{transform:translate3d(-50%,-50%,0) scale(1.2)}
+.strength__text{font-size:clamp(18px,1.75vw,25px);font-weight:300;line-height:1.5;max-width:26em;color:var(--fg);
+  opacity:0;transform:translate3d(0,40%,0);transition:opacity .75s linear,transform 1s var(--ease);transition-delay:.45s}
+.strength__n{font-size:11px;font-weight:500;letter-spacing:.04em;vertical-align:top;margin-right:1.6em;color:var(--fg-mute)}
+.strength.is-inview .strength__orb,.strength.is-inview .strength__text{opacity:1;transform:translateZ(0)}
+@media(max-width:760px){.strength{grid-template-columns:1fr;padding-top:70px}.strength__orb{margin:0}}
+
+/* ---- contact: the hard cut to light, like their footer ---- */
+.contact{--bg:#fff;--fg:#000;--fg-dim:#181818;--fg-mute:#6d6d6d;--hair:rgba(0,0,0,.14);--surface:#fff;
+  background:#fff;color:#000;padding:clamp(90px,10vw,160px) 0 34px}
+.contact .eyebrow,.contact .label{color:#000}
+.contact .label{color:#6d6d6d}
+.contact__h{font-size:clamp(44px,6.6vw,96px);font-weight:300;line-height:1;letter-spacing:-.012em;display:flex;align-items:center;gap:.25em}
+.rings{display:inline-block;width:.5em;height:.32em;position:relative}
+.rings::before,.rings::after{content:"";position:absolute;top:0;width:.32em;height:.32em;border:1px solid #000;border-radius:50%}
+.rings::before{left:0}.rings::after{left:.18em}
+.mail{position:relative;display:inline-block;overflow:hidden;margin-top:10px;padding-bottom:8px;
+  font-size:clamp(20px,2.3vw,34px);font-weight:300;letter-spacing:-.005em;
+  background:var(--iridescent);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  transition:opacity .2s linear}
+.mail::before,.mail::after{content:"";position:absolute;bottom:0;left:0;height:1px;width:100%;background:var(--iridescent);
+  transition:transform .85s cubic-bezier(1,0,0,1)}
+.mail::before{transform:translate3d(-105%,0,0)}
+.mail::after{transform:translateZ(0)}
+.notouch .mail:hover{opacity:.6}
+.notouch .mail:hover::before{transform:translateZ(0)}
+.notouch .mail:hover::after{transform:translate3d(105%,0,0)}
+.contact__grid{display:grid;grid-template-columns:1.5fr 1fr .8fr;gap:clamp(30px,5vw,70px);margin-top:clamp(60px,7vw,110px)}
+.contact__city{font-size:clamp(20px,1.6vw,24px);margin:10px 0 6px;display:flex;align-items:center;gap:.4em}
+.contact__city .ico{font-size:.7em;color:#6d6d6d}
+.contact .body,.contact .muted{color:#6d6d6d;font-size:13px;line-height:1.6}
+.ulink{display:inline-block;font-size:14px;line-height:2.2;color:#000}
+.ulink span{position:relative;display:inline-block;overflow:hidden;padding-bottom:1px}
+.ulink span::before{content:"";position:absolute;bottom:0;left:0;width:100%;height:1px;background:#000;
+  transform:translate3d(-103%,0,0);transition:transform .85s cubic-bezier(1,0,0,1)}
+.notouch .ulink:hover span::before{transform:translateZ(0)}
+.notouch .ulink:hover{opacity:.6}
+.ulink.big{font-size:clamp(18px,1.4vw,22px);line-height:1.9}
+.totop{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;border:1px solid rgba(0,0,0,.3);
+  color:#000;margin-top:34px;font-size:18px;transition:transform .6s var(--ease),border-color .6s var(--ease)}
+.notouch .totop:hover{transform:scale(1.08);border-color:#000}
+.contact .slots{grid-template-columns:repeat(3,1fr)}
+.contact .slot{border-color:rgba(0,0,0,.18);color:#181818}
+.contact .slot:hover,.contact .slot[aria-pressed="true"]{border-color:#000}
+.contact .slot[aria-pressed="true"]{background:#000;color:#fff}
+.contact .book__f input{border-color:rgba(0,0,0,.18);color:#000}
+.contact .book__f input::placeholder{color:#6d6d6d}
+.contact .book__f input:focus{border-color:#000}
+.contact .btn{background:#000;color:#fff;border-color:#000}
+.contact .btn:hover{background:transparent;color:#000}
+.contact__end{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;margin-top:clamp(60px,7vw,100px);
+  padding-top:22px;border-top:1px solid rgba(0,0,0,.14);font-size:12px;color:#6d6d6d}
+@media(max-width:860px){.contact__grid{grid-template-columns:1fr}}
 
 .skip{position:absolute;left:-9999px;z-index:200;background:#fff;color:#000;padding:12px 18px}
 .skip:focus{left:12px;top:12px}

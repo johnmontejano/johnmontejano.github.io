@@ -78,7 +78,7 @@
 
   if (!RM) {
     /* ---------- 2. is-inview, the Locomotive way ---------- */
-    var targets = [].slice.call(document.querySelectorAll(".reveal,.head,.job,.word,.tiles"));
+    var targets = [].slice.call(document.querySelectorAll(".reveal,.head,.job,.word,.tiles,.strength,.trust,.contact"));
     // Anything already on screen is revealed synchronously. IntersectionObserver
     // does not deliver callbacks while document.hidden is true (background tab,
     // prerender, headless capture), so waiting on it can strand the whole page.
@@ -308,6 +308,46 @@
                              scrub: 0.5, invalidateOnRefresh: true } });
       });
 
+      /* ---------- 5e. "built for": the word list rises word by word ----------
+         Their ANIMATE_BRAND_WORDS: y 20% -> 0 over .85s expo.out, stagger .05,
+         with opacity over .425s linear on the same stagger. y AND yPercent are
+         both pinned - GSAP would otherwise keep a stray pixel offset. */
+      (function () {
+        var box = document.querySelector("[data-words]");
+        if (!box) return;
+        var words = box.querySelectorAll(".bw");
+        ScrollTrigger.create({
+          trigger: box, start: "top 80%", once: true,
+          onEnter: function () {
+            var tl = gsap.timeline();
+            tl.fromTo(words, { yPercent: 20, y: 0 }, { yPercent: 0, y: 0, duration: 0.85, ease: "expo.out", stagger: 0.05, force3D: true }, 0)
+              .to(words, { opacity: 1, duration: 0.425, ease: "none", stagger: 0.05 }, 0);
+          }
+        });
+        setTimeout(function () { gsap.set(words, { opacity: 1, yPercent: 0, y: 0 }); }, 9000); // never strand
+      })();
+
+      /* ---------- 5f. nav flips to dark type over the light footer ---------- */
+      (function () {
+        var c = document.querySelector(".contact");
+        if (!c || !("IntersectionObserver" in window)) return;
+        new IntersectionObserver(function (es) {
+          document.documentElement.setAttribute("data-nav", es[0].isIntersecting ? "light" : "dark");
+        }, { rootMargin: "-60px 0px -85% 0px" }).observe(c);
+      })();
+
+      /* ---------- 5g. active nav item follows the section in view ---------- */
+      (function () {
+        var links = [].slice.call(document.querySelectorAll(".nav__links a"));
+        if (!links.length || !("IntersectionObserver" in window)) return;
+        var map = {};
+        links.forEach(function (a) { var id = a.getAttribute("href").slice(1); var el = document.getElementById(id); if (el) map[id] = a; });
+        var io = new IntersectionObserver(function (es) {
+          es.forEach(function (e) { if (e.isIntersecting) { links.forEach(function (a) { a.classList.remove("active"); }); map[e.target.id].classList.add("active"); } });
+        }, { rootMargin: "-40% 0px -55% 0px" });
+        Object.keys(map).forEach(function (id) { io.observe(document.getElementById(id)); });
+      })();
+
       var orb = document.querySelector(".orb");
       if (orb) {
         gsap.to(orb, { yPercent: 20, ease: "none",
@@ -516,6 +556,22 @@
     vids.forEach(function (v) { io.observe(v); });
   })();
 
+  /* ---------- mobile menu: panel slides in over .75s expo, bars become a cross ---------- */
+  (function () {
+    var b = document.getElementById("burger"), nav = document.getElementById("nav");
+    if (!b || !nav) return;
+    b.addEventListener("click", function () {
+      var open = nav.classList.toggle("is-open");
+      b.setAttribute("aria-expanded", open ? "true" : "false");
+      document.documentElement.classList.toggle("is-loading", open);   // locks scroll while open
+    });
+    nav.querableLinks = nav.querySelectorAll(".nav__links a");
+    nav.querableLinks.forEach(function (a) { a.addEventListener("click", function () {
+      nav.classList.remove("is-open"); b.setAttribute("aria-expanded", "false");
+      document.documentElement.classList.remove("is-loading");
+    }); });
+  })();
+
   /* ---------- booking slots ---------- */
   var slotsEl = document.getElementById("slots"), picked = null;
   if (slotsEl) {
@@ -550,13 +606,13 @@
       var name = document.getElementById("bName").value.trim();
       var biz = document.getElementById("bBiz").value.trim();
       if (!name || !biz) return;
-      if (!picked) { note.textContent = "Pick a time above first, then open the email."; note.style.color = "#fff"; return; }
+      if (!picked) { note.textContent = "Pick a time above first, then open the email."; note.style.color = ""; return; }
       var body = "Hi John,\n\nI'd like the free 30-minute workflow assessment.\n\n" +
         "Name: " + name + "\nBusiness: " + biz + "\nPreferred time: " + picked + "\n\nThanks,\n" + name;
       window.location.href = "mailto:johnmontejano2@gmail.com?subject=" +
         encodeURIComponent("Workflow assessment — " + name) + "&body=" + encodeURIComponent(body);
       note.textContent = "Your email client is open. It isn't booked until you press Send.";
-      note.style.color = "#fff";
+      note.style.color = "";
     });
   }
 })();
