@@ -16,7 +16,8 @@
     if (el.dataset.split) return;
     var parts = el.innerHTML.split(/<br\s*\/?>/i);
     el.innerHTML = parts.map(function (p) {
-      return '<span class="line"><span class="content">' + p.trim() +
+      return '<span class="line"><span class="content">' +
+             '<span class="txt">' + p.trim() + '</span>' +
              '<span class="mask" aria-hidden="true"></span></span></span>';
     }).join("");
     el.dataset.split = "1";
@@ -125,6 +126,62 @@
           setTimeout(function () { if (!heroPlayed) { heroPlayed = true; gsap.set(heroMasks, { scaleX: 0 }); } }, 6000);
         }
       }
+
+      /* ---------- 4a. the hero swaps its two-part line ----------
+         The reference cycles its hero sentence on a 4500ms interval: the parts
+         leave upward at y:-150% over .9s expo.inOut with the second lagging .1s,
+         and the replacement arrives at y:0 over .9s expo.out. This is the one
+         time-based animation on their page and it is confined to the hero. */
+      (function () {
+        var h1 = document.querySelector(".hero .display");
+        if (!h1) return;
+        var txts = h1.querySelectorAll(".txt");
+        if (txts.length < 2) return;
+        var LINES = [
+          ["You run the jobs.", "The office runs itself."],
+          ["You are under a sink.", "The quote goes out anyway."],
+          ["You are on a roof.", "The invoice is already sent."],
+          ["You are driving home.", "Tomorrow is already booked."]
+        ];
+        var i = 0, timer = null, tl = null, inView = true;
+
+        // The headline is the most important text on the page: it must never be
+        // left parked off-screen by an interrupted timeline.
+        function settle() {
+          if (tl) { tl.kill(); tl = null; }
+          gsap.set(txts, { yPercent: 0, clearProps: "transform" });
+        }
+        function cycle() {
+          if (!inView || document.hidden) return;
+          var next = LINES[(i + 1) % LINES.length];
+          if (tl) tl.kill();
+          tl = gsap.timeline({ onInterrupt: settle });
+          tl.to(txts[0], { yPercent: -150, duration: 0.9, ease: "expo.inOut", overwrite: true }, 0)
+            .to(txts[1], { yPercent: -150, duration: 0.9, ease: "expo.inOut", overwrite: true }, 0.1)
+            .add(function () {
+              txts[0].textContent = next[0];
+              txts[1].textContent = next[1];
+              gsap.set(txts, { yPercent: 120 });
+            })
+            .to(txts[0], { yPercent: 0, duration: 0.9, ease: "expo.out", overwrite: true }, 0.55)
+            .to(txts[1], { yPercent: 0, duration: 0.9, ease: "expo.out", overwrite: true }, 0.65);
+          i = (i + 1) % LINES.length;
+        }
+        function start() { if (!timer && inView && !document.hidden) timer = setInterval(cycle, 4500); }
+        function stop() { clearInterval(timer); timer = null; settle(); }
+
+        if ("IntersectionObserver" in window) {
+          new IntersectionObserver(function (es) {
+            inView = es[0].isIntersecting;
+            inView ? start() : stop();
+          }, { threshold: 0.25 }).observe(h1);
+        }
+        setTimeout(function () { if (document.visibilityState === "visible") start(); }, 3200);
+        document.addEventListener("visibilitychange", function () {
+          document.hidden ? stop() : start();
+        });
+        window.addEventListener("pagehide", stop);
+      })();
 
       /* ---------- 4b. the marquee is scroll-driven, not time-driven ----------
          The reference has NO time-based animation anywhere on the page. Its

@@ -160,6 +160,7 @@ html[data-theme="light"] .img--shot{background:#f4f4f2}
 .line .content{display:inline-flex;align-items:center;position:relative;overflow:hidden;
   max-width:100%}
 .hero .line{text-align:center}
+.js .line .content .txt{display:inline-block;will-change:transform}
 .js .line .content .mask{display:inline-block;position:absolute;top:0;left:0;width:100%;height:115%;
   transform-origin:100% 50%;transform:translateZ(0);opacity:.65;background:var(--bg);
   pointer-events:none;z-index:2}
