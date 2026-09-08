@@ -9,6 +9,48 @@
   var RM = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var hasGSAP = typeof window.gsap !== "undefined" && typeof window.ScrollTrigger !== "undefined";
 
+  /* ---------- preloader ----------
+     Timings taken from the reference. Skipped under reduced motion, without
+     GSAP, and after the first view in a session. Removed on a hard timeout as
+     well, so a stalled tween can never leave the page covered. */
+  (function () {
+    var seen = false;
+    try { seen = sessionStorage.getItem("jm-loaded") === "1"; } catch (e) {}
+    var RMnow = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (seen || RMnow || typeof window.gsap === "undefined") return;
+
+    var el = document.createElement("div");
+    el.id = "loader";
+    el.setAttribute("aria-hidden", "true");
+    el.innerHTML = '<div class="text-display"><span>Hello.</span><span>Let us get the office running.</span></div>';
+    document.body.appendChild(el);
+    document.documentElement.classList.add("is-loading");
+
+    var spans = el.querySelectorAll("span");
+    var done = false;
+    function finish() {
+      if (done) return;
+      done = true;
+      document.documentElement.classList.remove("is-loading");
+      if (el.parentNode) el.parentNode.removeChild(el);
+      try { sessionStorage.setItem("jm-loaded", "1"); } catch (e) {}
+      if (window.ScrollTrigger) ScrollTrigger.refresh();
+    }
+    // fromTo with BOTH y and yPercent pinned: GSAP resolves the CSS
+    // translate3d(0,100%,0) into a pixel y, so tweening yPercent alone would
+    // leave that offset in place and the greeting would never appear.
+    gsap.timeline({ onComplete: finish })
+      .fromTo(spans[0], { yPercent: 100, y: 0, opacity: 0 },
+              { yPercent: 0, y: 0, opacity: 1, duration: 1.2, ease: "expo.out" }, 1.0)
+      .fromTo(spans[1], { yPercent: 100, y: 0, opacity: 0 },
+              { yPercent: 0, y: 0, opacity: 1, duration: 1.2, ease: "expo.out" }, 1.1)
+      .to(spans[0], { yPercent: -100, y: 0, opacity: 0, duration: 1.0, ease: "expo.inOut" }, 4.5)
+      .to(spans[1], { yPercent: -100, y: 0, opacity: 0, duration: 1.0, ease: "expo.inOut" }, 4.6)
+      .to(el, { opacity: 0, duration: 0.6, ease: "expo.inOut" }, 5.0);
+    setTimeout(finish, 8000);          // hard floor: never leave the page covered
+    window.addEventListener("pagehide", finish);
+  })();
+
   /* ---------- 1. split marked headings into their line/content/mask markup ----------
      <span class="line"><span class="content">TEXT<span class="mask"></span></span></span>
      Lines break on the authored <br>, so the break points stay art-directed. */
@@ -454,6 +496,25 @@
      timeline ends at 6.34 and the last two beats arrive early. */
   tl.set({}, {}, beats.length);
 })();
+
+  /* ---------- band video: honour reduced motion, and do not decode offscreen ----------
+     Marked preload="none" so the file is only fetched when the band is near. */
+  (function () {
+    var vids = [].slice.call(document.querySelectorAll(".band__video"));
+    if (!vids.length) return;
+    if (RM) { vids.forEach(function (v) { v.removeAttribute("autoplay"); v.pause(); }); return; }
+    if (!("IntersectionObserver" in window)) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        var v = e.target;
+        if (e.isIntersecting) {
+          if (v.preload === "none") { v.preload = "auto"; v.load(); }
+          var p = v.play(); if (p && p.catch) p.catch(function () {});
+        } else { v.pause(); }
+      });
+    }, { rootMargin: "200px 0px" });
+    vids.forEach(function (v) { io.observe(v); });
+  })();
 
   /* ---------- booking slots ---------- */
   var slotsEl = document.getElementById("slots"), picked = null;
