@@ -165,9 +165,9 @@ function mountOrb(canvas) {
   if (!canvas) return null;
 
   const CONFIG = {
-    c1: '#A0E0AB',        // --irid-a
-    c2: '#FFAC2E',        // --irid-b
-    c3: '#A52D25',        // --irid-c
+    c1: '#899A75',        // moss green sampled from the live reference
+    c2: '#B19058',        // aged gold
+    c3: '#59452F',        // smoked umber; reference has no vivid red stop
     bg: '#000000',
     speed: 0.22,          // seconds of shader-time per second of wall-clock
     focus: [0.02, -0.04], // slight offset; matches the CSS orb's left:52%/top:46%

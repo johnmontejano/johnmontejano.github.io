@@ -264,7 +264,7 @@
         var who = document.getElementById("who");
         if (!who) return;
         var pic = who.querySelector(".img-wrapper");
-        var copy = who.querySelector(".h3");
+        var copy = who.querySelector(".person__name");
         if (!pic || !copy) return;
         var st = { trigger: who, start: "top bottom", end: "bottom top", scrub: 0.5 };
         gsap.fromTo(pic,  { y: 90 },  { y: -90, ease: "none", scrollTrigger: st });
@@ -561,20 +561,42 @@
     vids.forEach(function (v) { io.observe(v); });
   })();
 
+  /* ---------- person card: reference's circular + reveals the biography ---------- */
+  (function () {
+    var person = document.querySelector(".person");
+    var button = person && person.querySelector(".person__plus");
+    if (!person || !button) return;
+
+    button.addEventListener("click", function () {
+      var open = person.classList.toggle("is-open");
+      button.setAttribute("aria-expanded", open ? "true" : "false");
+      button.setAttribute("aria-label", open ? "Hide details about John" : "Read more about John");
+    });
+  })();
+
   /* ---------- mobile menu: panel slides in over .75s expo, bars become a cross ---------- */
   (function () {
     var b = document.getElementById("burger"), nav = document.getElementById("nav");
     if (!b || !nav) return;
+    var links = nav.querySelectorAll(".nav__links a");
+    function closeMenu(returnFocus) {
+      nav.classList.remove("is-open");
+      b.setAttribute("aria-expanded", "false");
+      b.setAttribute("aria-label", "Menu");
+      document.documentElement.classList.remove("is-loading");
+      if (returnFocus) b.focus();
+    }
     b.addEventListener("click", function () {
       var open = nav.classList.toggle("is-open");
       b.setAttribute("aria-expanded", open ? "true" : "false");
+      b.setAttribute("aria-label", open ? "Close menu" : "Menu");
       document.documentElement.classList.toggle("is-loading", open);   // locks scroll while open
+      if (open && links.length) links[0].focus();
     });
-    nav.querableLinks = nav.querySelectorAll(".nav__links a");
-    nav.querableLinks.forEach(function (a) { a.addEventListener("click", function () {
-      nav.classList.remove("is-open"); b.setAttribute("aria-expanded", "false");
-      document.documentElement.classList.remove("is-loading");
-    }); });
+    links.forEach(function (a) { a.addEventListener("click", function () { closeMenu(false); }); });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && nav.classList.contains("is-open")) closeMenu(true);
+    });
   })();
 
   /* ---------- booking slots ---------- */
