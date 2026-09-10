@@ -1,9 +1,9 @@
 /* Node 22+, Chrome. Run: node tools/motion-check.cjs [URL]
  * Without URL, serves this checkout on an ephemeral loopback port.
- * Optional: --only=boot, --only=menu, --only=motion, or --only=video.
+ * Optional: --only=boot, --only=menu, --only=motion, or --only=marketing.
  * CHROME_PATH may override the executable. Starts its OWN temporary Chrome
  * profile/process on port 0; never connects to 9222 or an existing browser.
- * Uses actual page markup, real keyboard/wheel input and real video playback.
+ * Uses actual markup, keyboard/wheel input, workflow choices and contact controls.
  */
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -157,7 +157,7 @@ async function checkBoot(url) {
     }))
   }))()`);
   assert.equal(boot.activated,true); assert.equal(boot.split,'1');
-  assert.deepEqual(boot.phrases,['You run the jobs.','I build the systems.']);
+  assert.deepEqual(boot.phrases,['I automate the admin.','You run the business.']);
   assert.equal(boot.gsap,'3.12.5'); assert.equal(boot.scrollTrigger,'3.12.5'); assert.equal(boot.lenis,'function');
   assert(boot.triggers>0); assert.equal(boot.vendor.length,3);
   assert(boot.vendor.every(v=>v.local && v.status===200), 'All three pinned local vendor scripts must load successfully');
@@ -216,9 +216,10 @@ async function checkMotion(url) {
   assert(await p.evaluate("[...document.querySelectorAll('.bw')].every(e=>getComputedStyle(e).opacity==='0') && !document.querySelector('.contact').classList.contains('is-inview')"), 'Offscreen content must remain pending after 9s');
   const motion = await p.evaluate(`(()=>{
     const sample=(selector,axis)=>{let e=document.querySelector(selector),s=ScrollTrigger.getAll().find(s=>s.animation?.targets().includes(e));let old=s.animation.progress();s.animation.progress(0);let a=+gsap.getProperty(e,axis);s.animation.progress(1);let b=+gsap.getProperty(e,axis);s.animation.progress(old);return [a,b,s.trigger.id||s.trigger.className]};
-    return {cover:sample('.job__cover','y'),row:sample('.tiles__line','x'),inner:sample('.tiles__parallax','x'),portrait:sample('.person__media','y'),name:sample('.person__name','y'),previews:[...document.querySelectorAll('.job__preview')].every(e=>!e.style.transform&&!gsap.getTweensOf(e).length)};
+    return {cover:sample('.job__cover','y'),row:sample('.tiles__line','x'),portrait:sample('.person__media','y'),name:sample('.person__name','y'),previews:[...document.querySelectorAll('.job__preview')].every(e=>!e.style.transform&&!gsap.getTweensOf(e).length)};
   })()`);
-  for (const [name, expected] of Object.entries({ cover: [-18,18], row: [83,-83], inner: [-35,35], portrait: [144,-144], name: [-100,100] })) assert.deepEqual(motion[name].slice(0,2), expected, name);
+  for (const [name, expected] of Object.entries({ cover: [-18,18], row: [83,-83], portrait: [144,-144], name: [-100,100] })) assert.deepEqual(motion[name].slice(0,2), expected, name);
+  assert(await p.evaluate("!document.querySelector('.proof-gallery .tiles__parallax')"), 'Proof interiors preserve source crop');
   assert.equal(motion.portrait[2], 'who'); assert.equal(motion.name[2], 'person__name'); assert(motion.previews);
   const activeHero = "gsap.globalTimeline.getChildren().find(t=>t.getChildren && t.vars.onInterrupt && t.isActive() && t.time()>.1 && t.time()<.65 && t.getChildren().some(c=>c.targets().some(e=>e.classList?.contains('txt'))))";
   await p.until('!!(' + activeHero + ')', 'hero mid-cycle');
@@ -255,7 +256,7 @@ async function checkMenu(url) {
   await p.evaluate("document.querySelector('#burger').focus()"); await p.key('Enter');
   await p.key('Enter'); // first menu link: navigation closes and unlocks
   assert(await p.evaluate("document.querySelector('#navlinks').inert && !document.documentElement.classList.contains('is-loading')"), 'Link activation closes menu');
-  await p.until("Math.abs(document.querySelector('#work').getBoundingClientRect().top-70)<10", 'menu link scrolls to its target');
+  await p.until("Math.abs(document.querySelector('#workflow').getBoundingClientRect().top-70)<10", 'menu link scrolls to its target');
   await p.wheel(-3000); await p.until('scrollY<1', 'return to top for open-menu resize');
   await p.evaluate("document.querySelector('#burger').focus()"); await p.key('Enter');
   await p.command('Emulation.setDeviceMetricsOverride', { width:1440,height:900,deviceScaleFactor:1,mobile:false });
@@ -264,46 +265,66 @@ async function checkMenu(url) {
   console.log('PASS: closed menu inert, keyboard entry, Tab/Shift+Tab trap, Escape/focus, scroll lock/release, link close, desktop resize');
 }
 
-async function checkVideo(url, reduced) {
-  const p = await page(url, { reduced });
-  assert(await p.evaluate("!!document.querySelector('.band__toggle')"), 'Actual film toggle markup required');
-  await p.wheel(await p.evaluate("document.querySelector('.band').getBoundingClientRect().top-50"));
-  await sleep(1400);
-  const paused = "document.querySelector('.band__video').paused";
-  if (reduced) {
-    assert(await p.evaluate(paused), 'Reduced motion must not autoplay');
-    await p.click('.band__toggle');
+async function checkMarketing(url, reduced) {
+  const p = await page(url, { mobile: true, reduced });
+  await p.until("document.querySelector('[data-workflow-contact]')?.dataset.contactReady==='true'", 'contact enhancement');
+  assert(await p.evaluate("document.querySelector('.hero__category').textContent.includes('Workflow automation for service businesses')"), 'Static category explains audience and offer');
+  assert.equal(await p.evaluate("document.querySelectorAll('video,.strength__orb,img[src*=glass-],img[src*=daylight-v2]').length"),0,'Irrelevant decorative film/glass/trade imagery removed');
+  const booking=await p.evaluate("[...document.querySelectorAll('[data-booking-link]')].map(a=>({href:a.href,rel:a.rel,target:a.target}))");
+  assert(booking.length>=3 && booking.every(a=>a.href==='https://calendly.com/johnmontejano2/free30'&&a.rel.includes('noopener')&&a.target==='_blank'),'All booking CTAs use verified Calendly, safely opening new tab');
+  assert(await p.evaluate("!document.querySelector('iframe[src*=calendly]')"),'No unsolicited Calendly embed');
+  for (const name of ['quote','booking','enquiry']) {
+    await p.evaluate("document.querySelector('[data-example="+name+"]').focus()");
+    await p.key('Enter');
+    assert.equal(await p.evaluate("document.querySelectorAll('[data-workflow]:not([hidden])').length"),1);
+    assert(await p.evaluate("!document.querySelector('[data-workflow="+name+"]').hidden"),'Selected example visible');
+    assert.equal(await p.evaluate("document.querySelector('[data-example="+name+"]').getAttribute('aria-pressed')"),'true');
+    assert.equal(await p.evaluate("document.querySelector('[data-workflow="+name+"]').querySelectorAll('.flow li').length"),3);
   }
-  await p.until('!(' + paused + ')', 'film playback');
-  await p.until("document.querySelector('.band__toggle').textContent==='Pause film' && document.querySelector('.band__toggle').getAttribute('aria-pressed')==='true'", 'playing label and ARIA');
-  await p.click('.band__toggle');
-  await p.until(paused, 'manual pause');
-  assert(await p.evaluate("document.querySelector('.band__toggle').textContent==='Play film' && document.querySelector('.band__toggle').getAttribute('aria-pressed')==='false'"), 'Paused label and ARIA');
-  await p.wheel(-1800); await sleep(1000);
-  assert(await p.evaluate("document.querySelector('.band__video').getBoundingClientRect().top>innerHeight+200"), 'Video must actually leave observer area');
-  await p.wheel(1800); await sleep(1400);
-  assert(await p.evaluate("document.querySelector('.band__video').getBoundingClientRect().top<innerHeight"), 'Video must re-enter viewport');
-  assert(await p.evaluate(paused), 'Manual pause persists after real out/in entry');
-  await p.click('.band__toggle'); await p.until('!(' + paused + ')', 'explicit resume');
-  if (!reduced) {
-    await p.command('Emulation.setEmulatedMedia', { features:[{name:'prefers-reduced-motion',value:'reduce'}] });
-    await p.until(paused, 'live reduced-motion pause');
-  }
+  await p.evaluate("document.querySelector('.questions summary').focus()");
+  await p.key('Enter');
+  assert(await p.evaluate("document.querySelector('.questions details').open"),'FAQ works with keyboard');
+  await p.evaluate("document.querySelector('[data-contact-enhancement] summary').focus()");
+  await p.key('Enter');
+  assert(await p.evaluate("document.querySelector('[data-contact-enhancement]').open"));
+  await p.evaluate("document.querySelector('[data-contact-form] button[type=submit]').focus()");
+  await p.key('Enter');
+  assert(await p.evaluate("document.activeElement.matches('[data-contact-name]')"),'Native required validation focuses name');
+  assert(await p.evaluate("document.querySelector('[data-contact-draft-panel]').hidden"),'Invalid form cannot generate draft');
+  const fill=async(selector,value)=>{
+    await p.evaluate("document.querySelector("+JSON.stringify(selector)+").focus()");
+    await p.command('Input.insertText',{text:value});
+  };
+  await fill('[data-contact-name]','QA & Example');
+  await fill('[data-contact-business]','Demo + Service');
+  await fill('[data-contact-problem]','Quotes & follow-ups / test only');
+  await p.evaluate("document.querySelector('[data-contact-form] button[type=submit]').focus()");
+  await p.key('Enter');
+  await p.until("!document.querySelector('[data-contact-draft-panel]').hidden", 'email draft prepared (not sent)');
+  assert(await p.evaluate("document.querySelector('[data-contact-draft]').value.includes('QA & Example')&&document.querySelector('[data-contact-draft]').value.includes('Demo + Service')"),'Special characters preserved in draft');
+  assert(await p.evaluate("/Nothing was sent here/.test(document.querySelector('[data-contact-draft-status]').textContent)"),'Truthful no-send status');
+  await p.evaluate("Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:()=>Promise.reject(new Error('test clipboard denied'))}});document.querySelector('[data-contact-copy-address]').focus()");
+  await p.key('Enter');
+  await p.until("!document.querySelector('[data-contact-address-fallback]').hidden",'clipboard denial exposes manual fallback');
+  assert(await p.evaluate("document.activeElement.matches('[data-contact-address]')"),'Manual copy focused');
+  await fill('[data-contact-business]',' changed');
+  assert(await p.evaluate("document.querySelector('[data-contact-draft-panel]').hidden && document.querySelector('[data-contact-draft]').value==='';"),'Editing clears stale draft');
+  assert.equal(await p.evaluate('document.documentElement.scrollWidth-innerWidth'),0);
   await p.close();
-  console.log('PASS: actual film button, labels/ARIA, manual pause after out/in, explicit resume (' + (reduced ? 'reduced motion' : 'normal + live reduced motion') + ')');
+  console.log('PASS: clear static offer, verified booking links, selectable examples, keyboard FAQ, email validation/draft/manual-copy fallback ('+(reduced?'reduced':'normal')+')');
 }
 
 (async () => {
   try {
     const args = process.argv.slice(2);
     const only = args.find(arg=>arg.startsWith('--only='))?.slice(7);
-    assert(!only || ['boot','menu','motion','video'].includes(only), 'Unknown --only option');
+    assert(!only || ['boot','menu','motion','marketing'].includes(only), 'Unknown --only option');
     const url = args.find(arg=>!arg.startsWith('--')) || await serve();
     await connect();
     if (!only || only === 'boot') await checkBoot(url);
     if (!only || only === 'motion') await checkMotion(url);
     if (!only || only === 'menu') await checkMenu(url);
-    if (!only || only === 'video') { await checkVideo(url, false); await checkVideo(url, true); }
+    if (!only || only === 'marketing') { await checkMarketing(url, false); await checkMarketing(url, true); }
     console.log((only ? 'Selected checks' : 'All portfolio motion checks') + ' passed. No existing browser or port 9222 used.');
   } finally {
     if (socket?.readyState === WebSocket.OPEN) { await send('Browser.close').catch(() => {}); socket.close(); }

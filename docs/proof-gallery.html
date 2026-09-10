@@ -1,0 +1,70 @@
+<!--
+  Integration: replace the existing #trades section with this fragment.
+  Load assets/css/proof-gallery.css after styles.css and marketing.css.
+  All asset URLs are relative to the root index.html, not this docs directory.
+  Exactly six tiles; no duplicates or new JavaScript. Keep images direct children
+  of .tiles__img: main.js inserts/removes .tiles__parallax around each image.
+  The FastFix source mark is 171px native, rendered at 38px (24px mobile).
+  LISA's 1600x1000 capture is clipped to its first 450 source pixels by CSS.
+  The full Stanford non-affiliation disclaimer stays in the primary LISA card.
+-->
+<section class="tiles proof-gallery reveal" id="trades" aria-labelledby="proof-gallery-heading" aria-describedby="proof-gallery-caption">
+  <div class="proof-gallery__intro">
+    <h2 class="proof-gallery__heading" id="proof-gallery-heading">Websites are the front door. Workflows connect what happens next.</h2>
+  </div>
+
+  <div class="tiles__wrap">
+    <div class="tiles__line" data-tspeed="1">
+      <figure class="proof-card">
+        <div class="tiles__img proof-media--fastfix">
+          <img src="assets/img/fastfix-mark-source.png" alt="FastFix.ai source logo" width="171" height="171" loading="lazy" decoding="async">
+          <p class="proof-fastfix__name">FastFix.ai</p>
+          <div class="proof-fastfix__terms"><span>SEO + AEO Website</span><span>Industry CRM</span><span>Ads + Funnel</span><span>Social Autopilot</span></div>
+          <p class="proof-fastfix__scope">Website capabilities</p>
+        </div>
+        <figcaption class="proof-card__label">FastFix.ai <span>Source mark</span></figcaption>
+      </figure>
+
+      <figure class="proof-card">
+        <div class="tiles__img proof-media--gelatotech">
+          <img src="assets/img/work-gelatotech.webp" alt="GelatoTech website capture showing the device selector" width="800" height="500" loading="lazy" decoding="async">
+        </div>
+        <figcaption class="proof-card__label">GelatoTech <span>Site capture</span></figcaption>
+      </figure>
+
+      <figure class="proof-card">
+        <div class="proof-card__visual">
+          <div class="tiles__img proof-media--lisa">
+            <img src="assets/img/work-lisa.webp" alt="LISA website header identifying an independent initiative by LEAD alumni" width="1600" height="1000" loading="lazy" decoding="async">
+          </div>
+        </div>
+        <figcaption class="proof-card__label">LISA <span>Site capture</span></figcaption>
+      </figure>
+    </div>
+
+    <div class="tiles__line" data-tspeed="-1">
+      <figure class="proof-card proof-card--example">
+        <div class="tiles__img proof-media--process">
+          <p class="proof-flow"><span>Request</span><span class="proof-flow__arrow" aria-hidden="true">→</span><span>Booking</span></p>
+        </div>
+        <figcaption class="proof-card__label"><span>Illustrative workflow</span></figcaption>
+      </figure>
+
+      <figure class="proof-card proof-card--example">
+        <div class="tiles__img proof-media--process">
+          <p class="proof-flow"><span>Quote</span><span class="proof-flow__arrow" aria-hidden="true">→</span><span>Follow-up</span></p>
+        </div>
+        <figcaption class="proof-card__label"><span>Illustrative workflow</span></figcaption>
+      </figure>
+
+      <figure class="proof-card proof-card--example">
+        <div class="tiles__img proof-media--process">
+          <p class="proof-flow"><span>Job done</span><span class="proof-flow__arrow" aria-hidden="true">→</span><span>Invoice</span></p>
+        </div>
+        <figcaption class="proof-card__label"><span>Illustrative workflow</span></figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <p class="proof-gallery__caption" id="proof-gallery-caption"><span class="proof-gallery__caption--desktop">Reference captures: GelatoTech and LISA websites. FastFix uses its source mark and website capability labels. Process tiles are illustrative examples, not product recordings or client results.</span><span class="proof-gallery__caption--mobile">Illustrative workflows, not live client results. Explore the full-size project examples above for real website work.</span></p>
+</section>

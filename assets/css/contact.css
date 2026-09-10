@@ -1,0 +1,289 @@
+/* Email assessment section. Load after styles.css; all rules stay in scope. */
+.workflow-contact {
+  --contact-ink: #000;
+  --contact-body: #181818;
+  --contact-muted: #626262;
+  --contact-line: #a3a3a3;
+  color-scheme: light;
+  background: #fff;
+  color: var(--contact-ink);
+  font-family: var(--sans, Switzer, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.workflow-contact *,
+.workflow-contact *::before,
+.workflow-contact *::after {
+  box-sizing: border-box;
+}
+
+.workflow-contact [hidden] {
+  display: none !important;
+}
+
+.workflow-contact ::selection {
+  background: #000;
+  color: #fff;
+}
+
+.workflow-contact :where(h2, h3, p, ol) {
+  margin: 0;
+}
+
+.workflow-contact :where(a, button, input, textarea, summary):focus-visible {
+  outline: 2px solid var(--contact-ink);
+  outline-offset: 5px;
+}
+
+.workflow-contact .workflow-contact__eyebrow {
+  margin-bottom: 24px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .04em;
+}
+
+.workflow-contact .workflow-contact__title {
+  max-width: 18ch;
+  font-size: clamp(38px, 5.4vw, 78px);
+  font-weight: 400;
+  letter-spacing: -.025em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.workflow-contact .workflow-contact__intro {
+  max-width: 49ch;
+  margin-top: 24px;
+  color: var(--contact-body);
+  font-size: clamp(18px, 1.65vw, 23px);
+  font-weight: 300;
+  line-height: 1.5;
+}
+
+.workflow-contact .workflow-contact__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(32px, 6vw, 88px);
+  margin-top: clamp(40px, 5vw, 72px);
+}
+
+.workflow-contact .workflow-contact__layout > * {
+  min-width: 0;
+}
+
+.workflow-contact .workflow-contact__label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.workflow-contact .workflow-contact__label span {
+  color: var(--contact-muted);
+  font-weight: 400;
+}
+
+.workflow-contact .workflow-contact__email {
+  display: inline-block;
+  max-width: 100%;
+  min-height: 44px;
+  margin-block: 8px;
+  padding-block: 4px;
+  color: var(--contact-ink);
+  font-size: clamp(20px, 2.05vw, 30px);
+  font-weight: 400;
+  letter-spacing: -.02em;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .2em;
+}
+
+.workflow-contact .workflow-contact__help,
+.workflow-contact .workflow-contact__status {
+  color: var(--contact-muted);
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.workflow-contact .workflow-contact__status:not(:empty) {
+  margin-top: 12px;
+  color: var(--contact-body);
+}
+
+.workflow-contact .workflow-contact__text-button {
+  display: inline-block;
+  min-height: 44px;
+  max-width: 100%;
+  margin-top: 8px;
+  padding: 10px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--contact-ink);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: .25em;
+  cursor: pointer;
+}
+
+.workflow-contact .workflow-contact__next {
+  margin-top: clamp(32px, 4vw, 56px);
+}
+
+.workflow-contact .workflow-contact__steps {
+  display: grid;
+  gap: 20px;
+  margin-top: 24px;
+  padding: 0;
+  list-style: none;
+}
+
+.workflow-contact .workflow-contact__steps li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 16px;
+  color: var(--contact-muted);
+  font-size: 15px;
+}
+
+.workflow-contact .workflow-contact__step-number {
+  padding-top: 2px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.workflow-contact .workflow-contact__steps strong {
+  display: block;
+  color: var(--contact-body);
+  font-weight: 500;
+}
+
+.workflow-contact .workflow-contact__compose {
+  margin-top: 24px;
+  border-block: 1px solid var(--contact-line);
+}
+
+.workflow-contact .workflow-contact__summary {
+  min-height: 56px;
+  padding: 18px 4px;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.workflow-contact .workflow-contact__summary::marker {
+  font-size: .75em;
+}
+
+.workflow-contact .workflow-contact__form {
+  display: grid;
+  gap: 24px;
+  padding-block: 8px 28px;
+}
+
+.workflow-contact .workflow-contact__field {
+  display: grid;
+  gap: 8px;
+}
+
+.workflow-contact .workflow-contact__input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px;
+  border: 1px solid var(--contact-line);
+  border-radius: 0;
+  background: #fff;
+  color: var(--contact-body);
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.workflow-contact textarea.workflow-contact__input {
+  resize: vertical;
+  overflow-wrap: anywhere;
+}
+
+.workflow-contact .workflow-contact__input:focus {
+  border-color: var(--contact-ink);
+}
+
+.workflow-contact .workflow-contact__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 52px;
+  max-width: 100%;
+  padding: 14px 22px;
+  border: 1px solid var(--contact-ink);
+  border-radius: 75px;
+  background: var(--contact-ink);
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.workflow-contact .workflow-contact__booking-help {
+  margin-top: 16px;
+}
+
+.workflow-contact .workflow-contact__booking-link span {
+  flex-shrink: 0;
+}
+
+.workflow-contact .workflow-contact__form > .workflow-contact__status:empty {
+  /* Keep the live region in the accessibility tree without an empty grid row. */
+  position: absolute;
+}
+
+.workflow-contact .workflow-contact__manual,
+.workflow-contact .workflow-contact__draft {
+  display: grid;
+  gap: 12px;
+}
+
+.workflow-contact .workflow-contact__manual {
+  margin-top: 16px;
+}
+
+.workflow-contact .workflow-contact__draft {
+  padding-top: 24px;
+  border-top: 1px solid var(--contact-line);
+}
+
+.workflow-contact .workflow-contact__draft-text {
+  min-height: 240px;
+}
+
+@media (hover: hover) {
+  .workflow-contact .workflow-contact__button:hover {
+    background: #fff;
+    color: var(--contact-ink);
+  }
+
+  .workflow-contact :where(.workflow-contact__email, .workflow-contact__text-button):hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
+@media (max-width: 760px) {
+  .workflow-contact .workflow-contact__layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+}
+
+/* No animation, transition, or scripted scrolling: reduced motion is native. */

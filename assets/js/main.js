@@ -108,8 +108,8 @@
   var heads = [].slice.call(document.querySelectorAll(".split"));
   heads.forEach(splitLines);
   var heroPhrases = [
-    ["You run the jobs.", "I build the systems."],
-    ["Less busywork.", "More breathing room."]
+    ["I automate the admin.", "You run the business."],
+    ["Enquiries. Follow-ups.", "Bookings. Connected."]
   ];
   document.querySelectorAll(".hero .display .txt").forEach(function (el, index) {
     if (heroPhrases[0][index]) el.textContent = heroPhrases[0][index];
@@ -362,6 +362,8 @@
             scrollTrigger: { trigger: line.closest(".tiles"), start: "top bottom", end: "bottom top",
                              scrub: 0.5, invalidateOnRefresh: true } });
         line.querySelectorAll(".tiles__img").forEach(function (tile) {
+            // Preserve exact evidence crops while the proof band moves.
+            if (tile.closest(".proof-gallery")) return;
           var img = tile.querySelector("img");
           if (!img) return;
           var layer = document.createElement("span");
@@ -752,49 +754,6 @@
     syncMenuAccess();
   })();
 
-  /* ---------- booking slots ---------- */
-  var slotsEl = document.getElementById("slots"), picked = null;
-  if (slotsEl) {
-    var TIMES = ["9:00am", "11:30am", "2:00pm"], DAYS = [], d = new Date(), n = 0;
-    d.setDate(d.getDate() + 1);
-    while (n < 3) {
-      if (d.getDay() !== 0 && d.getDay() !== 6) {
-        DAYS.push(d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })); n++;
-      }
-      d.setDate(d.getDate() + 1);
-    }
-    DAYS.forEach(function (day) {
-      TIMES.forEach(function (tm) {
-        var b = document.createElement("button");
-        b.type = "button"; b.className = "slot"; b.setAttribute("aria-pressed", "false");
-        b.innerHTML = '<span style="display:block;font-size:10px;letter-spacing:.09em;text-transform:uppercase;opacity:.6">' + day + "</span>" + tm;
-        b.addEventListener("click", function () {
-          [].forEach.call(slotsEl.children, function (o) { o.setAttribute("aria-pressed", "false"); });
-          b.setAttribute("aria-pressed", "true");
-          picked = day + " at " + tm + " Pacific";
-        });
-        slotsEl.appendChild(b);
-      });
-    });
-  }
-
-  /* ---------- mailto handoff. Nothing is submitted to this page. ---------- */
-  var form = document.getElementById("bookForm"), note = document.getElementById("bookNote");
-  if (form) {
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var name = document.getElementById("bName").value.trim();
-      var biz = document.getElementById("bBiz").value.trim();
-      if (!name || !biz) return;
-      if (!picked) { note.textContent = "Pick a time above first, then open the email."; note.style.color = ""; return; }
-      var body = "Hi John,\n\nI'd like the free 30-minute workflow assessment.\n\n" +
-        "Name: " + name + "\nBusiness: " + biz + "\nPreferred time: " + picked + "\n\nThanks,\n" + name;
-      window.location.href = "mailto:johnmontejano2@gmail.com?subject=" +
-        encodeURIComponent("Workflow assessment — " + name) + "&body=" + encodeURIComponent(body);
-      note.textContent = "Your email client is open. It isn't booked until you press Send.";
-      note.style.color = "";
-    });
-  }
   } catch (bootError) {
     // Restore readable content even if boot fails before helpers are initialized.
     // Disable callbacks first, then clean up only motion owned by this file.

@@ -1,0 +1,70 @@
+<!--
+  Integration: load assets/css/contact.css after styles.css and load
+  assets/js/contact.js with defer. Paste this section inside #contact > .wrap,
+  replacing the old contact heading/email/grid; retain the footer end credits.
+  Keep the outer <footer class="contact" id="contact"> for existing navigation.
+  This snippet intentionally has no .split/.reveal or legacy booking hooks.
+-->
+<section class="workflow-contact" data-workflow-contact aria-labelledby="workflow-contact-title">
+  <p class="workflow-contact__eyebrow">Workflow assessment</p>
+  <h2 class="workflow-contact__title" id="workflow-contact-title">Let’s look at one repeated task.</h2>
+  <p class="workflow-contact__intro">A free 30-minute conversation about where work gets stuck in your business. Leave with a workflow map and a clear answer on what’s worth automating first.</p>
+
+  <div class="workflow-contact__layout">
+    <div class="workflow-contact__primary">
+      <a class="workflow-contact__button workflow-contact__booking-link" href="https://calendly.com/johnmontejano2/free30" target="_blank" rel="noopener" aria-describedby="workflow-contact-booking-help">Book a workflow assessment <span aria-hidden="true">↗</span></a>
+      <p class="workflow-contact__help workflow-contact__booking-help" id="workflow-contact-booking-help">Free 30-minute conversation · Choose a time in Calendly<br>Opens in a new tab. Confirm your booking in Calendly.</p>
+      <p class="workflow-contact__help workflow-contact__booking-help">Bring a rough sense of your weekly jobs and the software you use.</p>
+
+      <div class="workflow-contact__next" aria-labelledby="workflow-contact-next-title">
+        <h3 class="workflow-contact__label" id="workflow-contact-next-title">What happens next</h3>
+        <ol class="workflow-contact__steps" role="list">
+          <li><span class="workflow-contact__step-number" aria-hidden="true">01</span><p><strong>Choose a time.</strong> Confirm your booking in Calendly. Web conferencing details are provided upon confirmation.</p></li>
+          <li><span class="workflow-contact__step-number" aria-hidden="true">02</span><p><strong>Discuss one workflow.</strong> Talk through how one repeated task works today and where it gets stuck.</p></li>
+          <li><span class="workflow-contact__step-number" aria-hidden="true">03</span><p><strong>Agree scope before a build.</strong> If there’s a fit, decide together what to take on.</p></li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="workflow-contact__direct">
+      <h3 class="workflow-contact__label">Prefer email?</h3>
+      <a class="workflow-contact__email" href="mailto:johnmontejano2@gmail.com" aria-describedby="workflow-contact-email-help">johnmontejano2@gmail.com</a>
+      <p class="workflow-contact__help" id="workflow-contact-email-help">Opens your email app. Nothing is sent here. If you use email, John confirms a time by email.</p>
+      <button class="workflow-contact__text-button" type="button" data-contact-copy-address hidden>Copy email address</button>
+      <div class="workflow-contact__manual" data-contact-address-fallback hidden>
+        <label class="workflow-contact__label" for="workflow-contact-address">Email address for manual copying</label>
+        <textarea class="workflow-contact__input workflow-contact__address" id="workflow-contact-address" rows="2" readonly spellcheck="false" data-contact-address>johnmontejano2@gmail.com</textarea>
+      </div>
+      <p class="workflow-contact__status" role="status" aria-live="polite" aria-atomic="true" data-contact-address-status></p>
+
+      <details class="workflow-contact__compose" data-contact-enhancement hidden>
+        <summary class="workflow-contact__summary">Want a starting point? Prepare an email</summary>
+        <form class="workflow-contact__form" action="mailto:johnmontejano2@gmail.com" method="get" data-contact-form aria-describedby="workflow-contact-form-help">
+          <p class="workflow-contact__help" id="workflow-contact-form-help">Name and business are required for the draft. “Open email draft” opens your email app; review and send it there. Nothing is sent here. For email requests, John confirms a time by email.</p>
+          <div class="workflow-contact__field">
+            <label class="workflow-contact__label" for="workflow-contact-name">Name <span>(required)</span></label>
+            <input class="workflow-contact__input" id="workflow-contact-name" name="name" type="text" autocomplete="name" required pattern=".*\S.*" maxlength="70" data-contact-name>
+          </div>
+          <div class="workflow-contact__field">
+            <label class="workflow-contact__label" for="workflow-contact-business">Business <span>(required)</span></label>
+            <input class="workflow-contact__input" id="workflow-contact-business" name="business" type="text" autocomplete="organization" required pattern=".*\S.*" maxlength="100" data-contact-business>
+          </div>
+          <div class="workflow-contact__field">
+            <label class="workflow-contact__label" for="workflow-contact-problem">Which repeated task gets in the way? <span>(optional)</span></label>
+            <textarea class="workflow-contact__input" id="workflow-contact-problem" name="workflow" rows="3" maxlength="320" aria-describedby="workflow-contact-problem-help" data-contact-problem></textarea>
+            <p class="workflow-contact__help" id="workflow-contact-problem-help">For example, following up on quotes or moving information between tools. A sentence is enough; leave out sensitive details.</p>
+          </div>
+          <button class="workflow-contact__button" type="submit">Open email draft <span aria-hidden="true">↗</span></button>
+          <p class="workflow-contact__status" role="status" aria-live="polite" aria-atomic="true" data-contact-draft-status></p>
+          <div class="workflow-contact__draft" data-contact-draft-panel hidden>
+            <label class="workflow-contact__label" for="workflow-contact-draft">Your email draft</label>
+            <p class="workflow-contact__help" id="workflow-contact-draft-help">If your email app didn’t open, copy this draft into an email to johnmontejano2@gmail.com. You can also select the text and copy it manually.</p>
+            <textarea class="workflow-contact__input workflow-contact__draft-text" id="workflow-contact-draft" rows="10" readonly spellcheck="false" aria-describedby="workflow-contact-draft-help" data-contact-draft></textarea>
+            <button class="workflow-contact__text-button" type="button" data-contact-copy-draft>Copy email draft</button>
+            <p class="workflow-contact__status" role="status" aria-live="polite" aria-atomic="true" data-contact-copy-status></p>
+          </div>
+        </form>
+      </details>
+    </div>
+  </div>
+</section>

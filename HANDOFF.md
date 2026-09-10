@@ -1,5 +1,38 @@
 # Handoff — John Montejano portfolio site
 
+## Marketing clarity release — 2026-09-09
+
+This release supersedes the imagery/fidelity-only snapshot below. John likes
+the monopo design, but asked to make the service and imagery meaningful and
+improve conversion readiness to at least8/10 through independent agent critique.
+
+- Preserved the WebGL hero, reference type/palette, staggered work, meaningful
+  scroll movement, founder portrait and white contact close.
+- Hero now states custom workflow automation for service businesses, with a
+  concrete subhead and booking CTA. Early selectable illustrative workflows
+  explain trigger → automation → human handoff; all are readable without JS.
+- Replaced glass objects with process diagrams and removed the Paris film and
+  generated trade photography from the DOM. Original files are preserved.
+  Compact moving gallery uses real project sources and labeled examples.
+- Project roles are explicit. GelatoTech includes a verified observable case:
+  choosing iPhone opens exact-model selection. No savings or sales claims added.
+  LISA's Stanford non-affiliation disclaimer remains intact.
+- User supplied and main verified `https://calendly.com/johnmontejano2/free30`:
+  actual Free30 minutes event, available dates, workflow-map/first-priority
+  deliverable. This is the primary CTA. Email composer is secondary and never
+  pretends to send or book. No third-party embed or analytics added.
+- Source files: `assets/css/marketing.css`, `contact.css`, `proof-gallery.css`,
+  `assets/js/workflow.js`, `contact.js`, plus edited index/main. Social preview
+  is rendered from `tools/social-card.html` using `tools/render-social.cjs`.
+- See `docs/MARKETING_PASS.md` for fixed rubric and final evidence. Local preview
+  uses `node tools/serve.cjs 4177`; the old Python4176 server produced intermittent
+  connection resets under parallel asset loads and is not the final QA source.
+- Motion regression now tests the current workflow/Calendly/email experience,
+  not removed film controls. Proof crops stay fixed inside moving bands.
+  Run `node tools/motion-check.cjs`, browser checks and byte-level deployment check.
+- Final publish SHA/results are recorded in shared memory and the current task
+  record after publication; historical9/10 design scores are not marketing scores.
+
 ## Latest snapshot — 2026-09-09 image/motion refinement
 
 This snapshot supersedes the historical implementation and next-step notes below.

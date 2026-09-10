@@ -3,14 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>John Montejano — You run the jobs. The office runs itself.</title>
-<meta name="description" content="I build the system that answers, quotes, chases and books while you're on the job. Automation for service businesses. San Francisco.">
+<title>John Montejano — Workflow automation for service businesses</title>
+<meta name="description" content="Custom workflow automation for service businesses. John Montejano connects enquiries, quote follow-ups and bookings. Start with a workflow assessment.">
 <link rel="canonical" href="https://johnmontejano.github.io/">
-<meta property="og:title" content="John Montejano — You run the jobs. The office runs itself.">
-<meta property="og:description" content="I build the system that answers, quotes, chases and books while you're on the job.">
+<meta property="og:title" content="John Montejano — Workflow automation for service businesses">
+<meta property="og:description" content="I build custom workflows for enquiries, follow-ups and bookings, so your team spends less time chasing admin.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://johnmontejano.github.io/">
-<meta property="og:image" content="https://johnmontejano.github.io/assets/img/og-card.png">
+<meta property="og:image" content="https://johnmontejano.github.io/assets/img/og-marketing.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="John Montejano. Workflow automation for service businesses. I automate the admin. You run the business.">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -19,6 +22,9 @@
 <script>document.documentElement.className+=(("ontouchstart" in window)?" touch":" notouch")</script>
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="assets/css/project-covers.css">
+<link rel="stylesheet" href="assets/css/marketing.css">
+<link rel="stylesheet" href="assets/css/contact.css">
+<link rel="stylesheet" href="assets/css/proof-gallery.css">
 </head>
 <body>
 <div class="dot-cursor" aria-hidden="true">
@@ -32,11 +38,11 @@
     <a class="nav__mark" href="#top">John <span>Montejano</span></a>
     <button class="burger" id="burger" aria-label="Menu" aria-expanded="false" aria-controls="navlinks"><i></i><i></i></button>
     <nav class="nav__links" id="navlinks" aria-label="Sections">
-      <a href="#work">Work</a>
-      <a href="#manifesto">Manifesto</a>
-      <a href="#trades">Trades</a>
-      <a href="#who">Who</a>
-      <a href="#contact">Contact</a>
+      <a href="#workflow">What I automate</a>
+      <a href="#work">Real projects</a>
+      <a href="#manifesto">How we work</a>
+      <a href="#who">About John</a>
+      <a href="#contact">Start here</a>
     </nav>
   </div>
 </header>
@@ -51,9 +57,13 @@
   </div>
   <div class="grain" aria-hidden="true"></div>
   <div class="hero__in">
-    <h1 class="display split">You run the jobs.<br>The office runs itself.</h1>
+    <p class="hero__category">Workflow automation for service businesses</p>
+    <h1 class="display split">I automate the admin.<br>You run the business.</h1>
+    <p class="hero__offer">I’m John Montejano. I build custom workflows that capture enquiries, follow up quotes and keep bookings organised.</p>
+    <div class="hero__actions"><a class="btn btn--grad" href="https://calendly.com/johnmontejano2/free30" target="_blank" rel="noopener" data-booking-link>Book a workflow assessment &nearr;</a><a class="hero__example" href="#workflow">See how it works &darr;</a></div>
+    <p class="hero__note">Free 30-minute call &middot; Choose a time in Calendly</p>
   </div>
-  <a class="scrolldown" href="#work" aria-label="Scroll down">
+  <a class="scrolldown" href="#workflow" aria-label="Scroll down">
     <svg viewBox="0 0 100 100" aria-hidden="true">
       <defs><path id="sdp" d="M50,50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0"/></defs>
       <text><textPath href="#sdp">SCROLL DOWN · SCROLL DOWN · </textPath></text>
@@ -66,11 +76,60 @@
 
 
 
+
+<section class="workflow block" id="workflow" aria-labelledby="workflow-title">
+  <div class="wrap">
+    <div class="section-intro reveal">
+      <p class="label eyebrow">&rarr; &nbsp;What I mean by “a system”</p>
+      <h2 class="marketing-h2" id="workflow-title">Keep the next<br>step moving.</h2>
+      <p class="marketing-copy">A workflow connects a customer action to what needs to happen next. I map the steps, build the connections and test the handoffs with you.</p>
+    </div>
+    <div class="workflow__choices" aria-label="Example workflows" hidden>
+      <button type="button" data-example="enquiry" aria-pressed="true" aria-controls="flow-enquiry">New enquiries</button>
+      <button type="button" data-example="quote" aria-pressed="false" aria-controls="flow-quote">Quote follow-ups</button>
+      <button type="button" data-example="booking" aria-pressed="false" aria-controls="flow-booking">Booking reminders</button>
+    </div>
+    <div class="workflow__stage">
+      <article class="workflow__example" id="flow-enquiry" data-workflow="enquiry" aria-labelledby="enquiry-title">
+        <div class="workflow__caption"><h3 id="enquiry-title">From enquiry to an organised next step</h3><span>Illustrative workflow</span></div>
+        <ol class="flow">
+          <li><span class="flow__number">01 / Trigger</span><strong>A customer gets in touch</strong><p>A website enquiry starts the workflow.</p></li>
+          <li><span class="flow__number">02 / Automation</span><strong>Details go to one place</strong><p>Capture the request and send an acknowledgement using agreed rules.</p></li>
+          <li><span class="flow__number">03 / Your team</span><strong>A clear next action</strong><p>Review the enquiry, confirm the scope and arrange the job.</p></li>
+        </ol>
+        <p class="workflow__boundary">You decide which requests need a person. The workflow handles the repeatable steps.</p>
+      </article>
+      <article class="workflow__example" id="flow-quote" data-workflow="quote" aria-labelledby="quote-title">
+        <div class="workflow__caption"><h3 id="quote-title">From a sent quote to a timely follow-up</h3><span>Illustrative workflow</span></div>
+        <ol class="flow">
+          <li><span class="flow__number">01 / Trigger</span><strong>A quote is waiting</strong><p>A quote has been sent and needs a response.</p></li>
+          <li><span class="flow__number">02 / Automation</span><strong>A follow-up goes out</strong><p>Use the timing and message you approve; stop the sequence when the status changes.</p></li>
+          <li><span class="flow__number">03 / Your team</span><strong>Pick up the conversation</strong><p>Handle questions, pricing decisions and the customer’s reply.</p></li>
+        </ol>
+        <p class="workflow__boundary">You approve the message and timing. This is an example, not a live client account.</p>
+      </article>
+      <article class="workflow__example" id="flow-booking" data-workflow="booking" aria-labelledby="booking-title">
+        <div class="workflow__caption"><h3 id="booking-title">From a confirmed booking to a useful reminder</h3><span>Illustrative workflow</span></div>
+        <ol class="flow">
+          <li><span class="flow__number">01 / Trigger</span><strong>A booking is confirmed</strong><p>The appointment details are ready.</p></li>
+          <li><span class="flow__number">02 / Automation</span><strong>A booking reminder goes out</strong><p>Send the right details at the agreed time, using the tools in your workflow.</p></li>
+          <li><span class="flow__number">03 / Your team</span><strong>Handle the exceptions</strong><p>Manage changes, special requests and the service itself.</p></li>
+        </ol>
+        <p class="workflow__boundary">Tool compatibility, permissions and message rules are checked before we agree the build.</p>
+      </article>
+    </div>
+    <p class="workflow__scope">Custom implementation, not a pre-packaged app. We check what your existing tools can support before choosing what to connect.</p>
+    <a class="ulink marketing-link" href="https://calendly.com/johnmontejano2/free30" target="_blank" rel="noopener" data-booking-link>Book a workflow assessment &nearr;</a>
+  </div>
+</section>
+
 <!-- ============ 03 WORK ============ -->
 <section class="block" id="work">
   <div class="wrap">
     <div class="head reveal">
-      <p class="label eyebrow">&rarr; &nbsp;Selected work</p>
+      <p class="label eyebrow">&rarr; &nbsp;Real projects, different kinds of proof</p>
+      <h2 class="marketing-h2">I’ve run the business.<br>And built the software.</h2>
+      <p class="marketing-copy">FastFix shows product building. GelatoTech is my operating experience. LISA shows website design and development.</p>
     </div>
   </div>
   <div class="wrap">
@@ -92,7 +151,7 @@
         <div>
           <p class="label">01 / My product &mdash; founder</p>
           <h3 class="h3" style="margin-top:12px">FastFix.ai</h3>
-          <p class="body muted" style="margin-top:14px;max-width:40ch">Booking, quotes and invoices for home-service companies. My code, live today.</p>
+          <p class="body muted" style="margin-top:14px;max-width:40ch">My own product for home-service businesses. The capability map shows its website, customer-management and marketing components.</p>
           <a class="job__go" href="https://fastfix.ai" target="_blank" rel="noopener">Visit fastfix.ai &nearr;</a>
         </div>
       </article>
@@ -102,7 +161,8 @@
         <div>
           <p class="label">02 / Ran it myself &mdash; owner-operator</p>
           <h3 class="h3" style="margin-top:12px">GelatoTech</h3>
-          <p class="body muted" style="margin-top:14px;max-width:40ch">Device repair in San Francisco. I took the calls, did the repairs, sent the invoices.</p>
+          <p class="body muted" style="margin-top:14px;max-width:40ch">A repair enquiry needs the exact device model. I ran this San Francisco repair business and built its guided device selector.</p>
+          <p class="job__evidence"><span>See the work in action</span>Choose “iPhone” on the live site. The next step asks “Which iPhone?” and shows specific models. That is a clearer starting point for the repair enquiry.</p>
           <a class="job__go" href="https://gelatotech.com" target="_blank" rel="noopener">Visit gelatotech.com &nearr;</a>
         </div>
       </article>
@@ -112,7 +172,7 @@
         <div>
           <p class="label">03 / Client &mdash; design + build</p>
           <h3 class="h3" style="margin-top:12px">LISA</h3>
-          <p class="body muted" style="margin-top:14px;max-width:42ch">The LEAD Incubator &amp; Startup Accelerator, run by Stanford GSB LEAD alumni. I built the site.</p>
+          <p class="body muted" style="margin-top:14px;max-width:42ch">I designed and built the website for this independent accelerator run by Stanford GSB LEAD alumni. My scope: website design and development.</p>
           <a class="job__go" href="https://gsb-lead-lisa.com" target="_blank" rel="noopener">Visit gsb-lead-lisa.com &nearr;</a>
           <p class="label" style="margin-top:20px;text-transform:none;letter-spacing:0;line-height:1.6;max-width:60ch">LISA is an independent program created and operated by alumni of the LEAD program. It is not affiliated with, endorsed by, or sponsored by Stanford University or Stanford Graduate School of Business.</p>
         </div>
@@ -122,86 +182,117 @@
   </div>
 </section>
 
-<!-- ============ BUILT FOR (their "They trust us") ============ -->
+<!-- ============ WHO THIS IS FOR ============ -->
 <section class="trust reveal" id="built-for">
   <div class="wrap trust__in">
-    <p class="label trust__k">Built for</p>
-    <p class="trust__words" data-words><span class="bw">Plumbing</span> <span class="bw">HVAC</span> <span class="bw">Dental</span> <span class="bw">Salons</span> <span class="bw">Electrical</span> <span class="bw">Cleaning</span> <span class="bw">Med spa</span> <span class="bw">Auto repair</span> <span class="bw">Roofing</span> <span class="bw">Property management</span> <span class="bw">Landscaping</span> <span class="bw">Moving</span> <span class="bw">Pest control</span> <span class="bw">Locksmiths</span> <span class="bw">Appliance repair</span> </p>
-    <a class="btn btn--grad" href="#contact">&rarr; &nbsp;Book a free 30 minutes</a>
+    <p class="label trust__k">For businesses that sell a service, not more admin</p>
+    <p class="trust__words" data-words><span class="bw">Home services</span> <span class="bw">Repair businesses</span> <span class="bw">Appointment-based services</span></p>
+    <p class="fit-copy">A good fit if enquiries, quotes or bookings still rely on retyping information and remembering to chase the next step.</p>
+    <a class="btn btn--grad" href="https://calendly.com/johnmontejano2/free30" target="_blank" rel="noopener" data-booking-link>Book a workflow assessment &nearr;</a>
   </div>
-
 </section>
 
-<!-- ============ MANIFESTO ============ -->
 <section class="block manifesto" id="manifesto">
   <div class="wrap">
-    <p class="label eyebrow">&rarr; &nbsp;Manifesto</p>
-    <h2 class="mline split">Assess.<br>Simplify.<br>Automate.<br>I build systems<br>that give service<br>businesses back<br>time. Less admin.<br>More room for<br>the work that<br>only you can do.</h2>
+    <p class="label eyebrow">&rarr; &nbsp;How we work</p>
+    <h2 class="mline split">Understand.<br>Simplify.<br>Then automate.</h2>
+    <p class="marketing-copy">You’re hiring someone to understand the work and build the workflow—not just recommend another tool.</p>
   </div>
 </section>
 
-<!-- ============ STRENGTHS (the four leaks) ============ -->
-<section class="block strengths" id="leaks">
+<section class="block strengths" id="leaks" aria-label="From assessment to implementation">
   <div class="wrap">
     <article class="strength">
-      <span class="strength__label">&#8600; &nbsp;Missed calls</span>
-      <div class="strength__orb img-wrapper"><span class="img-container"><img src="assets/img/atmos/glass-lens-v2.webp" alt="" loading="lazy"></span></div>
-      <p class="strength__text"><b class="strength__n">01</b>The 7pm call nobody caught. It rang out, and the job went to whoever picked up first.</p>
+      <span class="strength__label">01 / Assess</span>
+      <div class="service-map" role="img" aria-label="Today's steps lead to a simpler workflow and an agreed scope"><span>Today’s steps</span><i aria-hidden="true">↓</i><strong>A simpler workflow</strong><i aria-hidden="true">↓</i><span>Agreed scope</span></div>
+      <div class="strength__text"><h3>Find the right first workflow.</h3><p>We walk through your tools, people and repetitive tasks. Then we choose a sensible place to start and agree the scope and cost before building.</p></div>
     </article>
     <article class="strength">
-      <span class="strength__label">&#8600; &nbsp;Double entry</span>
-      <div class="strength__orb img-wrapper"><span class="img-container"><img src="assets/img/atmos/glass-pair-v2.webp" alt="" loading="lazy"></span></div>
-      <p class="strength__text"><b class="strength__n">02</b>Typed here. Typed again there. Same name, same address, two apps, every customer, forever.</p>
+      <span class="strength__label">02 / Build</span>
+      <div class="service-map" role="img" aria-label="A customer enquiry connects to a shared record and a follow-up"><span>Customer enquiry</span><i aria-hidden="true">↓</i><strong>One connected record</strong><i aria-hidden="true">↓</i><span>The next action</span></div>
+      <div class="strength__text"><h3>Build the connections.</h3><p>I implement the agreed workflow for intake, follow-ups, booking or invoicing. If the friction starts on your website, I can build that part too.</p></div>
     </article>
     <article class="strength">
-      <span class="strength__label">&#8600; &nbsp;Dead quotes</span>
-      <div class="strength__orb img-wrapper"><span class="img-container"><img src="assets/img/atmos/glass-cube-v2.webp" alt="" loading="lazy"></span></div>
-      <p class="strength__text"><b class="strength__n">03</b>Quotes follow up, appointments remind and invoices chase themselves. The loop closes without another tab.</p>
+      <span class="strength__label">03 / Test &amp; hand over</span>
+      <div class="service-map" role="img" aria-label="Test the normal path, check exceptions, and make the workflow usable by the team"><span>Test the normal path</span><i aria-hidden="true">↓</i><strong>Check the exceptions</strong><i aria-hidden="true">↓</i><span>Ready for your team</span></div>
+      <div class="strength__text"><h3>Make it usable in real work.</h3><p>We test the handoffs and exceptions together. Your team knows what runs automatically, what needs approval and how to take over when needed.</p></div>
     </article>
   </div>
 </section>
 
-<section class="mq" aria-label="The workflow keeps moving while you work">
-  <p class="mq__t" aria-hidden="true">
-    <span>Your office keeps moving</span><span>Your office keeps moving</span>
-  </p>
+<section class="mq" aria-label="Enquiries, follow-ups and bookings connected">
+  <div class="mq__t" aria-hidden="true"><span>Enquiry &rarr; Follow-up &rarr; Booking &rarr;</span><span>Enquiry &rarr; Follow-up &rarr; Booking &rarr;</span></div>
 </section>
 
-<section class="band reveal">
-  <div class="band__media img-wrapper">
-    <video class="band__video" poster="assets/img/atmos/service-film-poster-v2.jpg" autoplay muted loop playsinline preload="none" aria-hidden="true"
-           aria-label="Daylight city street documentary footage">
-      <source src="assets/video/service-documentary-v2.mp4" type="video/mp4">
-    </video>
+<section class="tiles proof-gallery reveal" id="trades" aria-labelledby="proof-gallery-heading" aria-describedby="proof-gallery-caption">
+  <div class="proof-gallery__intro">
+    <h2 class="proof-gallery__heading" id="proof-gallery-heading">Websites are the front door. Workflows connect what happens next.</h2>
   </div>
-  <button class="band__toggle" type="button" aria-label="Pause film" aria-pressed="false">Pause film</button>
-</section>
 
-<section class="story-cta block">
-  <div class="wrap story-cta__grid">
-    <p class="label eyebrow">&rarr; &nbsp;The system at work</p>
-    <div class="story-cta__copy reveal">
-      <p class="lead">A call comes in at 7:04. It is answered, qualified and booked. The invoice goes out after the job. You are still under the sink.</p>
-      <a class="btn btn--grad" href="#contact">See what yours could run &nearr;</a>
+  <div class="tiles__wrap">
+    <div class="tiles__line" data-tspeed="1">
+      <figure class="proof-card">
+        <div class="tiles__img proof-media--fastfix">
+          <img src="assets/img/fastfix-mark-source.png" alt="FastFix.ai source logo" width="171" height="171" loading="lazy" decoding="async">
+          <p class="proof-fastfix__name">FastFix.ai</p>
+          <div class="proof-fastfix__terms"><span>SEO + AEO Website</span><span>Industry CRM</span><span>Ads + Funnel</span><span>Social Autopilot</span></div>
+          <p class="proof-fastfix__scope">Website capabilities</p>
+        </div>
+        <figcaption class="proof-card__label">FastFix.ai <span>Source mark</span></figcaption>
+      </figure>
+
+      <figure class="proof-card">
+        <div class="tiles__img proof-media--gelatotech">
+          <img src="assets/img/work-gelatotech.webp" alt="GelatoTech website capture showing the device selector" width="800" height="500" loading="lazy" decoding="async">
+        </div>
+        <figcaption class="proof-card__label">GelatoTech <span>Site capture</span></figcaption>
+      </figure>
+
+      <figure class="proof-card">
+        <div class="proof-card__visual">
+          <div class="tiles__img proof-media--lisa">
+            <img src="assets/img/work-lisa.webp" alt="LISA website header identifying an independent initiative by LEAD alumni" width="1600" height="1000" loading="lazy" decoding="async">
+          </div>
+        </div>
+        <figcaption class="proof-card__label">LISA <span>Site capture</span></figcaption>
+      </figure>
+    </div>
+
+    <div class="tiles__line" data-tspeed="-1">
+      <figure class="proof-card proof-card--example">
+        <div class="tiles__img proof-media--process">
+          <p class="proof-flow"><span>Request</span><span class="proof-flow__arrow" aria-hidden="true">→</span><span>Booking</span></p>
+        </div>
+        <figcaption class="proof-card__label"><span>Illustrative workflow</span></figcaption>
+      </figure>
+
+      <figure class="proof-card proof-card--example">
+        <div class="tiles__img proof-media--process">
+          <p class="proof-flow"><span>Quote</span><span class="proof-flow__arrow" aria-hidden="true">→</span><span>Follow-up</span></p>
+        </div>
+        <figcaption class="proof-card__label"><span>Illustrative workflow</span></figcaption>
+      </figure>
+
+      <figure class="proof-card proof-card--example">
+        <div class="tiles__img proof-media--process">
+          <p class="proof-flow"><span>Job done</span><span class="proof-flow__arrow" aria-hidden="true">→</span><span>Invoice</span></p>
+        </div>
+        <figcaption class="proof-card__label"><span>Illustrative workflow</span></figcaption>
+      </figure>
     </div>
   </div>
+
+  <p class="proof-gallery__caption" id="proof-gallery-caption"><span class="proof-gallery__caption--desktop">Reference captures: GelatoTech and LISA websites. FastFix uses its source mark and website capability labels. Process tiles are illustrative examples, not product recordings or client results.</span><span class="proof-gallery__caption--mobile">Illustrative workflows, not live client results. Explore the full-size project examples above for real website work.</span></p>
 </section>
 
-<section class="tiles reveal" id="trades">
-  <div class="tiles__wrap" aria-hidden="true">
-      <div class="tiles__line" data-tspeed="1"><span class="tiles__img"><img src="assets/img/atmos/service-street-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/repair-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/clinic-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/meeting-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/salon-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/garden-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span></div>
-      <div class="tiles__line" data-tspeed="-1"><span class="tiles__img"><img src="assets/img/atmos/salon-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/meeting-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/garden-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/service-street-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/clinic-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/repair-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span></div>
-      <div class="tiles__line" data-tspeed=".6"><span class="tiles__img"><img src="assets/img/atmos/clinic-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/garden-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/repair-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/salon-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/service-street-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/meeting-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span></div>
-  </div>
-</section>
 
 <!-- ============ WHO — adapted from monopo's centered team cards ============ -->
 <section class="team block" id="who">
   <div class="wrap">
     <p class="label eyebrow">&rarr; &nbsp;Who</p>
-    <h2 class="team__intro split">From the counter<br>to the code.</h2>
+    <h2 class="team__intro split">An operator<br>who builds.</h2>
     <article class="person reveal">
-      <p class="person__role">Founder, builder, operator</p>
+      <p class="person__role">Founder of FastFix.ai &middot; Former owner-operator of GelatoTech</p>
       <span class="person__media img-wrapper"><span class="img-container" data-speed=".5"><img src="assets/img/jm-portrait-editorial-v2.webp" alt="John Montejano" loading="eager" decoding="async"></span></span>
       <div class="person__identity">
         <h3 class="person__name">John<br>Montejano</h3>
@@ -213,6 +304,20 @@
   </div>
 </section>
 
+
+<section class="block questions" id="questions" aria-labelledby="questions-title">
+  <div class="wrap questions__grid">
+    <div><p class="label eyebrow">&rarr; &nbsp;Before we talk</p><h2 class="marketing-h2" id="questions-title">A few practical<br>questions.</h2></div>
+    <div class="questions__list">
+      <details><summary>What exactly am I hiring you to do?</summary><p>Assess how work moves through your business, simplify repetitive steps and build the agreed automation. That can include customer intake, quote follow-ups, reminders, booking or invoicing. Website design is available when it supports the workflow.</p></details>
+      <details><summary>Do I need to replace all my software?</summary><p>Not necessarily. We start with what you use and check its integration options and access requirements. If a connection is not practical, we discuss the alternatives before agreeing the build.</p></details>
+      <details><summary>Is FastFix.ai the service I’m buying here?</summary><p>FastFix.ai is my own product and an example of what I build. This page is for working with me directly on your business’s workflow; you do not need to sign up for FastFix to start a conversation.</p></details>
+      <details><summary>How much does it cost, and how long will it take?</summary><p>That depends on the workflow, tools and exceptions involved. We agree the scope, cost and timeline before implementation. The initial 30-minute conversation is free.</p></details>
+      <details><summary>Will automation make decisions for my team?</summary><p>Only the repeatable actions we agree should run automatically. Your team keeps control of pricing, approvals and unusual requests. We define permissions and human handoffs before anything goes live.</p></details>
+    </div>
+  </div>
+</section>
+
 <!-- ============ 08 BOOK (inverted) ============ -->
 </main>
 
@@ -220,29 +325,71 @@
 <footer class="contact" id="contact">
   <div class="wrap">
     <p class="label eyebrow">&rarr; &nbsp;Contact</p>
-    <h2 class="contact__h split">Keep in touch <span class="rings" aria-hidden="true"></span></h2>
-    <p class="label" style="margin-top:clamp(40px,5vw,72px)">Start a conversation</p>
-    <a class="mail" href="mailto:johnmontejano2@gmail.com">johnmontejano2@gmail.com</a>
+    <section class="workflow-contact" data-workflow-contact aria-labelledby="workflow-contact-title">
+  <p class="workflow-contact__eyebrow">Workflow assessment</p>
+  <h2 class="workflow-contact__title" id="workflow-contact-title">Let’s look at one repeated task.</h2>
+  <p class="workflow-contact__intro">A free 30-minute conversation about where work gets stuck in your business. Leave with a workflow map and a clear answer on what’s worth automating first.</p>
 
-    <div class="contact__grid contact__grid--mono">
-      <div class="contact__offices">
-        <div>
-          <p class="label">Based in</p>
-          <p class="contact__city">San Francisco <span class="ico" aria-hidden="true">&#9719;</span></p>
-          <p class="body muted">California &middot; Pacific time<br>Working with service businesses anywhere.</p>
-          <a class="ulink" href="mailto:johnmontejano2@gmail.com"><span>&rarr; Start a conversation</span></a>
-        </div>
-        <div>
-          <p class="label">Live work</p>
-          <p style="margin-top:8px"><a class="ulink" href="https://fastfix.ai" target="_blank" rel="noopener"><span>&rarr; fastfix.ai</span></a><br><a class="ulink" href="https://gelatotech.com" target="_blank" rel="noopener"><span>&rarr; gelatotech.com</span></a><br><a class="ulink" href="https://gsb-lead-lisa.com" target="_blank" rel="noopener"><span>&rarr; gsb-lead-lisa.com</span></a></p>
-        </div>
-      </div>
-      <div class="contact__follow">
-        <p class="label">Follow</p>
-        <p style="margin-top:8px"><a class="ulink big" href="https://www.linkedin.com/in/johnmontejano" target="_blank" rel="noopener"><span>LinkedIn</span></a><br><a class="ulink big" href="mailto:johnmontejano2@gmail.com"><span>Email</span></a></p>
-        <a class="totop" href="#top" aria-label="Back to top">&uarr;</a>
+  <div class="workflow-contact__layout">
+    <div class="workflow-contact__primary">
+      <a class="workflow-contact__button workflow-contact__booking-link" href="https://calendly.com/johnmontejano2/free30" target="_blank" rel="noopener" aria-describedby="workflow-contact-booking-help">Book a workflow assessment <span aria-hidden="true">↗</span></a>
+      <p class="workflow-contact__help workflow-contact__booking-help" id="workflow-contact-booking-help">Free 30-minute conversation · Choose a time in Calendly<br>Opens in a new tab. Confirm your booking in Calendly.</p>
+      <p class="workflow-contact__help workflow-contact__booking-help">Bring a rough sense of your weekly jobs and the software you use.</p>
+
+      <div class="workflow-contact__next" aria-labelledby="workflow-contact-next-title">
+        <h3 class="workflow-contact__label" id="workflow-contact-next-title">What happens next</h3>
+        <ol class="workflow-contact__steps" role="list">
+          <li><span class="workflow-contact__step-number" aria-hidden="true">01</span><p><strong>Choose a time.</strong> Confirm your booking in Calendly. Web conferencing details are provided upon confirmation.</p></li>
+          <li><span class="workflow-contact__step-number" aria-hidden="true">02</span><p><strong>Discuss one workflow.</strong> Talk through how one repeated task works today and where it gets stuck.</p></li>
+          <li><span class="workflow-contact__step-number" aria-hidden="true">03</span><p><strong>Agree scope before a build.</strong> If there’s a fit, decide together what to take on.</p></li>
+        </ol>
       </div>
     </div>
+
+    <div class="workflow-contact__direct">
+      <h3 class="workflow-contact__label">Prefer email?</h3>
+      <a class="workflow-contact__email" href="mailto:johnmontejano2@gmail.com" aria-describedby="workflow-contact-email-help">johnmontejano2@gmail.com</a>
+      <p class="workflow-contact__help" id="workflow-contact-email-help">Opens your email app. Nothing is sent here. If you use email, John confirms a time by email.</p>
+      <button class="workflow-contact__text-button" type="button" data-contact-copy-address hidden>Copy email address</button>
+      <div class="workflow-contact__manual" data-contact-address-fallback hidden>
+        <label class="workflow-contact__label" for="workflow-contact-address">Email address for manual copying</label>
+        <textarea class="workflow-contact__input workflow-contact__address" id="workflow-contact-address" rows="2" readonly spellcheck="false" data-contact-address>johnmontejano2@gmail.com</textarea>
+      </div>
+      <p class="workflow-contact__status" role="status" aria-live="polite" aria-atomic="true" data-contact-address-status></p>
+
+      <details class="workflow-contact__compose" data-contact-enhancement hidden>
+        <summary class="workflow-contact__summary">Want a starting point? Prepare an email</summary>
+        <form class="workflow-contact__form" action="mailto:johnmontejano2@gmail.com" method="get" data-contact-form aria-describedby="workflow-contact-form-help">
+          <p class="workflow-contact__help" id="workflow-contact-form-help">Name and business are required for the draft. “Open email draft” opens your email app; review and send it there. Nothing is sent here. For email requests, John confirms a time by email.</p>
+          <div class="workflow-contact__field">
+            <label class="workflow-contact__label" for="workflow-contact-name">Name <span>(required)</span></label>
+            <input class="workflow-contact__input" id="workflow-contact-name" name="name" type="text" autocomplete="name" required pattern=".*\S.*" maxlength="70" data-contact-name>
+          </div>
+          <div class="workflow-contact__field">
+            <label class="workflow-contact__label" for="workflow-contact-business">Business <span>(required)</span></label>
+            <input class="workflow-contact__input" id="workflow-contact-business" name="business" type="text" autocomplete="organization" required pattern=".*\S.*" maxlength="100" data-contact-business>
+          </div>
+          <div class="workflow-contact__field">
+            <label class="workflow-contact__label" for="workflow-contact-problem">Which repeated task gets in the way? <span>(optional)</span></label>
+            <textarea class="workflow-contact__input" id="workflow-contact-problem" name="workflow" rows="3" maxlength="320" aria-describedby="workflow-contact-problem-help" data-contact-problem></textarea>
+            <p class="workflow-contact__help" id="workflow-contact-problem-help">For example, following up on quotes or moving information between tools. A sentence is enough; leave out sensitive details.</p>
+          </div>
+          <button class="workflow-contact__button" type="submit">Open email draft <span aria-hidden="true">↗</span></button>
+          <p class="workflow-contact__status" role="status" aria-live="polite" aria-atomic="true" data-contact-draft-status></p>
+          <div class="workflow-contact__draft" data-contact-draft-panel hidden>
+            <label class="workflow-contact__label" for="workflow-contact-draft">Your email draft</label>
+            <p class="workflow-contact__help" id="workflow-contact-draft-help">If your email app didn’t open, copy this draft into an email to johnmontejano2@gmail.com. You can also select the text and copy it manually.</p>
+            <textarea class="workflow-contact__input workflow-contact__draft-text" id="workflow-contact-draft" rows="10" readonly spellcheck="false" aria-describedby="workflow-contact-draft-help" data-contact-draft></textarea>
+            <button class="workflow-contact__text-button" type="button" data-contact-copy-draft>Copy email draft</button>
+            <p class="workflow-contact__status" role="status" aria-live="polite" aria-atomic="true" data-contact-copy-status></p>
+          </div>
+        </form>
+      </details>
+    </div>
+  </div>
+</section>
+
+
     <div class="contact__end">
       <span>&copy; 2026 John Montejano &middot; Automation for service businesses</span>
       <span>Designed and built by me</span>
@@ -255,5 +402,7 @@
 <script src="assets/vendor/lenis.min.js"></script>
 <script src="assets/js/main.js" defer></script>
 <script src="assets/js/orb.js" defer></script>
+<script src="assets/js/workflow.js" defer></script>
+<script src="assets/js/contact.js" defer></script>
 </body>
 </html>

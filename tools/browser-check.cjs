@@ -14,19 +14,32 @@ const reference = mode === 'reference' || mode === 'reference-mobile';
 const width = mobile ? Number(process.env.PORTFOLIO_CHECK_WIDTH || 390) : 1440;
 const height = mobile ? Number(process.env.PORTFOLIO_CHECK_HEIGHT || 844) : 900;
 let id = 0;
-const pending = new Map(), errors = [], warnings = [];
+const pending = new Map(), errors = [], warnings = [], failedRequests = [];
 async function main() {
   fs.mkdirSync(output, { recursive: true });
   const target = await fetch('http://127.0.0.1:9222/json/new?about:blank', {method:'PUT'}).then(r=>r.json());
   const ws = new WebSocket(target.webSocketDebuggerUrl);
   await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject;});
+  ws.onclose = () => {
+    for (const command of pending.values()) command.reject(Error('Test browser disconnected before replying'));
+    pending.clear();
+  };
   ws.onmessage = e => {
     const message = JSON.parse(e.data);
     if (message.id) { const p=pending.get(message.id); if(p){pending.delete(message.id);message.error?p.reject(message.error):p.resolve(message.result);} }
     if (message.method === 'Runtime.exceptionThrown') errors.push(message.params.exceptionDetails);
+    if (message.method === 'Network.loadingFailed') failedRequests.push(message.params);
     if (message.method === 'Runtime.consoleAPICalled' && ['error','warning'].includes(message.params.type)) warnings.push(message.params.args.map(a=>a.value||a.description).join(' '));
   };
-  const send = (method,params={}) => new Promise((resolve,reject)=>{const next=++id;pending.set(next,{resolve,reject});ws.send(JSON.stringify({id:next,method,params}));});
+  const send = (method,params={}) => new Promise((resolve,reject)=>{
+    const next=++id;
+    const timer=setTimeout(()=>{pending.delete(next);reject(Error('CDP timeout: '+method));},30000);
+    pending.set(next,{
+      resolve:value=>{clearTimeout(timer);resolve(value);},
+      reject:error=>{clearTimeout(timer);reject(error);}
+    });
+    ws.send(JSON.stringify({id:next,method,params}));
+  });
   const ev = async expression => {const r=await send('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
   const shot = async name => { const r=await send('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(output,name+'.png'),Buffer.from(r.data,'base64')); };
   const wheel = async amount => { await send('Input.dispatchMouseEvent',{type:'mouseWheel',x:width/2,y:height/2,deltaX:0,deltaY:amount});await sleep(650); };
@@ -38,8 +51,9 @@ async function main() {
   await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:mode==='reduced'?'reduce':'no-preference'}]});
   await send('Page.navigate',{url}); await sleep(9500);
   await ev('document.fonts.ready');
-  const sections = reference ? [['hero','#intro-container'],['work','#works'],['trust','#partners'],['manifesto','#manifesto'],['strengths','#strengths'],['film','.video-banner'],['gallery','#tilesGrid'],['person','#team'],['footer','#contact']] : [['hero','.hero'],['work','#work'],['trust','#built-for'],['manifesto','#manifesto'],['strengths','#leaks'],['strip','.mq'],['film','.band'],['gallery','#trades'],['person','.person'],['footer','#contact']];
-  const report={url,mode,width,height,errors,warnings,sections:[]};
+  const sections = reference ? [['hero','#intro-container'],['work','#works'],['trust','#partners'],['manifesto','#manifesto'],['strengths','#strengths'],['film','.video-banner'],['gallery','#tilesGrid'],['person','#team'],['footer','#contact']] : [['hero','.hero'],['workflow','#workflow'],['work','#work'],['trust','#built-for'],['manifesto','#manifesto'],['strengths','#leaks'],['strip','.mq'],['gallery','#trades'],['person','.person'],['questions','#questions'],['footer','#contact']];
+  const report={url,mode,width,height,errors,warnings,failedRequests,sections:[]};
+  report.scripts=await ev('[...document.scripts].filter(s=>s.src).map(s=>({src:s.src,status:performance.getEntriesByName(s.src)[0]?.responseStatus,bytes:performance.getEntriesByName(s.src)[0]?.decodedBodySize}))');
   report.heroState=await ev('({classes:document.documentElement.className,text:document.querySelector("h1")?.textContent,canvas:[...document.querySelectorAll("canvas")].map(c=>({width:c.width,height:c.height}))})');
   report.startup=await ev('({enhanced:document.documentElement.classList.contains("js"),split:!!document.querySelector(".hero .display[data-split]"),gsap:typeof window.gsap!=="undefined",scrollTrigger:typeof window.ScrollTrigger!=="undefined",loader:!!document.querySelector("#loader")})');
   if(!reference && (!report.startup.enhanced || !report.startup.split || !report.startup.gsap || !report.startup.scrollTrigger || report.startup.loader)) {
@@ -93,12 +107,14 @@ async function main() {
     report.sections.push({name,box,before,after});
   }
   report.overflow=await ev('document.documentElement.scrollWidth-innerWidth');
-  report.failedImages=await ev('[...document.images].filter(i=>'+(only?'(i.currentSrc || i.loading!=="lazy") && ':'')+'(!i.complete||!i.naturalWidth)).map(i=>i.currentSrc||i.src)');
+  // CSS-hidden responsive duplicates are intentionally not fetched by native
+  // lazy loading. Inspect every rendered image in a full traversal instead.
+  report.failedImages=await ev('[...document.images].filter(i=>i.getClientRects().length && '+(only?'(i.loading!=="lazy" || i.complete || (i.getBoundingClientRect().top<innerHeight && i.getBoundingClientRect().bottom>0)) && ':'')+'(!i.complete||!i.naturalWidth)).map(i=>i.currentSrc||i.src)');
   report.hiddenReveals=await ev('[...document.querySelectorAll(".reveal,.strength,.trust")].filter(e=>!e.classList.contains("is-inview")).map(e=>e.className)');
   report.video=await ev('(()=>{let v=document.querySelector(".band__video");return v?{readyState:v.readyState,error:v.error&&v.error.code,paused:v.paused,currentTime:v.currentTime}:null})()');
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2));
   console.log(JSON.stringify({url,mode,overflow:report.overflow,failedImages:report.failedImages,errors:errors.map(e=>e.text),sections:report.sections.length}));
   await send('Page.close');ws.close();
-  if(!reference && (report.overflow || report.failedImages.length || errors.length || (!only && report.hiddenReveals.length))) throw Error('Browser regression: inspect '+path.join(output,'report.json'));
+  if(!reference && (report.overflow || report.failedImages.length || errors.length || failedRequests.length || (!only && report.hiddenReveals.length))) throw Error('Browser regression: inspect '+path.join(output,'report.json'));
 }
 main().then(()=>process.exit(0)).catch(e=>{console.error(e);process.exit(1);});

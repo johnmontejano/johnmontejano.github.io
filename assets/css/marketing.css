@@ -1,0 +1,96 @@
+/* Marketing clarity pass: preserve the reference palette, type and motion;
+   give that visual language a concrete commercial narrative. */
+[hidden]{display:none!important}
+.hero__category{font-size:12px;letter-spacing:.065em;margin-bottom:26px;color:#fff}
+.hero__offer{font-size:clamp(16px,1.35vw,20px);line-height:1.5;max-width:43em;margin:24px auto 0;color:#fff;text-wrap:pretty}
+.hero__actions{display:flex;align-items:center;justify-content:center;gap:28px;margin-top:32px}
+.hero__actions .btn{font-size:14px;padding:16px 25px;min-height:52px}
+.hero__actions .btn--grad,.trust .btn--grad{color:#141b10;background:linear-gradient(110deg,#c1d5b7,#d5b585)}
+.hero__example{font-size:14px;border-bottom:1px solid #ffffff80;padding-block:10px}
+.hero__note{margin-top:17px;color:#e5e5e5;font-size:12px}
+.marketing-h2{font-size:clamp(32px,4.5vw,65px);font-weight:400;line-height:1.12;letter-spacing:-.025em;text-wrap:balance}
+.marketing-copy{max-width:43em;font-size:clamp(16px,1.35vw,19px);line-height:1.6;color:#b4b4b4;margin-top:26px;text-wrap:pretty}
+.section-intro .eyebrow{margin-bottom:32px}
+.workflow{padding-block:110px}
+.workflow__choices{display:flex;gap:8px;flex-wrap:wrap;margin-top:48px;margin-bottom:22px}
+.workflow__choices button{border:1px solid #ffffff38;border-radius:60px;padding:12px 20px;font-size:14px;min-height:46px;transition:color .2s,background-color .2s}
+.workflow__choices button[aria-pressed=true]{color:#10150f;background:#c1d5b7;border-color:#c1d5b7}
+.workflow__stage{background:#f5f0e3;color:#191b16;padding:clamp(25px,4vw,58px);margin-top:24px}
+.workflow__example+.workflow__example{margin-top:50px}
+.workflow__choices:not([hidden])+.workflow__stage .workflow__example{margin-top:0}
+.workflow__caption{display:flex;align-items:baseline;justify-content:space-between;gap:20px;border-bottom:1px solid #191b1626;padding-bottom:26px}
+.workflow__caption h3{font-size:clamp(20px,2.1vw,30px);font-weight:400;line-height:1.25;max-width:25ch}
+.workflow__caption>span{font-size:11px;white-space:nowrap}
+.flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:44px;padding-top:45px}
+.flow li{position:relative;min-width:0}
+.flow li:not(:last-child)::after{content:'↗';position:absolute;right:-30px;top:0;font-size:24px;color:#6c7e58}
+.flow__number{display:block;font-size:11px;letter-spacing:.04em;margin-bottom:36px;color:#526045}
+.flow strong{display:block;font-size:clamp(22px,2.25vw,32px);font-weight:400;line-height:1.18;max-width:13ch;letter-spacing:-.025em}
+.flow p{font-size:14px;line-height:1.55;margin-top:18px;color:#4e5149}
+.workflow__boundary{border-top:1px solid #191b1626;padding-top:25px;margin-top:40px;font-size:13px;line-height:1.6;color:#4e5149}
+.workflow__scope{max-width:55em;margin-top:24px;color:#b4b4b4;font-size:14px;line-height:1.6}
+.marketing-link{font-size:15px;margin-top:22px;display:inline-block}
+.trust{min-height:0;padding:70px 0 90px}.trust__k{margin-bottom:30px}.trust__words{margin-bottom:25px;max-width:24em}
+.fit-copy{font-size:16px;max-width:42em;margin:0 auto 30px;line-height:1.6;color:#b4b4b4}
+.manifesto{padding-block:75px 100px}.manifesto .eyebrow{margin-bottom:45px}
+.strength,.strength:last-child{min-height:390px;padding:80px 0 70px}
+.strength__label{font-size:12px;color:#b4b4b4;letter-spacing:.04em}
+.strength__text h3{font-size:clamp(26px,2.5vw,36px);line-height:1.15;font-weight:400;margin-bottom:22px;letter-spacing:-.02em}
+.strength__text p{font-size:17px;line-height:1.65;color:#b4b4b4;letter-spacing:0}
+.service-map{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:330px;width:100%;color:#b4b4b4;font-size:14px}
+.service-map strong{font-size:22px;line-height:1.25;font-weight:400;color:#fff;border:1px solid #ffffff40;padding:21px 20px;min-width:100%;text-align:center}
+.service-map i{font-size:25px;font-style:normal;color:#9eb493}
+.strengths{padding-block:0 50px}
+.mq{min-height:220px}
+.team{padding-top:90px;padding-bottom:75px}.team__intro{font-size:clamp(42px,7vw,100px)}
+.person{margin-top:100px}.person__role{max-width:40em;font-size:12px;line-height:1.6}
+.questions{padding-block:80px 110px}
+.questions__grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+.questions .eyebrow{margin-bottom:28px}
+.questions details{border-top:1px solid #ffffff35;padding:22px 0}
+.questions details:last-child{border-bottom:1px solid #ffffff35}
+.questions summary{cursor:pointer;font-size:18px;line-height:1.4;padding-right:26px;position:relative;list-style:none}
+.questions summary::-webkit-details-marker{display:none}
+.questions summary::after{content:'+';position:absolute;right:0;top:0;color:#b4b4b4}
+.questions details[open] summary::after{content:'−'}
+.questions details p{font-size:15px;line-height:1.7;color:#b4b4b4;margin-top:18px}
+#work{padding-top:55px;padding-bottom:100px}
+#work .head{margin-bottom:70px}
+#work .eyebrow{margin-bottom:30px}
+.job .h3{font-size:24px}.job .body{font-size:15px;line-height:1.6;max-width:45ch!important}
+.job .label,.job__go{font-size:12px}
+.job__evidence{font-size:14px;color:#b4b4b4;line-height:1.65;max-width:44ch;margin-top:25px;border-top:1px solid #ffffff30;padding-top:18px}
+.job__evidence>span{display:block;color:#fff;font-size:12px;margin-bottom:8px}
+/* Artwork may dim on hover; a visitor must never hover to read the offer. */
+.job.is-inview,.js .work>.job.reveal.is-inview{opacity:1}
+.work>.job .job__media{opacity:.72;transition:opacity .4s}
+.work>.job:hover .job__media,.work>.job:focus-within .job__media{opacity:1}
+@media(hover:none){.work>.job .job__media{opacity:1}}
+@media(min-width:761px){.hero__in{max-width:1100px}.hero .display{font-size:clamp(30px,3.45vw,50px)}}
+@media(max-width:760px){
+  .trust{padding-block:35px 65px}.fit-copy{font-size:15px}.trust__words{font-size:29px}
+  .manifesto{padding-block:40px 75px}
+  .strength,.strength:last-child{min-height:0;grid-template-columns:1fr;gap:38px;padding:76px 0 48px}
+  .strength__text{grid-row:1}.strength__text p{font-size:16px}.service-map{grid-row:2;justify-self:center}
+  .questions__grid{grid-template-columns:1fr;gap:35px}.questions{padding-block:60px 80px}
+  .team{padding-block:70px 20px}.person{margin-top:55px}.person__role{max-width:30ch}
+  .hero{min-height:850px;min-height:max(780px,100svh);padding:145px 0 150px}
+  .hero__category{font-size:11px;line-height:1.5;max-width:27em;margin:0 auto 22px}
+  .hero .display{font-size:clamp(24px,7.8vw,34px);line-height:1.35}
+  .hero__offer{font-size:16px;max-width:32ch;margin-top:22px}
+  .hero__actions{flex-direction:column;gap:12px;margin-top:26px}
+  .hero__actions .btn{font-size:13px;padding:15px 19px;min-height:50px}
+  .hero__note{max-width:28ch;margin:16px auto 0;font-size:11px}
+  .hero .scrolldown{width:60px;height:60px;bottom:32px}
+  .workflow{padding-block:76px}
+  .workflow__choices{gap:8px;margin-top:30px}
+  .workflow__choices button{font-size:12px;padding:10px 13px}
+  .workflow__caption{flex-direction:column;gap:10px}
+  .flow{grid-template-columns:1fr;gap:34px;padding-top:30px}
+  .flow li{padding-bottom:25px;border-bottom:1px solid #191b1626}
+  .flow li:last-child{padding-bottom:0;border:0}
+  .flow li:not(:last-child)::after{content:'↓';right:0;top:auto;bottom:-17px;background:#f5f0e3;padding:3px 0 3px 15px}
+  .flow__number{margin-bottom:12px}.flow strong{max-width:18ch;font-size:25px}.flow p{margin-top:10px}
+  .workflow__boundary{margin-top:28px}
+  #work{padding-top:35px;padding-bottom:75px}#work .head{margin-bottom:40px}
+}

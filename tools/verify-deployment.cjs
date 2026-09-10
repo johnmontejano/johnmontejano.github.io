@@ -18,6 +18,15 @@ function add(value, parent = 'index.html') {
 }
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 for (const m of html.matchAll(/(?:src|href|poster)=["']([^"']+)["']/g)) add(m[1]);
+for (const m of html.matchAll(/<meta\b[^>]*>/gi)) {
+  const name=/(?:property|name)=["']([^"']+)["']/i.exec(m[0]);
+  const content=/content=["']([^"']+)["']/i.exec(m[0]);
+  if(name && /^(og:image|twitter:image)$/.test(name[1]) && content) {
+    // The canonical production origin is retained when checking a local preview.
+    const imageURL=new URL(content[1],origin);
+    add(imageURL.pathname);
+  }
+}
 for (const css of [...files].filter(f => f.endsWith('.css'))) {
   for (const m of fs.readFileSync(path.join(root, css), 'utf8').matchAll(/url\(["']?([^"')]+)["']?\)/g)) add(m[1], css);
 }

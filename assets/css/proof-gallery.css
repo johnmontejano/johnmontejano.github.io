@@ -1,0 +1,275 @@
+/* Load after styles.css. Companion markup: docs/proof-gallery.html.
+   Bands rotate; cards counter-rotate. main.js owns .tiles__line transforms.
+   Capture interiors deliberately do not pan or zoom: LISA's crop is evidence. */
+#trades.proof-gallery {
+  --proof-angle: -3deg;
+  --proof-counter-angle: 3deg;
+  display: block;
+  height: auto;
+  min-height: 0;
+  padding: 44px 0 34px;
+  overflow: hidden;
+  background: #000;
+  color: #f5f5f2;
+}
+
+.proof-gallery .proof-gallery__intro,
+.proof-gallery .proof-gallery__caption {
+  width: min(1080px, calc(100% - 80px));
+  margin-inline: auto;
+}
+
+.proof-gallery .proof-gallery__heading {
+  max-width: 26ch;
+  margin: 0;
+  font-size: clamp(26px, 2.7vw, 39px);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -.025em;
+  text-wrap: balance;
+}
+
+.proof-gallery .tiles__wrap {
+  position: relative;
+  inset: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: min(1010px, calc(100% - 200px));
+  height: auto;
+  margin: 42px auto 35px;
+  gap: 16px;
+  transform: rotate(var(--proof-angle));
+}
+
+.proof-gallery .tiles__line {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  gap: 18px;
+}
+
+.proof-gallery .proof-card {
+  min-width: 0;
+  margin: 0;
+  background: #171916;
+  transform: rotate(var(--proof-counter-angle));
+}
+
+.proof-gallery .proof-card__visual {
+  display: flex;
+  align-items: center;
+  height: 120px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.proof-gallery .tiles__img {
+  position: relative;
+  display: block;
+  flex: none;
+  width: 100%;
+  height: 120px;
+  aspect-ratio: auto;
+  overflow: hidden;
+  background: #171916;
+}
+
+/* main.js adds this wrapper only on desktop, then unwraps at <=1023px.
+   Its inline overscan and x transform must not alter evidence boundaries. */
+.proof-gallery .tiles__img > .tiles__parallax {
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden;
+  transform: none !important;
+  pointer-events: none;
+}
+
+#trades.proof-gallery .tiles__img img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: contain;
+  object-position: center;
+  opacity: 1;
+  transform: none;
+  transition: none;
+  will-change: auto;
+}
+
+.proof-gallery .proof-media--gelatotech { background: #130d1c; }
+.proof-gallery .proof-media--fastfix { background: #f5f0e3; color: #24251e; }
+
+#trades.proof-gallery .proof-media--fastfix img {
+  inset: 19px auto auto 20px;
+  width: 38px;
+  height: 38px;
+}
+
+.proof-gallery .proof-fastfix__name {
+  position: absolute;
+  top: 26px;
+  left: 70px;
+  font-size: 23px;
+  line-height: 1;
+  letter-spacing: -.045em;
+}
+
+.proof-gallery .proof-fastfix__terms {
+  position: absolute;
+  inset: auto 20px 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.proof-gallery .proof-fastfix__scope { display: none; }
+
+/* Original is 1600x1000. This viewport reveals only y=0..450 at ANY width.
+   Keep image height auto; never object-fit:cover this capture. */
+#trades.proof-gallery .proof-media--lisa {
+  height: auto;
+  aspect-ratio: 1600 / 450;
+  background: #fff;
+}
+
+#trades.proof-gallery .proof-media--lisa img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: top;
+}
+
+.proof-gallery .proof-card__label {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 13px 12px;
+  color: #f5f5f2;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+.proof-gallery .proof-card__label span {
+  color: #bac0b6;
+  font-size: 10px;
+  text-align: right;
+}
+
+.proof-gallery .proof-media--process {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  background: #22271f;
+  color: #e3ecdc;
+}
+
+.proof-gallery .proof-media--process::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  height: 1px;
+  background: #697b60;
+}
+
+.proof-gallery .proof-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  font-size: clamp(18px, 1.6vw, 23px);
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: -.025em;
+}
+
+.proof-gallery .proof-flow__arrow { color: #bed0af; font-size: 24px; }
+.proof-gallery .proof-card--example .proof-card__label { background: #171c14; }
+.proof-gallery .proof-card--example .proof-card__label span { font-size: 11px; text-align: left; }
+
+.proof-gallery .proof-gallery__caption {
+  max-width: 1080px;
+  color: #b8bcb4;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 1023px) {
+  #trades.proof-gallery {
+    --proof-angle: -1.5deg;
+    --proof-counter-angle: 1.5deg;
+    padding-block: 24px 20px;
+  }
+
+  .proof-gallery .proof-gallery__intro,
+  .proof-gallery .proof-gallery__caption { width: calc(100% - 40px); }
+  .proof-gallery .proof-gallery__heading { font-size: 25px; max-width: 28ch; }
+
+  .proof-gallery .tiles__wrap {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: calc(100% - 48px);
+    margin-block: 22px 18px;
+    gap: 10px;
+  }
+
+  /* main.js disables band motion below 1024px. Keep natural reading order. */
+  .proof-gallery .tiles__line { display: contents; }
+  .proof-gallery .tiles__img,
+  .proof-gallery .proof-card__visual { height: 68px; }
+  .proof-gallery .proof-card__label { padding: 6px 8px; font-size: 12px; }
+  .proof-gallery .proof-card__label span { font-size: 9px; line-height: 1.25; }
+  .proof-gallery .proof-fastfix__name { top: 13px; left: 41px; font-size: 17px; }
+
+  #trades.proof-gallery .proof-media--fastfix img {
+    inset: 10px auto auto 10px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .proof-gallery .proof-fastfix__terms { display: none; }
+  .proof-gallery .proof-fastfix__scope {
+    position: absolute;
+    inset: auto 10px 11px;
+    display: block;
+    font-size: 10px;
+    line-height: 1.2;
+  }
+  .proof-gallery .proof-media--process { padding: 12px; }
+  .proof-gallery .proof-media--process::before { left: 12px; right: 12px; }
+  .proof-gallery .proof-flow { grid-template-columns: 1fr auto; gap: 3px 8px; font-size: 17px; }
+  .proof-gallery .proof-flow__arrow { grid-column: 2; grid-row: 1 / 3; font-size: 21px; }
+  .proof-gallery .proof-flow > span:last-child { grid-column: 1; }
+  .proof-gallery .proof-gallery__caption { font-size: 11px; line-height: 1.4; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .proof-gallery .tiles__line { transform: none !important; will-change: auto; }
+}
+
+/* On small screens, project evidence is already readable in the full-width
+   work cards. Do not repeat it as illegible miniatures in this summary. */
+.proof-gallery__caption--mobile{display:none}
+@media(max-width:760px){
+  .proof-gallery .tiles__wrap{grid-template-columns:1fr}
+  .proof-gallery .tiles__line:first-child .proof-card{display:none}
+  .proof-gallery .proof-media--process{height:66px}
+  .proof-gallery .proof-flow{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;font-size:clamp(18px,5vw,22px)}
+  .proof-gallery .proof-flow__arrow,.proof-gallery .proof-flow>span:last-child{grid-column:auto;grid-row:auto}
+  .proof-gallery .proof-card__label{font-size:11px}
+  .proof-gallery__caption--desktop{display:none}
+  .proof-gallery__caption--mobile{display:block}
+}
