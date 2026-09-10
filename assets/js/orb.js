@@ -21,11 +21,13 @@ uniform vec3  u_c1;         // green   (LINEAR light, not sRGB)
 uniform vec3  u_c2;         // amber
 uniform vec3  u_c3;         // deep red
 uniform vec3  u_bg;         // near-black
-uniform vec2  u_focus;      // orb centre, in the same space as p (0,0 = viewport centre)
-uniform float u_radius;     // 0.5 == exactly the short axis
+uniform vec2  u_focus;      // flow origin (0,0 = viewport centre)
+uniform float u_radius;     // flow scale; retained for existing data-radius overrides
 uniform float u_warp;       // domain-warp amount
 uniform float u_intensity;  // 0..1 overall opacity of the orb over the bg
 uniform float u_grain;      // grain amplitude, in output units (1.0 == full black->white)
+uniform float u_lens;       // 0: background, 1: glass sampling the same field
+uniform vec4  u_scene;      // canvas origin and size in background short-axis units
 
 /* ---------------------------------------------------------------
    Ashima Arts / Stefan Gustavson simplex noise 3D — MIT
@@ -94,63 +96,106 @@ float snoise(vec3 v){
 }
 /* --------------- end Ashima noise --------------- */
 
-/* Three-stop colour ramp. The gap between the two smoothstep windows (0.46 -> 0.54)
-   is what gives amber a plateau instead of being a thin crossover band. Widening the
-   windows to (0.00,0.55)/(0.45,1.00) collapses the whole orb to amber — measured. */
-vec3 ramp3(vec3 a, vec3 b, vec3 c, float t){
-  t = clamp(t, 0.0, 1.0);
-  vec3 ab = mix(a, b, smoothstep(0.14, 0.46, t));
-  return   mix(ab, c, smoothstep(0.54, 0.86, t));
+/* A flowing rotation field folds continuous stripes into broad ribbons. There
+   is deliberately no radial opacity mask: the dark channels belong to the
+   pattern itself. Both canvases evaluate this exact scene at the same time. */
+float fieldHash(vec3 p){
+  p = fract(p * 0.1031);
+  p += dot(p, p.yzx + 33.33);
+  return fract((p.x + p.y) * p.z);
+}
+float fieldNoise(vec3 p){
+  vec3 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(
+    mix(mix(fieldHash(i), fieldHash(i + vec3(1,0,0)), f.x),
+        mix(fieldHash(i + vec3(0,1,0)), fieldHash(i + vec3(1,1,0)), f.x), f.y),
+    mix(mix(fieldHash(i + vec3(0,0,1)), fieldHash(i + vec3(1,0,1)), f.x),
+        mix(fieldHash(i + vec3(0,1,1)), fieldHash(i + vec3(1,1,1)), f.x), f.y), f.z);
+}
+float fieldBands(vec2 p, float softness){
+  return smoothstep(0.0, 0.5 + softness * 0.5,
+    abs(sin(p.x * 31.4159265) + softness * 2.0) * 0.5);
+}
+vec3 fluid(vec2 p){
+  p = (p - u_focus) * (0.52 / max(u_radius, 0.1));
+  vec3 dome = normalize(vec3(p, 0.8));
+  float angle = fieldNoise(dome * 2.6 + u_time) * 3.0;
+  mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
+  vec2 q = rotation * dome.xy * 0.2;
+  vec3 pigment = mix(u_c1, u_c2, fieldBands(q, 0.5));
+  return mix(pigment, u_bg, fieldBands(q, 0.1));
+}
+
+// Bounded hemisphere projection substitutes for the cube-map lookup, including
+// its X flip. Sample directions around the lens centre: adding a displacement
+// to screen p would cancel most of p at the reference's very low ratio.
+vec2 refractedField(vec3 ray){
+  return u_scene.xy + u_scene.zw * 0.5
+    + vec2(-ray.x, ray.y) / (1.0 - ray.z) * u_scene.zw * 0.8;
 }
 
 /* sine-free hash, stable on mobile GPUs */
 float hash21(vec2 p){
-  p = fract(p * vec2(443.8975, 441.4234));
-  p += dot(p, p.yx + 19.19);
-  return fract((p.x + p.y) * p.x);
+  vec3 q = fract(vec3(p.xyx) * 0.1031);
+  q += dot(q, q.yzx + 33.33);
+  return fract((q.x + q.y) * q.z);
 }
 
 void main(){
   vec2 frag = gl_FragCoord.xy;
 
-  /* Aspect-correct: divide by the SHORT axis so the orb stays circular
-     and still overflows the long axis. p.short is roughly -0.5 .. 0.5 */
-  vec2 p = (frag - 0.5 * u_res) / min(u_res.x, u_res.y);
-  p -= u_focus;
-
-  float t = u_time;
-
-  /* --- one level of domain warp (iq). 3 snoise calls total. --- */
-  vec2 q = vec2(
-    snoise(vec3(p * 1.15,        t * 0.11)),
-    snoise(vec3(p * 1.15 + 17.3, t * 0.11 + 4.2))
-  );
-  float n = snoise(vec3(p * 1.35 + u_warp * q, t * 0.08 + 9.1));   // -1 .. 1
-
-  /* --- soft orb mask; the noise pushes the silhouette in and out --- */
-  float d = length(p);
-  float r = u_radius * (1.0 + 0.30 * n);
-  float mask = 1.0 - smoothstep(r * 0.10, r, d);   // edge0 < edge1, always
-  mask = pow(mask, 1.35);                          // tightens the core, keeps the falloff creamy
-
-  /* --- colour position along green -> amber -> red ---
-     Two decorrelated noise terms so all three colours coexist spatially, a vertical
-     bias so green sits high and red sits low (matching the CSS orb's composition),
-     and a small hot-core term. NOTE the noise terms are NOT halved: 0.5 + 0.5*n
-     only ever reaches ~0.2..0.8 and the ends of the ramp never get used, which is
-     exactly how you end up with an all-amber blob. Measured mix at these values:
-     ~18% green / ~68% amber / ~14% red of lit pixels, stable across aspect ratios. */
-  float g = 0.5 + 0.45 * n + 0.25 * q.y - 0.55 * p.y + 0.15 * (mask - 0.5);
-
-  vec3 col = ramp3(u_c1, u_c2, u_c3, g);
-  col = mix(u_bg, col, mask * u_intensity);
+  vec2 uv = frag / u_res;
+  vec2 p = u_scene.xy + uv * u_scene.zw;
+  vec3 col;
+  if (u_lens > 0.5) {
+    vec2 sphere = (uv - 0.5) * 2.0;
+    float r2 = dot(sphere, sphere);
+    float z = sqrt(max(1.0 - r2, 0.0001));
+    vec3 normal = normalize(vec3(sphere, z));
+    vec3 incident = vec3(0.0, 0.0, -1.0);
+    // Measured artistic values from MONOPO_JS.md §3.3, including the three
+    // per-channel ratios. The unusually low ratio deliberately folds the
+    // environment around the rim much more strongly than ordinary glass.
+    const float refractionRatio = 0.016;
+    vec3 rayR = refract(incident, normal, refractionRatio);
+    vec3 rayG = refract(incident, normal, refractionRatio * 0.99);
+    vec3 rayB = refract(incident, normal, refractionRatio * 0.98);
+    col = vec3(fluid(refractedField(rayR)).r,
+               fluid(refractedField(rayG)).g,
+               fluid(refractedField(rayB)).b);
+    vec3 reflection = reflect(incident, normal);
+    vec2 reflectedAt = u_scene.xy + u_scene.zw * 0.5
+      + reflection.xy / (1.35 + reflection.z) * u_scene.zw * 0.38;
+    vec3 reflected = fluid(reflectedAt);
+    float fresnel = clamp(0.016 + 2.442 * pow(
+      max(1.0 + dot(incident, normal), 0.0), 4.206), 0.0, 1.0);
+    col = mix(col, reflected, fresnel);
+    float rim = exp(-abs(sqrt(r2) - 0.992) * 210.0);
+    float light = 0.3 + 0.7 * max(dot(normal.xy, normalize(vec2(-0.7, 0.6))), 0.0);
+    // A recessed inner shoulder gives the rim thickness. Its offset highlight
+    // follows the reflected field and tapers around the sphere, rather than
+    // drawing another uniform outline over the glass.
+    float radius = sqrt(r2);
+    float shoulderAt = 0.951 + 0.012 * sphere.x - 0.008 * sphere.y;
+    float shoulder = exp(-pow((radius - shoulderAt) / 0.014, 2.0));
+    float recess = exp(-pow((radius - shoulderAt + 0.027) / 0.022, 2.0));
+    col *= 1.0 - recess * 0.12;
+    col += (reflected * 0.20 + vec3(0.018, 0.014, 0.007)) * shoulder * light;
+    col += vec3(0.12, 0.15, 0.085) * rim * light;
+    // The parent supplies the circular clip; keep any overscan unobtrusive.
+    col *= 1.0 - smoothstep(1.0, 1.025, r2);
+  } else {
+    col = fluid(p);
+  }
 
   /* linear -> sRGB. Mixing green into red in linear light avoids the muddy
      mid you get mixing sRGB bytes directly. */
   col = pow(max(col, 0.0), vec3(1.0 / 2.2));
+  col *= u_intensity;
 
   /* Grain doubles as a dither: it is what kills 8-bit banding on a dark gradient. */
-  float gr = (hash21(frag + fract(t) * 137.0) - 0.5) * u_grain;
+  float gr = (hash21(frag + floor(u_time * 24.0) * 137.0) - 0.5) * u_grain;
   col += gr;
 
   gl_FragColor = vec4(col, 1.0);
@@ -160,34 +205,38 @@ void main(){
 /* ============================================================
    ORB — mount
    ============================================================ */
-function mountOrb(canvas) {
+function mountOrb(canvas, scene = null) {
   var simTimeSeed = 0;
   if (!canvas) return null;
 
   const CONFIG = {
-    c1: '#899A75',        // moss green sampled from the live reference
-    c2: '#B19058',        // aged gold
+    c1: '#789E71',        // measured source green, MONOPO_JS.md §3.2
+    c2: '#E09442',        // measured source orange
     c3: '#59452F',        // smoked umber; reference has no vivid red stop
     bg: '#000000',
-    speed: 0.22,          // seconds of shader-time per second of wall-clock
+    speed: 0.126, // reference settled time: .0021 per frame at 60Hz
     focus: [0.02, -0.04], // slight offset; matches the CSS orb's left:52%/top:46%
     radius: 0.52,
     warp: 0.95,
-    intensity: 0.58,
-    grain: 0.055,
+    intensity: 0.8,       // measured source background opacity
+    grain: 0.035,
     maxPixelRatio: 1.5,   // hard cap
-    renderScale: 0.65,    // render smaller than CSS size and let the GPU upscale
+    renderScale: 1, // native-resolution grain avoids a visibly upscaled texture
     maxFps: 45            // 0 = uncapped
   };
-  // Per-canvas overrides from data-* attributes. The lens canvas runs the same
-  // shader with a larger radius, an offset focus and its own time scale, so the
-  // disc reads as a refracting sphere over the background fluid rather than a
-  // window onto it.
+  // Preserve standalone data overrides. A mounted lens inherits scene settings
+  // so legacy lens-specific time/colour-domain overrides cannot detach its flow.
   ['radius','warp','intensity','grain','speed','renderScale'].forEach(function (k) {
     if (canvas.dataset[k] != null) CONFIG[k] = parseFloat(canvas.dataset[k]);
   });
   if (canvas.dataset.focus) CONFIG.focus = canvas.dataset.focus.split(',').map(Number);
   if (canvas.dataset.tstart) simTimeSeed = parseFloat(canvas.dataset.tstart);
+  if (scene) {
+    ['c1','c2','c3','bg','speed','focus','radius','warp','intensity'].forEach((k) => {
+      CONFIG[k] = scene.config[k];
+    });
+    canvas.style.animation = 'none'; // refraction supplies motion; keep the glass coordinates stable
+  }
 
   /* ---- sRGB hex -> linear float triplet ---- */
   function toLinear(hex) {
@@ -248,7 +297,7 @@ function mountOrb(canvas) {
 
     u = {};
     ['u_res','u_time','u_c1','u_c2','u_c3','u_bg','u_focus',
-     'u_radius','u_warp','u_intensity','u_grain'
+     'u_radius','u_warp','u_intensity','u_grain','u_lens','u_scene'
     ].forEach((n) => { u[n] = gl.getUniformLocation(prog, n); });
 
     gl.uniform3fv(u.u_c1, toLinear(CONFIG.c1));
@@ -260,6 +309,7 @@ function mountOrb(canvas) {
     gl.uniform1f(u.u_warp, CONFIG.warp);
     gl.uniform1f(u.u_intensity, CONFIG.intensity);
     gl.uniform1f(u.u_grain, CONFIG.grain);
+    gl.uniform1f(u.u_lens, scene ? 1 : 0);
     gl.disable(gl.DEPTH_TEST);
     gl.disable(gl.BLEND);
     return true;
@@ -267,6 +317,7 @@ function mountOrb(canvas) {
 
   /* ---- sizing. Never read layout in the rAF loop. ---- */
   let cssW = 0, cssH = 0, dirty = true;
+  let sceneBounds = [0, 0, 1, 1];
   function setSize(w, h) { cssW = w; cssH = h; dirty = true; }
 
   function applySize() {
@@ -275,15 +326,17 @@ function mountOrb(canvas) {
     const dpr = Math.min(window.devicePixelRatio || 1, CONFIG.maxPixelRatio);
     const w = Math.max(1, Math.round(cssW * dpr * CONFIG.renderScale));
     const h = Math.max(1, Math.round(cssH * dpr * CONFIG.renderScale));
-    if (w === canvas.width && h === canvas.height) return;
-    canvas.width = w; canvas.height = h;
+    if (w !== canvas.width || h !== canvas.height) {
+      canvas.width = w; canvas.height = h;
+    }
     gl.viewport(0, 0, w, h);
     gl.uniform2f(u.u_res, w, h);
+    gl.uniform4fv(u.u_scene, sceneBounds);
   }
 
   function draw() {
     applySize();
-    gl.uniform1f(u.u_time, simTime);
+    gl.uniform1f(u.u_time, scene ? scene.time() : simTime);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
@@ -311,13 +364,11 @@ function mountOrb(canvas) {
 
   if (!build()) return null;
 
-  /* ---- size feed: ResizeObserver, contentRect only (no getBoundingClientRect in the callback) ---- */
-  const ro = new ResizeObserver((entries) => {
-    const box = entries[0].contentRect;
-    setSize(box.width, box.height);
-    if (!running) draw();      // keep the still frame correct in reduced-motion / paused states
-  });
-  ro.observe(canvas);
+  /* ---- geometry is read on resize only, never inside the animation loop ---- */
+  const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => {
+    measure();
+  }) : null;
+  if (ro) ro.observe(canvas);
   // The canvas may still be display:none when we first measure (the .has-webgl
   // class is what reveals it), and a ResizeObserver on a display:none element
   // reports 0 — which left the backing store at its 300x150 default and made the
@@ -329,6 +380,16 @@ function mountOrb(canvas) {
     const w = canvas.clientWidth || host.clientWidth || window.innerWidth;
     const h = canvas.clientHeight || host.clientHeight || window.innerHeight;
     setSize(w, h);
+    const background = scene ? scene.canvas : canvas;
+    const base = background.getBoundingClientRect();
+    const box = canvas.getBoundingClientRect();
+    const bw = base.width || w, bh = base.height || h;
+    const short = Math.max(1, Math.min(bw, bh));
+    sceneBounds = scene
+      ? [(box.left - base.left - bw * 0.5) / short,
+         (base.bottom - box.bottom - bh * 0.5) / short,
+         (box.width || w) / short, (box.height || h) / short]
+      : [-bw * 0.5 / short, -bh * 0.5 / short, bw / short, bh / short];
     if (!running) draw();
   }
   measure();
@@ -338,10 +399,11 @@ function mountOrb(canvas) {
   document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
 
   /* ---- pause when the hero is scrolled away ---- */
-  new IntersectionObserver((es) => {
+  const io = typeof IntersectionObserver === 'function' ? new IntersectionObserver((es) => {
     visible = es[0].isIntersecting;
     visible ? start() : stop();
-  }, { threshold: 0 }).observe(canvas);
+  }, { threshold: 0 }) : null;
+  if (io) io.observe(canvas);
 
   /* ---- reduced motion: render exactly one frame, then stay still ---- */
   const onRM = () => { if (reduced()) { stop(); draw(); } else { start(); } };
@@ -355,7 +417,8 @@ function mountOrb(canvas) {
   }, false);
 
   onRM();
-  return { start, stop, config: CONFIG, destroy(){ stop(); ro.disconnect(); } };
+  return { start, stop, config: CONFIG, canvas, time: () => simTime,
+    destroy(){ stop(); if (ro) ro.disconnect(); if (io) io.disconnect(); } };
 }
 
 /* boot */
@@ -370,7 +433,7 @@ function mountOrb(canvas) {
   if (orb && l) {
     root.classList.add('has-lens');                 // give the lens canvas layout BEFORE measuring it
     let lens = null;
-    try { lens = mountOrb(l); } catch (e) { lens = null; }
+    try { lens = mountOrb(l, orb); } catch (e) { lens = null; }
     if (!lens) root.classList.remove('has-lens');
   }
 })();

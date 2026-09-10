@@ -1,5 +1,19 @@
 # Handoff — John Montejano portfolio site
 
+## Latest snapshot — 2026-09-09 image/motion refinement
+
+This snapshot supersedes the historical implementation and next-step notes below.
+
+- Active worktree: `../Portfolio-John-main/portfolio-live-worktree`, branch `codex/monopo-fidelity`. Real main checkout: `../portfolio-live`. Never run Git in the parent `Portfolio-John-main` directory.
+- Image entrances now trigger in view; cover, gallery, portrait and name motion use independent transform layers. Hero interruption, menu keyboard/focus behavior, film pause persistence and startup failure fallbacks have regression coverage.
+- GSAP/ScrollTrigger 3.12.5 and Lenis 1.1.14 are self-hosted. Main UI starts before the WebGL shader. Reduced motion and actual JavaScript-disabled browsing remain usable.
+- Decorative images now use natural-daylight generated artwork. The portrait is an AI-assisted lighting/background edit of John's real photograph. The film is licensed live-action Paris street footage, not a generated still or a claim of San Francisco location. Original assets remain preserved. See `docs/ASSET_REFRESH.md` and `docs/VIDEO_SOURCE.md`.
+- Desktop section geometry, restrained cover opacity, rotated gallery, hero lens and typography follow live monopo measurements. Mobile strengths and portrait now have reference-aligned stacking. The final mobile manifesto refinement restores approximately 40px type at 390px width.
+- Final independent iteration12 assessment: visual quality **9.0/10 desktop and mobile**; strict fidelity **8.8/10 both**. This is a subjective screenshot-based review, not a pixel-identical claim. Reference font and shader material remain different.
+- Durable QA captures live in `../Portfolio-John-main/qa-final/`, especially `iteration11`, `iteration11-mobile`, `iteration11-narrow`, `iteration11-reduced`, and the final `iteration12-mobile` manifesto refinement. Unchanged desktop sections are in `iteration8`; live reference captures are in `reference` and `reference-mobile`.
+- Run `node tools/motion-check.cjs` for isolated motion/startup/accessibility regressions. Run `node tools/browser-check.cjs URL OUTPUT_DIR MODE` against test Chrome on port9222. Run `node tools/verify-deployment.cjs https://johnmontejano.github.io COMMIT_SHA` to compare all 29 served assets byte-for-byte.
+- Publication is explicitly authorized by John. Main agent owns final commit, fast-forward of main, push and GitHub Pages verification. Final deployment evidence belongs in shared `memory/CURRENT_STATE.md` and the current Agent Tasks record.
+
 Written 2026-09-08 for a fresh agent (Codex or otherwise) to pick up with zero prior context.
 
 ## Repo location — read this first
@@ -180,3 +194,27 @@ From `Portfolio-John-main/memory/NEXT_STEPS.md` (still accurate as of this commi
 - Scroll-verify with the CDP harness (not the Browser pane) at a few scroll
   depths to confirm animations actually fire and complete
 - Check mobile with real device emulation, not just a narrow `--window-size`
+# 2026-09-09 image/motion refinement — current pass
+
+This update supersedes the historical next steps below. The active working
+copy is `../Portfolio-John-main/portfolio-live-worktree`, branch
+`codex/monopo-fidelity`. Production remains `f1eedf4` until this pass is published.
+
+- Fixed viewport-triggered image entrances, hero interruption, separate cover/
+  gallery/portrait transforms, film pause persistence, menu focus and startup
+  failure fallbacks. Pinned GSAP/ScrollTrigger/Lenis are served locally, with UI
+  boot ordered before WebGL initialization.
+- Replaced crushed-shadow decorative images with natural daylight art and the
+  animated still with licensed live-action footage. `docs/ASSET_REFRESH.md` and
+  `docs/VIDEO_SOURCE.md` document the generated/real distinction and licensing.
+- Restored measured desktop geometry, gallery rotation/density, hero type and
+  offscreen lens geometry. FastFix's existing marketing capability map is now
+  crisp HTML with its genuine logo; GelatoTech uses the existing real selector.
+- Independent review scored the preceding candidate8.0 quality/8.2 fidelity.
+  The next pass fixes its five findings: header contrast/overlap, cover clarity,
+  marquee separator, hero material/geometry, and industry-list spacing. Re-score
+  pending; do not claim9 based only on passing tests.
+- Latest durable captures: `../Portfolio-John-main/qa-final/iteration8` and
+  `iteration8-mobile`; both full-scroll runs passed startup, image, overflow and
+  exception checks. `tools/motion-check.cjs` provides isolated regression tests.
+- Main agent owns final commit/push and byte-level GitHub Pages verification.

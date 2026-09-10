@@ -16,8 +16,9 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" as="font" type="font/woff2" href="assets/type/switzer-400.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="assets/type/switzer-300.woff2" crossorigin>
-<script>document.documentElement.className+=(("ontouchstart" in window)?" touch":" notouch")+" js"</script>
+<script>document.documentElement.className+=(("ontouchstart" in window)?" touch":" notouch")</script>
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="assets/css/project-covers.css">
 </head>
 <body>
 <div class="dot-cursor" aria-hidden="true">
@@ -76,7 +77,18 @@
     <div class="work">
 
       <article class="job reveal">
-        <a class="job__media img-wrapper" style="--ar:1250/280" href="https://fastfix.ai" target="_blank" rel="noopener"><span class="img-container img--shot" data-speed="1"><img src="assets/img/work-fastfix.webp" alt="FastFix.ai, a booking, quoting and invoicing platform for home-service companies" loading="lazy" width="1200" height="750"></span></a>
+        <a class="job__media img-wrapper" href="https://fastfix.ai" target="_blank" rel="noopener">
+          <span class="img-container job__cover job__cover--product" data-speed="1" role="img" aria-label="FastFix.ai capability map, adapted from its website: website, industry CRM, ads and social tools">
+            <span class="product-map" aria-hidden="true">
+              <svg class="product-map__lines" viewBox="0 0 500 600" preserveAspectRatio="none"><path d="M250 280L175 110M250 280L362 202M250 280L365 394M250 280L203 488"/></svg>
+              <img class="product-map__mark" src="assets/img/fastfix-mark-source.png" alt="" width="171" height="171" loading="lazy">
+              <span class="product-map__tag product-map__tag--web"><i>◎</i>SEO + AEO Website</span>
+              <span class="product-map__tag product-map__tag--crm"><i>▦</i>Industry CRM</span>
+              <span class="product-map__tag product-map__tag--ads"><i>↗</i>Ads + Funnel</span>
+              <span class="product-map__tag product-map__tag--social"><i>◉</i>Social Autopilot</span>
+            </span>
+          </span>
+        </a>
         <div>
           <p class="label">01 / My product &mdash; founder</p>
           <h3 class="h3" style="margin-top:12px">FastFix.ai</h3>
@@ -86,7 +98,7 @@
       </article>
 
       <article class="job reveal">
-        <a class="job__media img-wrapper" style="--ar:800/500" href="https://gelatotech.com" target="_blank" rel="noopener"><span class="img-container img--shot" data-speed="-.5"><img src="assets/img/work-gelatotech.webp" alt="GelatoTech, a device repair business in San Francisco" loading="lazy" width="1200" height="750"></span></a>
+        <a class="job__media img-wrapper" href="https://gelatotech.com" target="_blank" rel="noopener"><span class="img-container job__cover job__cover--device" data-speed="1"><span class="device-cover__brand" aria-hidden="true">GelatoTech<span>Device repair, made simple.</span></span><img src="assets/img/work-gelatotech.webp" alt="The device selector I built for GelatoTech, presented as a project cover" loading="lazy" width="800" height="500"></span></a>
         <div>
           <p class="label">02 / Ran it myself &mdash; owner-operator</p>
           <h3 class="h3" style="margin-top:12px">GelatoTech</h3>
@@ -96,7 +108,7 @@
       </article>
 
       <article class="job reveal">
-        <a class="job__media img-wrapper" style="--ar:1600/1000" href="https://gsb-lead-lisa.com" target="_blank" rel="noopener"><span class="img-container img--shot" data-speed=".5"><img src="assets/img/work-lisa.webp" alt="LISA, an incubator and startup accelerator run by Stanford GSB LEAD alumni" loading="lazy" width="1200" height="750"></span></a>
+        <a class="job__media img-wrapper" href="https://gsb-lead-lisa.com" target="_blank" rel="noopener"><span class="img-container job__cover job__cover--events" data-speed="1"><img src="assets/img/work-lisa-events-v2.webp" alt="Event photography from the LISA website I designed and built" loading="lazy" width="978" height="498"></span></a>
         <div>
           <p class="label">03 / Client &mdash; design + build</p>
           <h3 class="h3" style="margin-top:12px">LISA</h3>
@@ -117,35 +129,33 @@
     <p class="trust__words" data-words><span class="bw">Plumbing</span> <span class="bw">HVAC</span> <span class="bw">Dental</span> <span class="bw">Salons</span> <span class="bw">Electrical</span> <span class="bw">Cleaning</span> <span class="bw">Med spa</span> <span class="bw">Auto repair</span> <span class="bw">Roofing</span> <span class="bw">Property management</span> <span class="bw">Landscaping</span> <span class="bw">Moving</span> <span class="bw">Pest control</span> <span class="bw">Locksmiths</span> <span class="bw">Appliance repair</span> </p>
     <a class="btn btn--grad" href="#contact">&rarr; &nbsp;Book a free 30 minutes</a>
   </div>
-  <a class="eyebrow-next" href="#manifesto">&rarr; &nbsp;Manifesto</a>
+
 </section>
 
 <!-- ============ MANIFESTO ============ -->
 <section class="block manifesto" id="manifesto">
   <div class="wrap">
     <p class="label eyebrow">&rarr; &nbsp;Manifesto</p>
-    <h2 class="mline split">Assess. Simplify. Automate.<br>If it happens the same<br>way twice, it can<br>happen without you.<br>Built on accounts you own.<br>Judgment stays with you.</h2>
-    <p class="manifesto__p reveal">I ran a service business before I automated one. The system answers, quotes, chases and books while you are on the job. Every account stays in your name, and every call that needs a human still comes to you.</p>
+    <h2 class="mline split">Assess.<br>Simplify.<br>Automate.<br>I build systems<br>that give service<br>businesses back<br>time. Less admin.<br>More room for<br>the work that<br>only you can do.</h2>
   </div>
 </section>
 
 <!-- ============ STRENGTHS (the four leaks) ============ -->
 <section class="block strengths" id="leaks">
   <div class="wrap">
-    <p class="label eyebrow">&rarr; &nbsp;Where it goes</p>
     <article class="strength">
       <span class="strength__label">&#8600; &nbsp;Missed calls</span>
-      <div class="strength__orb img-wrapper"><span class="img-container"><img src="assets/img/atmos/phone-counter.webp" alt="A phone ringing on an empty counter late at night" loading="lazy"></span></div>
+      <div class="strength__orb img-wrapper"><span class="img-container"><img src="assets/img/atmos/glass-lens-v2.webp" alt="" loading="lazy"></span></div>
       <p class="strength__text"><b class="strength__n">01</b>The 7pm call nobody caught. It rang out, and the job went to whoever picked up first.</p>
     </article>
     <article class="strength">
       <span class="strength__label">&#8600; &nbsp;Double entry</span>
-      <div class="strength__orb img-wrapper"><span class="img-container"><img src="assets/img/atmos/jobsheet-hand.webp" alt="A hand writing on a paper job sheet" loading="lazy"></span></div>
+      <div class="strength__orb img-wrapper"><span class="img-container"><img src="assets/img/atmos/glass-pair-v2.webp" alt="" loading="lazy"></span></div>
       <p class="strength__text"><b class="strength__n">02</b>Typed here. Typed again there. Same name, same address, two apps, every customer, forever.</p>
     </article>
     <article class="strength">
       <span class="strength__label">&#8600; &nbsp;Dead quotes</span>
-      <div class="strength__orb img-wrapper"><span class="img-container"><img src="assets/img/atmos/bench-night.webp" alt="A workshop bench at night" loading="lazy"></span></div>
+      <div class="strength__orb img-wrapper"><span class="img-container"><img src="assets/img/atmos/glass-cube-v2.webp" alt="" loading="lazy"></span></div>
       <p class="strength__text"><b class="strength__n">03</b>Quotes follow up, appointments remind and invoices chase themselves. The loop closes without another tab.</p>
     </article>
   </div>
@@ -159,15 +169,12 @@
 
 <section class="band reveal">
   <div class="band__media img-wrapper">
-    <video class="band__video" poster="assets/img/atmos/van-dusk.webp" autoplay muted loop playsinline preload="none" aria-hidden="true"
-           aria-label="A service van parked on a wet street at dusk">
-      <source src="assets/video/band-street.mp4" type="video/mp4">
+    <video class="band__video" poster="assets/img/atmos/service-film-poster-v2.jpg" autoplay muted loop playsinline preload="none" aria-hidden="true"
+           aria-label="Daylight city street documentary footage">
+      <source src="assets/video/service-documentary-v2.mp4" type="video/mp4">
     </video>
   </div>
-  <div class="grain" aria-hidden="true"></div>
-  <div class="band__in">
-    <h2 class="h2 split">You are still on the job<br>at seven in the evening.</h2>
-  </div>
+  <button class="band__toggle" type="button" aria-label="Pause film" aria-pressed="false">Pause film</button>
 </section>
 
 <section class="story-cta block">
@@ -182,9 +189,9 @@
 
 <section class="tiles reveal" id="trades">
   <div class="tiles__wrap" aria-hidden="true">
-      <div class="tiles__line" data-tspeed="1"><span class="tiles__img"><img src="assets/img/atmos/van-dusk.webp" alt="A service van on a wet street at dusk" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/bench-night.webp" alt="A workshop bench at night" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/phone-counter.webp" alt="A phone on an empty counter" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/chair-lowlight.webp" alt="An empty chair in low light" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/calendar-shadow.webp" alt="A blank wall calendar" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/van-dusk.webp" alt="A service van on a wet street at dusk" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/bench-night.webp" alt="A workshop bench at night" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/phone-counter.webp" alt="A phone on an empty counter" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/chair-lowlight.webp" alt="An empty chair in low light" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/calendar-shadow.webp" alt="A blank wall calendar" loading="lazy"></span></div>
-      <div class="tiles__line" data-tspeed="-1"><span class="tiles__img"><img src="assets/img/atmos/pipe-macro.webp" alt="Copper pipe in close-up" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/glass-amber.webp" alt="Amber light through frosted glass" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/hvac-roof.webp" alt="A rooftop condenser unit at dusk" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/clinic-chair.webp" alt="A clinic chair in a darkened room" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/jobsheet-hand.webp" alt="A hand on a blank job sheet" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/pipe-macro.webp" alt="Copper pipe in close-up" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/glass-amber.webp" alt="Amber light through frosted glass" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/hvac-roof.webp" alt="A rooftop condenser unit at dusk" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/clinic-chair.webp" alt="A clinic chair in a darkened room" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/jobsheet-hand.webp" alt="A hand on a blank job sheet" loading="lazy"></span></div>
-      <div class="tiles__line" data-tspeed=".6"><span class="tiles__img"><img src="assets/img/atmos/phone-counter.webp" alt="A phone on an empty counter" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/chair-lowlight.webp" alt="An empty chair in low light" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/calendar-shadow.webp" alt="A blank wall calendar" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/pipe-macro.webp" alt="Copper pipe in close-up" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/glass-amber.webp" alt="Amber light through frosted glass" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/phone-counter.webp" alt="A phone on an empty counter" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/chair-lowlight.webp" alt="An empty chair in low light" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/calendar-shadow.webp" alt="A blank wall calendar" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/pipe-macro.webp" alt="Copper pipe in close-up" loading="lazy"></span><span class="tiles__img"><img src="assets/img/atmos/glass-amber.webp" alt="Amber light through frosted glass" loading="lazy"></span></div>
+      <div class="tiles__line" data-tspeed="1"><span class="tiles__img"><img src="assets/img/atmos/service-street-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/repair-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/clinic-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/meeting-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/salon-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/garden-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span></div>
+      <div class="tiles__line" data-tspeed="-1"><span class="tiles__img"><img src="assets/img/atmos/salon-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/meeting-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/garden-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/service-street-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/clinic-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/repair-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span></div>
+      <div class="tiles__line" data-tspeed=".6"><span class="tiles__img"><img src="assets/img/atmos/clinic-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/garden-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/repair-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/salon-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/service-street-v2.webp" alt="" loading="lazy" width="1280" height="853"></span><span class="tiles__img"><img src="assets/img/atmos/meeting-daylight-v2.webp" alt="" loading="lazy" width="1280" height="853"></span></div>
   </div>
 </section>
 
@@ -195,9 +202,11 @@
     <h2 class="team__intro split">From the counter<br>to the code.</h2>
     <article class="person reveal">
       <p class="person__role">Founder, builder, operator</p>
-      <span class="person__media img-wrapper"><span class="img-container" data-speed=".5"><img src="assets/img/jm-portrait.webp" alt="John Montejano" loading="eager" decoding="async"></span></span>
-      <h3 class="person__name">John<br>Montejano</h3>
-      <button class="person__plus" type="button" aria-expanded="false" aria-controls="person-bio" aria-label="Read more about John">+</button>
+      <span class="person__media img-wrapper"><span class="img-container" data-speed=".5"><img src="assets/img/jm-portrait-editorial-v2.webp" alt="John Montejano" loading="eager" decoding="async"></span></span>
+      <div class="person__identity">
+        <h3 class="person__name">John<br>Montejano</h3>
+        <button class="person__plus" type="button" aria-expanded="false" aria-controls="person-bio" aria-label="Read more about John">+</button>
+      </div>
       <p class="person__index">( 1 )</p>
       <p class="person__bio" id="person-bio">I ran a service business before I automated one. No handoffs, no account manager: you talk to the person who maps the work and writes the system.</p>
     </article>
@@ -241,10 +250,10 @@
   </div>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-<script src="assets/js/orb.js" defer></script>
+<script src="assets/vendor/gsap.min.js"></script>
+<script src="assets/vendor/ScrollTrigger.min.js"></script>
+<script src="assets/vendor/lenis.min.js"></script>
 <script src="assets/js/main.js" defer></script>
+<script src="assets/js/orb.js" defer></script>
 </body>
 </html>

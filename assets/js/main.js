@@ -6,8 +6,46 @@
    GSAP is used only where they use it: the line masks and scroll parallax. */
 (function () {
   "use strict";
+  try {
+  // Progressive enhancement starts only when this file actually executes.
+  // A pending dependency must never hide content from an inline head flag.
+  document.documentElement.classList.add("js");
   var RM = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var hasGSAP = typeof window.gsap !== "undefined" && typeof window.ScrollTrigger !== "undefined";
+  var motionContext, motionCleanups = [], lenis = null;
+
+  // Reveal only on entry, including restored scroll positions and browsers where
+  // IntersectionObserver is absent or delayed. Elapsed time is not an entry.
+  var pendingEntries = [], entryFrame = null;
+  function checkEntries() {
+    entryFrame = null;
+    pendingEntries = pendingEntries.filter(function (entry) {
+      var rect = entry.el.getBoundingClientRect();
+      if (rect.top >= window.innerHeight * entry.edge || rect.bottom <= 0) return true;
+      if (entryObserver) entryObserver.unobserve(entry.el);
+      try { entry.run(); }
+      catch (error) {
+        hasGSAP = false;
+        resolveMotion();
+        console.warn("Portfolio motion unavailable; content restored.", error);
+      }
+      return false;
+    });
+  }
+  function queueEntries() {
+    if (entryFrame === null) entryFrame = requestAnimationFrame(checkEntries);
+  }
+  var entryObserver = "IntersectionObserver" in window ? new IntersectionObserver(queueEntries) : null;
+  function onEntry(el, run, edge) {
+    pendingEntries.push({ el: el, run: run, edge: edge || 0.92 });
+    if (entryObserver) entryObserver.observe(el);
+    checkEntries();
+  }
+  window.addEventListener("scroll", queueEntries, { passive: true });
+  window.addEventListener("resize", queueEntries);
+  window.addEventListener("load", queueEntries);
+  window.addEventListener("pageshow", queueEntries);
+  document.addEventListener("visibilitychange", queueEntries);
 
   /* ---------- preloader ----------
      Timings taken from the reference. Skipped under reduced motion, without
@@ -39,7 +77,10 @@
     // fromTo with BOTH y and yPercent pinned: GSAP resolves the CSS
     // translate3d(0,100%,0) into a pixel y, so tweening yPercent alone would
     // leave that offset in place and the greeting would never appear.
-    gsap.timeline({ onComplete: finish })
+    setTimeout(finish, 8000);          // loader-only watchdog, never a reveal timer
+    window.addEventListener("pagehide", finish);
+    try {
+    var loaderTimeline = gsap.timeline({ onComplete: finish, onInterrupt: finish })
       .fromTo(spans[0], { yPercent: 100, y: 0, opacity: 0 },
               { yPercent: 0, y: 0, opacity: 1, duration: 1.2, ease: "expo.out" }, 1.0)
       .fromTo(spans[1], { yPercent: 100, y: 0, opacity: 0 },
@@ -47,8 +88,8 @@
       .to(spans[0], { yPercent: -100, y: 0, opacity: 0, duration: 1.0, ease: "expo.inOut" }, 4.5)
       .to(spans[1], { yPercent: -100, y: 0, opacity: 0, duration: 1.0, ease: "expo.inOut" }, 4.6)
       .to(el, { opacity: 0, duration: 0.6, ease: "expo.inOut" }, 5.0);
-    setTimeout(finish, 8000);          // hard floor: never leave the page covered
-    window.addEventListener("pagehide", finish);
+    motionCleanups.push(function () { finish(); loaderTimeline.kill(); });
+    } catch (error) { finish(); }
   })();
 
   /* ---------- 1. split marked headings into their line/content/mask markup ----------
@@ -66,58 +107,63 @@
   }
   var heads = [].slice.call(document.querySelectorAll(".split"));
   heads.forEach(splitLines);
+  var heroPhrases = [
+    ["You run the jobs.", "I build the systems."],
+    ["Less busywork.", "More breathing room."]
+  ];
+  document.querySelectorAll(".hero .display .txt").forEach(function (el, index) {
+    if (heroPhrases[0][index]) el.textContent = heroPhrases[0][index];
+  });
   var allMasks = [].slice.call(document.querySelectorAll(".mask"));
+  var revealSelector = ".reveal,.reveal-group,.head,.job,.word,.tiles,.strength,.trust,.contact";
+  function resolveWords(words) {
+    words.forEach(function (word) {
+      word.style.opacity = "1";
+      word.style.transform = "none";
+    });
+  }
+  function resolveMotion() {
+    motionCleanups.forEach(function (cleanup) { cleanup(); });
+    motionCleanups = [];
+    if (motionContext) { motionContext.revert(); motionContext = null; }
+    document.querySelectorAll(".hero .txt--next").forEach(function (el) { el.remove(); });
+    allMasks.forEach(function (m) { m.style.transform = "scaleX(0)"; });
+    resolveWords(document.querySelectorAll(".bw"));
+  }
 
   /* ---------- reduced motion: everything resolved, nothing moves ---------- */
   if (RM) {
-    document.querySelectorAll(".reveal,.reveal-group,.head,.word").forEach(function (e) {
+    document.querySelectorAll(revealSelector).forEach(function (e) {
       e.classList.add("is-inview");
     });
     allMasks.forEach(function (m) { m.style.transform = "scaleX(0)"; });
+    resolveWords(document.querySelectorAll(".bw"));
   }
 
   if (!RM) {
     /* ---------- 2. is-inview, the Locomotive way ---------- */
-    var targets = [].slice.call(document.querySelectorAll(".reveal,.head,.job,.word,.tiles,.strength,.trust,.contact"));
-    // Anything already on screen is revealed synchronously. IntersectionObserver
-    // does not deliver callbacks while document.hidden is true (background tab,
-    // prerender, headless capture), so waiting on it can strand the whole page.
-    function onScreen(el) {
-      var r = el.getBoundingClientRect();
-      return r.top < window.innerHeight * 0.92 && r.bottom > 0;
-    }
-    var deferred = [];
+    var targets = [].slice.call(document.querySelectorAll(revealSelector));
     targets.forEach(function (el) {
-      if (onScreen(el)) el.classList.add("is-inview");
-      else deferred.push(el);
+      onEntry(el, function () { el.classList.add("is-inview"); });
     });
-    if ("IntersectionObserver" in window && deferred.length) {
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          if (!e.isIntersecting) return;
-          e.target.classList.add("is-inview");
-          io.unobserve(e.target);
-        });
-      }, { rootMargin: "0px 0px -12% 0px", threshold: 0.08 });
-      deferred.forEach(function (el) { io.observe(el); });
-      setTimeout(function () {                       // never strand content
-        deferred.forEach(function (el) { el.classList.add("is-inview"); });
-      }, 4000);
-    } else {
-      deferred.forEach(function (el) { el.classList.add("is-inview"); });
-    }
 
     if (hasGSAP) {
+      try {
+      motionContext = gsap.context(function () {});
+      motionContext.add(function () {
       gsap.registerPlugin(ScrollTrigger);
 
       /* ---------- 3. smooth scroll (their Locomotive layer) ---------- */
       if (typeof window.Lenis !== "undefined") {
-        var lenis = new Lenis({ lerp: 0.1, smoothWheel: true, touchMultiplier: 3.5 });
+        lenis = new Lenis({ lerp: 0.1, smoothWheel: true, touchMultiplier: 3.5 });
         lenis.on("scroll", ScrollTrigger.update);
-        gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
+        var tickLenis = function (time) { lenis.raf(time * 1000); };
+        gsap.ticker.add(tickLenis);
+        motionCleanups.push(function () { gsap.ticker.remove(tickLenis); lenis.destroy(); lenis = null; });
         gsap.ticker.lagSmoothing(0);
         document.querySelectorAll('a[href^="#"]').forEach(function (a) {
           a.addEventListener("click", function (e) {
+            if (RM || !hasGSAP) return;
             var id = a.getAttribute("href");
             if (id.length < 2) return;
             var el = document.querySelector(id);
@@ -140,6 +186,13 @@
          first 200px of its section and then went inert. */
       var hero = document.querySelector(".hero .display");
       function scrubWipe(h) {
+        if (window.innerWidth < 1024) {
+          onEntry(h, function () {
+            if (RM || !hasGSAP) return;
+            gsap.to(h.querySelectorAll(".mask"), { scaleX: 0, duration: 1.25, ease: "expo.out", stagger: 0.05 });
+          });
+          return;
+        }
         h.querySelectorAll(".mask").forEach(function (m) {
           var line = m.closest(".line") || m.parentElement;
           gsap.fromTo(m, { scaleX: 1 }, {
@@ -155,7 +208,7 @@
         var heroMasks = hero.querySelectorAll(".mask");
         var heroPlayed = false;
         var playHero = function () {
-          if (heroPlayed) return; heroPlayed = true;
+          if (heroPlayed || RM || !hasGSAP) return; heroPlayed = true;
           gsap.to(heroMasks, { scaleX: 0, duration: 1.25, ease: "expo.out", stagger: 0.085, delay: 0.2 });
         };
         if (document.visibilityState === "visible") { playHero(); }
@@ -187,15 +240,12 @@
           var n = el.cloneNode(true); n.classList.add("txt--next"); n.setAttribute("aria-hidden", "true");
           el.parentNode.appendChild(n); gsap.set(n, { yPercent: 120, y: 0 }); return n;
         });
-        var LINES = [
-          ["You run the jobs.", "The office runs itself."],
-          ["You are under a sink.", "The quote goes out anyway."],
-          ["You are on a roof.", "The invoice is already sent."],
-          ["You are driving home.", "Tomorrow is already booked."]
-        ];
+        var LINES = heroPhrases;
         var i = 0, timer = null, tl = null, inView = true;
         function settle() {
-          if (tl) { tl.kill(); tl = null; }
+          var active = tl;
+          tl = null;
+          if (active) { active.eventCallback("onInterrupt", null); active.kill(); }
           gsap.set(txts,  { yPercent: 0,   y: 0 });
           gsap.set(nexts, { yPercent: 120, y: 0 });
         }
@@ -214,8 +264,9 @@
             .fromTo(nexts[0], { yPercent: 120, y: 0 }, { yPercent: 0, y: 0, duration: 0.9, ease: "expo.out" }, 0.55)
             .fromTo(nexts[1], { yPercent: 120, y: 0 }, { yPercent: 0, y: 0, duration: 0.9, ease: "expo.out" }, 0.65);
         }
-        function start() { if (!timer && inView && !document.hidden) timer = setInterval(cycle, 4500); }
+        function start() { if (!RM && hasGSAP && !timer && inView && !document.hidden) timer = setInterval(cycle, 4500); }
         function stop() { clearInterval(timer); timer = null; settle(); }
+        motionCleanups.push(stop);
         if ("IntersectionObserver" in window) {
           new IntersectionObserver(function (es) { inView = es[0].isIntersecting; inView ? start() : stop(); },
             { threshold: 0.25 }).observe(h1);
@@ -244,32 +295,32 @@
         });
       })();
 
-      /* ---------- 5. parallax, at their speeds (.5 / 1 / -.5 / -1) ---------- */
-      // locomotive maps data-scroll-speed as parseFloat(attr) / 10, so "1" is a
-      // 0.1 factor and "12.5" is 1.25. Same mapping here.
-      gsap.utils.toArray("[data-speed]").forEach(function (el) {
-        var f = (parseFloat(el.getAttribute("data-speed")) || 0) / 10;
-        if (!f) return;
-        gsap.fromTo(el, { yPercent: -50 * f }, {
-          yPercent: 50 * f, ease: "none",
-          scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: 0.6 }
+      /* ---------- 5. measured parallax (SCROLL_SPEC §1.5) ----------
+         Target only the intended layers: data-speed also configures the orb
+         shader. CSS owns the child images' centering, reveal scale and hover. */
+      var desktopMotion = gsap.matchMedia();
+      desktopMotion.add("(min-width: 1024px)", function () {
+      gsap.utils.toArray(".job__media .job__cover").forEach(function (el) {
+        gsap.fromTo(el, { y: -18, yPercent: 0 }, {
+          y: 18, yPercent: 0, ease: "none",
+          scrollTrigger: { trigger: el.closest(".job__media"), start: "top bottom", end: "bottom top", scrub: 0.6 }
         });
       });
 
-      /* ---------- 5b. shear the #who layers apart ----------
-         The reference's team section runs the portrait 288px UP (speed .5) against
-         the name 200px DOWN (speed -2) — opposite signs, ~250px of relative
-         displacement. Ours had +-28px on three images and nothing else. */
+      /* ---------- 5b. portrait: 288px up over the whole team section;
+         name: 200px down over its own viewport crossing. ---------- */
       (function () {
         var who = document.getElementById("who");
         if (!who) return;
         var pic = who.querySelector(".img-wrapper");
         var copy = who.querySelector(".person__name");
         if (!pic || !copy) return;
-        var st = { trigger: who, start: "top bottom", end: "bottom top", scrub: 0.5 };
-        gsap.fromTo(pic,  { y: 90 },  { y: -90, ease: "none", scrollTrigger: st });
-        gsap.fromTo(copy, { y: -55 }, { y: 62,  ease: "none", scrollTrigger: Object.assign({}, st) });
+        gsap.fromTo(pic, { y: 144, yPercent: 0 }, { y: -144, ease: "none",
+          scrollTrigger: { trigger: who, start: "top bottom", end: "bottom top", scrub: 0.5 } });
+        gsap.fromTo(copy, { y: -100, yPercent: 0 }, { y: 100, ease: "none",
+          scrollTrigger: { trigger: copy, start: "top bottom", end: "bottom top", scrub: 0.5 } });
       })();
+      });
 
       /* ---------- 5c. header hides going down, returns going up ----------
          Verified live on the reference: opacity 0<->1 only, .7s expo, no translate,
@@ -280,6 +331,8 @@
         var last = window.scrollY, dir = 0;
         function onScroll() {
           var y = window.scrollY;
+          var heroSection = document.querySelector('.hero');
+          nav.classList.toggle('is-past-hero', !!heroSection && y > heroSection.offsetHeight - 70);
           var d = y > last ? 1 : (y < last ? -1 : dir);
           if (d !== dir) {
             dir = d;
@@ -289,23 +342,44 @@
           last = y;
         }
         window.addEventListener("scroll", onScroll, { passive: true });
+        onScroll();
       })();
 
-      /* ---------- 5d. rotated tile gallery: rows shear against each other ----------
-         The reference runs its tile rows at data-scroll-speed +-1 with the inner
-         containers at -+.5, so the rows travel in opposite directions as the page
-         scrolls. Each row here holds its images twice, so a half-width translation
-         reads as continuous. */
+      /* ---------- 5d. rows move ±83px at 1440px; images counter by ±35px.
+         Each image has its own viewport phase. A separate inner layer keeps
+         parallax from overwriting the CSS image centering/scale/hover. */
+      desktopMotion.add("(min-width: 1024px)", function () {
+      var layers = [];
       gsap.utils.toArray(".tiles__line").forEach(function (line) {
         var s = parseFloat(line.getAttribute("data-tspeed")) || 0;
         if (!s) return;
-        var span = function () { return line.scrollWidth / 2; };
+        var direction = s > 0 ? 1 : -1;
+        var span = function () { return 83 * window.innerWidth / 1440; };
         gsap.fromTo(line,
-          { x: function () { return s > 0 ? -span() : 0; } },
-          { x: function () { return s > 0 ? 0 : -span(); },
+          { x: function () { return direction * span(); } },
+          { x: function () { return -direction * span(); },
             ease: "none",
-            scrollTrigger: { trigger: ".tiles", start: "top bottom", end: "bottom top",
+            scrollTrigger: { trigger: line.closest(".tiles"), start: "top bottom", end: "bottom top",
                              scrub: 0.5, invalidateOnRefresh: true } });
+        line.querySelectorAll(".tiles__img").forEach(function (tile) {
+          var img = tile.querySelector("img");
+          if (!img) return;
+          var layer = document.createElement("span");
+          layer.className = "tiles__parallax";
+          layer.style.cssText = "position:absolute;top:0;left:-35px;width:calc(100% + 70px);height:100%;display:block";
+          tile.insertBefore(layer, img);
+          layer.appendChild(img);
+          layers.push(layer);
+          gsap.fromTo(layer, { x: -direction * 35 }, { x: direction * 35, ease: "none",
+            scrollTrigger: { trigger: tile, start: "top bottom", end: "bottom top", scrub: 0.5 } });
+        });
+      });
+      return function () {
+        layers.forEach(function (layer) {
+          layer.parentNode.insertBefore(layer.firstChild, layer);
+          layer.remove();
+        });
+      };
       });
 
       /* ---------- 5e. "built for": the word list rises word by word ----------
@@ -316,15 +390,18 @@
         var box = document.querySelector("[data-words]");
         if (!box) return;
         var words = box.querySelectorAll(".bw");
-        ScrollTrigger.create({
-          trigger: box, start: "top 80%", once: true,
-          onEnter: function () {
-            var tl = gsap.timeline();
+        onEntry(box, function () {
+          if (RM || !hasGSAP) { resolveWords(words); return; }
+          try {
+            var tl = gsap.timeline({ onInterrupt: function () { resolveWords(words); } });
             tl.fromTo(words, { yPercent: 20, y: 0 }, { yPercent: 0, y: 0, duration: 0.85, ease: "expo.out", stagger: 0.05, force3D: true }, 0)
               .to(words, { opacity: 1, duration: 0.425, ease: "none", stagger: 0.05 }, 0);
+            motionCleanups.push(function () { tl.kill(); });
+          } catch (error) {
+            if (tl) tl.kill();
+            resolveWords(words);
           }
-        });
-        setTimeout(function () { gsap.set(words, { opacity: 1, yPercent: 0, y: 0 }); }, 9000); // never strand
+        }, 0.8);
       })();
 
       /* ---------- 5f. nav flips to dark type over the light footer ---------- */
@@ -359,8 +436,14 @@
           scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.8 } });
       }
       window.addEventListener("load", function () { ScrollTrigger.refresh(); });
+      });
+      } catch (error) {
+        hasGSAP = false;
+        resolveMotion();
+        console.warn("Portfolio motion unavailable; content restored.", error);
+      }
     } else {
-      allMasks.forEach(function (m) { m.style.transform = "scaleX(0)"; });
+      resolveMotion();
     }
   }
 
@@ -407,7 +490,9 @@
       dot.style.opacity = next === 0 ? "0" : "";
     }
     document.querySelectorAll(".img-wrapper").forEach(function (el) {
-      el.addEventListener("mouseenter", function () { setState(0.75, "media"); });
+      el.addEventListener("mouseenter", function () {
+        setState(el.classList.contains('job__media') ? Math.min(0.75, 720 / window.innerWidth) : 0.75, "media");
+      });
       el.addEventListener("mouseleave", function () { setState(0.075, null); });
     });
     document.querySelectorAll("a, button, summary, input").forEach(function (el) {
@@ -417,6 +502,7 @@
     });
 
     (function tick() {
+      if (RM) return;
       cx += (mx - cx) * 0.15;
       cy += (my - cy) * 0.15;
       scale += (target - scale) * 0.15;
@@ -431,12 +517,20 @@
      No Lenis here: main.js already owns it above and Lenis scrolls the real
      window, so no scrollerProxy is needed. */
   var RMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
-  var hasGSAP2 = typeof window.gsap !== "undefined" && typeof window.ScrollTrigger !== "undefined";
+  var hasGSAP2 = hasGSAP;
   var LIVE = hasGSAP2 && !RMQ.matches;
+  RMQ.addEventListener("change", function (event) {
+    if (!event.matches) return;
+    RM = true;
+    LIVE = false;
+    resolveMotion();
+    document.querySelectorAll(revealSelector).forEach(function (el) { el.classList.add("is-inview"); });
+    document.querySelectorAll(".band__video").forEach(function (video) { video.pause(); });
+  });
   if (hasGSAP2) {
     window.addEventListener("load", function () { ScrollTrigger.refresh(); });
     if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
+      document.fonts.ready.then(function () { ScrollTrigger.refresh(); queueEntries(); });
     }
   }
 
@@ -547,14 +641,44 @@
   (function () {
     var vids = [].slice.call(document.querySelectorAll(".band__video"));
     if (!vids.length) return;
-    if (RM) { vids.forEach(function (v) { v.removeAttribute("autoplay"); v.pause(); }); return; }
+    var manuallyPaused = new WeakSet();
+    function play(v) {
+      if (v.preload === "none") { v.preload = "auto"; v.load(); }
+      var promise = v.play();
+      if (promise && promise.catch) promise.catch(function () {});
+    }
+    vids.forEach(function (v) {
+      var band = v.closest(".band");
+      var button = band && band.querySelector(".band__toggle");
+      if (RM) { v.removeAttribute("autoplay"); v.pause(); }
+      if (!button) return;
+      function syncButton() {
+        var playing = !v.paused && !v.ended;
+        button.textContent = playing ? "Pause film" : "Play film";
+        button.setAttribute("aria-label", button.textContent);
+        button.setAttribute("aria-pressed", playing ? "true" : "false");
+      }
+      button.addEventListener("click", function () {
+        if (!v.paused && !v.ended) {
+          manuallyPaused.add(v);
+          v.pause();
+        } else {
+          manuallyPaused.delete(v);
+          play(v); // Explicit playback remains available under reduced motion.
+        }
+        syncButton();
+      });
+      ["play", "pause", "ended", "emptied", "error"].forEach(function (event) {
+        v.addEventListener(event, syncButton);
+      });
+      syncButton();
+    });
     if (!("IntersectionObserver" in window)) return;
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         var v = e.target;
-        if (e.isIntersecting) {
-          if (v.preload === "none") { v.preload = "auto"; v.load(); }
-          var p = v.play(); if (p && p.catch) p.catch(function () {});
+        if (e.isIntersecting && !RM && !manuallyPaused.has(v)) {
+          play(v);
         } else { v.pause(); }
       });
     }, { rootMargin: "200px 0px" });
@@ -578,25 +702,54 @@
   (function () {
     var b = document.getElementById("burger"), nav = document.getElementById("nav");
     if (!b || !nav) return;
-    var links = nav.querySelectorAll(".nav__links a");
+    var panel = nav.querySelector(".nav__links");
+    if (!panel) return;
+    var links = panel.querySelectorAll("a");
+    var mobileMenu = window.matchMedia("(max-width: 760px)");
+    var resumeLenis = false;
+    function syncMenuAccess() {
+      panel.inert = mobileMenu.matches && !nav.classList.contains("is-open");
+    }
     function closeMenu(returnFocus) {
+      var wasOpen = nav.classList.contains("is-open");
       nav.classList.remove("is-open");
       b.setAttribute("aria-expanded", "false");
       b.setAttribute("aria-label", "Menu");
-      document.documentElement.classList.remove("is-loading");
+      if (wasOpen) document.documentElement.classList.remove("is-loading");
+      if (resumeLenis && lenis && hasGSAP && !RM) lenis.start();
+      resumeLenis = false;
+      syncMenuAccess();
       if (returnFocus) b.focus();
     }
     b.addEventListener("click", function () {
-      var open = nav.classList.toggle("is-open");
-      b.setAttribute("aria-expanded", open ? "true" : "false");
-      b.setAttribute("aria-label", open ? "Close menu" : "Menu");
-      document.documentElement.classList.toggle("is-loading", open);   // locks scroll while open
-      if (open && links.length) links[0].focus();
+      if (!mobileMenu.matches) return;
+      if (nav.classList.contains("is-open")) { closeMenu(true); return; }
+      nav.classList.add("is-open");
+      b.setAttribute("aria-expanded", "true");
+      b.setAttribute("aria-label", "Close menu");
+      document.documentElement.classList.add("is-loading");
+      resumeLenis = !!(lenis && hasGSAP && !RM && !lenis.isStopped);
+      if (resumeLenis) lenis.stop();
+      syncMenuAccess();
+      if (links.length) links[0].focus();
     });
-    links.forEach(function (a) { a.addEventListener("click", function () { closeMenu(false); }); });
+    // Capture closes/resumes before the shared smooth-anchor click handler runs.
+    links.forEach(function (a) { a.addEventListener("click", function () { closeMenu(false); }, true); });
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && nav.classList.contains("is-open")) closeMenu(true);
+      if (!mobileMenu.matches || !nav.classList.contains("is-open")) return;
+      if (e.key === "Escape") { e.preventDefault(); closeMenu(true); return; }
+      if (e.key !== "Tab") return;
+      var focusable = [b].concat([].slice.call(panel.querySelectorAll('a[href],button,input,select,textarea,[tabindex]')))
+        .filter(function (el) { return !el.disabled && el.tabIndex >= 0 && el.getClientRects().length; });
+      var first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && (document.activeElement === first || !focusable.includes(document.activeElement))) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && (document.activeElement === last || !focusable.includes(document.activeElement))) {
+        e.preventDefault(); first.focus();
+      }
     });
+    mobileMenu.addEventListener("change", function () { closeMenu(false); });
+    syncMenuAccess();
   })();
 
   /* ---------- booking slots ---------- */
@@ -641,5 +794,34 @@
       note.textContent = "Your email client is open. It isn't booked until you press Send.";
       note.style.color = "";
     });
+  }
+  } catch (bootError) {
+    // Restore readable content even if boot fails before helpers are initialized.
+    // Disable callbacks first, then clean up only motion owned by this file.
+    RM = true;
+    LIVE = false;
+    hasGSAP = false;
+    pendingEntries = [];
+    if (entryObserver) entryObserver.disconnect();
+    if (entryFrame != null) cancelAnimationFrame(entryFrame);
+    (motionCleanups || []).forEach(function (cleanup) {
+      try { cleanup(); } catch (cleanupError) {}
+    });
+    if (motionContext) {
+      try { motionContext.revert(); } catch (cleanupError) {}
+    }
+    document.documentElement.classList.remove("js", "is-loading");
+    var loader = document.getElementById("loader");
+    if (loader) loader.remove();
+    document.querySelectorAll(".hero .txt--next").forEach(function (el) { el.remove(); });
+    document.querySelectorAll(".reveal,.reveal-group,.head,.job,.word,.tiles,.strength,.trust,.contact").forEach(function (el) {
+      el.classList.add("is-inview");
+    });
+    document.querySelectorAll(".bw,.strength__orb,.strength__text,.hero .txt").forEach(function (el) {
+      el.style.opacity = "1";
+      el.style.transform = "none";
+    });
+    document.querySelectorAll(".mask").forEach(function (el) { el.style.transform = "scaleX(0)"; });
+    console.error("Portfolio boot failed; static content restored.", bootError);
   }
 })();
